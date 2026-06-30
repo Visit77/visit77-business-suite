@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  /* Stitch Design (LuxeManage) ထဲက Premium Custom Colors များ သတ်မှတ်ခြင်း */
+  --color-primary: #00236f;
+  --color-primary-container: #1e3a8a;
+  --color-on-primary: #ffffff;
+  --color-background: #f8f9ff;
+  --color-on-background: #0b1c30;
+  --color-surface: #f8f9ff;
+  --color-on-surface: #0b1c30;
+  --color-on-surface-variant: #444651;
+  --color-outline: #757682;
+  --color-outline-variant: #c5c5d3;
+
+  /* Fonts များကို Tailwind v4 စတိုင်ဖြင့် ချိတ်ဆက်ခြင်း */
+  --font-sans: "Inter", sans-serif;
+  --font-title: "Plus Jakarta Sans", sans-serif;
+}
