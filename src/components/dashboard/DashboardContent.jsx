@@ -7,9 +7,12 @@ import {
   PlusOutlined,
   RightOutlined,
 } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 
 const DashboardContent = () => {
   // Mock Data
+  const navigate = useNavigate();
+
   const stats = [
     {
       title: "အခန်းစုစုပေါင်း",
@@ -123,7 +126,7 @@ const DashboardContent = () => {
     },
     {
       id: 2,
-      roomNo: "အခန်း ၁၀2",
+      roomNo: "အခန်း ၁၀၂",
       type: "Double Standard",
       floor: "First Floor",
       price: 120,
@@ -177,6 +180,7 @@ const DashboardContent = () => {
             type="primary"
             icon={<PlusOutlined />}
             className="flex-1 sm:flex-none h-9 md:h-10 rounded-xl bg-primary hover:bg-primary-container font-semibold border-none text-xs md:text-sm"
+            onClick={() => navigate("/rooms/add")}
           >
             အခန်းအသစ်ထည့်ရန်
           </Button>

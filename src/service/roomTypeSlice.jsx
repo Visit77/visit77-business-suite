@@ -1,28 +1,25 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../api/axiosInstance";
 
-// Async Thunk for Fetching Data with Pagination
-export const fetchData = createAsyncThunk(
-  "data/fetchData",
+export const getRoomType = createAsyncThunk(
+  "room_types/getRoomType",
   async ({ page, limit }, { rejectWithValue }) => {
     try {
-      // API endpoints example: /items?page=1&limit=10
-      const response = await api.get(`/items`, {
+      const response = await api.get(`/room_types`, {
         params: { page, limit },
       });
-      return response.data; // Expected format: { data: [...], total: 100 }
+      return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || "Something went wrong");
     }
   },
 );
 
-// Delete Action Example
-export const deleteItem = createAsyncThunk(
-  "data/deleteItem",
+export const deleteRoomType = createAsyncThunk(
+  "room_types/deleteRoomType",
   async (id, { rejectWithValue, dispatch }) => {
     try {
-      await api.delete(`/items/${id}`);
+      await api.delete(`/room_types/${id}`);
       return id;
     } catch (error) {
       return rejectWithValue(error.response?.data || "Delete failed");
@@ -41,21 +38,19 @@ const roomTypeSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Fetch Data
-      .addCase(fetchData.pending, (state) => {
+      .addCase(getRoomType.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchData.fulfilled, (state, action) => {
+      .addCase(getRoomType.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload.data; // Adjust based on your API response structure
+        state.items = action.payload.data;
         state.total = action.payload.total;
       })
-      .addCase(fetchData.rejected, (state, action) => {
+      .addCase(getRoomType.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-      // Delete Item
-      .addCase(deleteItem.fulfilled, (state, action) => {
+      .addCase(deleteRoomType.fulfilled, (state, action) => {
         state.items = state.items.filter((item) => item.id !== action.payload);
         state.total -= 1;
       });

@@ -9,57 +9,119 @@ import {
   QuestionCircleOutlined,
   GlobalOutlined,
   LoadingOutlined,
+  PhoneOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+// import { login } from "../service/authSlice";
 import { TOKEN_LABEL } from "../variables/constants";
 
 const Login = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const [loginMethod, setLoginMethod] = useState("email");
 
   const onFinish = (values) => {
-    setLoading(true);
+    setLoading(false);
 
+    const loginData = {
+      password: values.password,
+      username: loginMethod === "email" ? values.email : values.phone,
+    };
+
+    setLoading(true);
     setTimeout(() => {
       setLoading(false);
-
       localStorage.setItem(TOKEN_LABEL, "mock-luxury-admin-token-xyz");
-
-      message.success("Login Successful!");
+      message.success(
+        `${loginMethod === "email" ? "Email" : "Phone"} ဖြင့် အောင်မြင်စွာ ဝင်ရောက်ပြီးပါပြီ။`,
+      );
       navigate("/dashboard", { replace: true });
     }, 1500);
+    // setTimeout(() => {
+    //   setLoading(false);
+    //   dispatch(login({ ...loginData }))
+    //     .then((res) => {
+    //       if (res.type.endsWith("fulfilled")) {
+    //         const { payload } = res;
+
+    //         if (payload?.data?.otp_required == true) {
+    //           navigate("/confirm_otp", {
+    //             state: {
+    //               values: { ...payload?.data?.otp_data, change_login: false },
+    //             },
+    //           });
+    //         } else {
+    //           message.success("Login is successfully");
+    //           navigate("/");
+    //         }
+    //       }
+    //     })
+    //     .finally(() => {
+    //       setIsSubmit(false);
+    //     });
+    //   navigate("/dashboard", { replace: true });
+    // }, 1500);
   };
 
   return (
     <div className="bg-background text-on-background font-sans min-h-screen flex items-center justify-center overflow-x-hidden relative">
+      {/* Background Decor */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-        <div
-          className="absolute inset-0 w-full h-full bg-cover bg-center opacity-40 mix-blend-multiply"
-          style={{
-            backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuCsP6yMuOwD0wIjbVitZIZ5nGuNa7W2UzQ87D-cHCJoXTYQOTE5PD0q52OhIDMxiTBfU_VlC-oE3jZqZt2b1qlQbkMfnferjXJWai9Mxk4_e6lPj7pzdaP-2vhpj4CVyqg6CbdrBMXQMokbbAjn4HVzfaq_YcrjCJut6ffRNr0f7tNhIepldEXHTJIvVxrRCWO_hu7wkSpalR7xjKhmLhhDY1h3NTG9GmLNzrm8VtG4YqUno4SaZHFRsC69lfEULhjsxUzMwapIam8')`,
-          }}
-        />
         <div className="absolute inset-0 bg-linear-to-tr from-background via-transparent to-[#e5eeff] opacity-70" />
       </div>
 
-      {/* Login Container */}
       <main className="relative z-10 w-full max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-center min-h-screen">
         <div className="w-full max-w-md">
           {/* Branding Header */}
+          {/* <div className="text-center mb-6">
+            <h1 className="font-title text-4xl font-bold text-primary mb-1 tracking-tight">
+              LuxeManage
+            </h1>
+            <p className="text-sm font-medium text-on-surface-variant/70">
+              Hospitality Group Administrative Portal
+            </p>
+          </div> */}
 
           {/* Glassmorphism Login Card */}
-          <div className="backdrop-blur-md bg-white/85 border border-slate-200/80 rounded-2xl shadow-sm p-8 md:p-10 transition-all duration-500 hover:shadow-lg">
+          <div className=" mt-6 backdrop-blur-md bg-white/85 border border-slate-200/80 rounded-2xl shadow-sm p-8 md:p-10">
             <div className="mb-6">
               <h2 className="font-title text-2xl font-semibold text-on-surface mb-2">
                 Admin Login
               </h2>
               <p className="text-sm text-on-surface-variant">
-                Please enter your credentials to access the management
-                dashboard.
+                Please choose your preferred login method.
               </p>
             </div>
 
-            {/* Ant Design Form with custom styling integration */}
+            {/* Premium Pill-Style Selection Tabs (Email / Phone ရွေးချယ်ရန် နေရာ) */}
+            <div className="flex bg-slate-100 p-1 rounded-xl mb-6 border border-slate-200/30">
+              <button
+                type="button"
+                className={`flex-1 py-2 text-xs font-title font-bold rounded-lg transition-all duration-300 ${
+                  loginMethod === "email"
+                    ? "bg-white text-primary shadow-sm"
+                    : "text-on-surface-variant/70 hover:text-on-surface"
+                }`}
+                onClick={() => setLoginMethod("email")}
+              >
+                <MailOutlined className="mr-1.5!" /> Email Address
+              </button>
+              <button
+                type="button"
+                className={`flex-1 py-2 text-xs font-title font-bold rounded-lg transition-all duration-300 ${
+                  loginMethod === "phone"
+                    ? "bg-white text-primary shadow-sm"
+                    : "text-on-surface-variant/70 hover:text-on-surface"
+                }`}
+                onClick={() => setLoginMethod("phone")}
+              >
+                <PhoneOutlined className="mr-1.5!" /> Phone Number
+              </button>
+            </div>
+
+            {/* Ant Design Form */}
             <Form
               name="login_form"
               layout="vertical"
@@ -68,42 +130,77 @@ const Login = () => {
               requiredMark={false}
               autoComplete="off"
             >
-              {/* Email Field */}
-              <Form.Item
-                label={
-                  <span className="text-xs font-bold tracking-wider text-on-surface-variant/80 uppercase font-sans">
-                    Email Address
-                  </span>
-                }
-                name="email"
-                rules={[
-                  {
-                    required: true,
-                    message: "Please input your email address!",
-                  },
-                  {
-                    type: "email",
-                    message: "Please enter a valid email address!",
-                  },
-                ]}
-              >
-                <Input
-                  prefix={<MailOutlined className="text-outline mr-1.5" />}
-                  placeholder="admin@luxemanage.com"
-                  className="w-full px-3! py-2.5! border-outline-variant! hover:border-primary! focus:border-primary! rounded-xl text-sm transition-all shadow-sm"
-                />
-              </Form.Item>
+              {/* CONDITIONALLY RENDER: Email Input Field */}
+              {loginMethod === "email" && (
+                <Form.Item
+                  label={
+                    <span className="text-xs font-bold tracking-wider text-on-surface-variant/80 uppercase">
+                      Email Address
+                    </span>
+                  }
+                  name="email"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Email is require !",
+                    },
+                    {
+                      type: "email",
+                      message: "Type here",
+                    },
+                  ]}
+                >
+                  <Input
+                    prefix={<MailOutlined className="text-outline mr-1.5" />}
+                    placeholder="admin@luxemanage.com"
+                    className="w-full! px-3! py-2.5! bg-surface/50! border-outline-variant! hover:border-primary! focus:border-primary! rounded-xl! text-sm!"
+                  />
+                </Form.Item>
+              )}
+
+              {/* CONDITIONALLY RENDER: Phone Number Input Field */}
+              {loginMethod === "phone" && (
+                <Form.Item
+                  label={
+                    <span className="text-xs font-bold tracking-wider text-on-surface-variant/80 uppercase">
+                      Phone Number
+                    </span>
+                  }
+                  name="phone"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Phone number is require!",
+                    },
+                    {
+                      pattern: /^(09|\+959)\d{7,9}$/,
+                      message: "Type here (09xxxxxxxxx)",
+                    },
+                  ]}
+                >
+                  <Input
+                    prefix={<PhoneOutlined className="text-outline mr-1.5" />}
+                    placeholder="09XXXXXXXXX"
+                    className="w-full! px-3! py-2.5! bg-surface/50! border-outline-variant! hover:border-primary! focus:border-primary! rounded-xl! text-sm!"
+                  />
+                </Form.Item>
+              )}
 
               {/* Password Field */}
               <Form.Item
                 label={
-                  <span className="text-xs font-bold tracking-wider text-on-surface-variant/80 uppercase font-sans">
-                    Password
-                  </span>
+                  <div className="flex justify-between items-center w-full">
+                    <span className="text-xs font-bold tracking-wider text-on-surface-variant/80 uppercase">
+                      Password
+                    </span>
+                  </div>
                 }
                 name="password"
                 rules={[
-                  { required: true, message: "Please input your password!" },
+                  {
+                    required: true,
+                    message: "Password is require!",
+                  },
                 ]}
               >
                 <Input.Password
@@ -116,7 +213,7 @@ const Login = () => {
                       <EyeInvisibleOutlined className="text-outline" />
                     )
                   }
-                  className="w-full px-3! py-2.5! border-outline-variant! hover:border-primary! focus:border-primary! rounded-xl text-sm transition-all shadow-sm"
+                  className="w-full! px-3! py-2.5! bg-surface/50! border-outline-variant! hover:border-primary! focus:border-primary! rounded-xl! text-sm!"
                 />
               </Form.Item>
 
@@ -124,20 +221,20 @@ const Login = () => {
               <Form.Item
                 name="remember"
                 valuePropName="checked"
-                className="mb-4"
+                className="mb-4!"
               >
-                <Checkbox className="text-sm text-on-surface-variant select-none">
+                <Checkbox className="text-sm! text-on-surface-variant! select-none!">
                   Remember this device
                 </Checkbox>
               </Form.Item>
 
-              {/* Submit CTA Button */}
+              {/* Submit Button */}
               <Form.Item className="mb-0 pt-2">
                 <Button
                   type="primary"
                   htmlType="submit"
                   disabled={loading}
-                  className="w-full bg-primary! hover:bg-primary-container! text-on-primary! font-title! font-semibold! text-base! h-12! rounded-xl! shadow-sm! border-none! flex! items-center! justify-center! space-x-2! transition-all! active:scale-[0.98]! group!"
+                  className="w-full! bg-primary! hover:bg-primary-container! text-on-primary! font-title! font-semibold! text-base! h-12! rounded-xl! border-none! flex! items-center! justify-center! space-x-2! transition-all! group!"
                 >
                   {loading ? (
                     <>
@@ -146,8 +243,7 @@ const Login = () => {
                     </>
                   ) : (
                     <>
-                      <span className=" mr-3">Login to Dashboard</span>
-                      <ArrowRightOutlined className="group-hover:translate-x-1 transition-transform" />
+                      <span>Login to Dashboard</span>
                     </>
                   )}
                 </Button>
@@ -159,10 +255,19 @@ const Login = () => {
               <p className="text-xs text-on-surface-variant/60">
                 Secure Environment • SSL Encrypted
               </p>
+              <div className="flex space-x-6">
+                <button className="flex items-center space-x-1.5 text-on-surface-variant hover:text-primary transition-colors text-xs font-medium">
+                  <QuestionCircleOutlined />
+                  <span>Help</span>
+                </button>
+                <button className="flex items-center space-x-1.5 text-on-surface-variant hover:text-primary transition-colors text-xs font-medium">
+                  <GlobalOutlined />
+                  <span>English</span>
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Footer Copyright */}
           <footer className="mt-6 text-center opacity-40">
             <p className="text-xs text-on-surface-variant">
               © 2025 Visit 77. All rights reserved.

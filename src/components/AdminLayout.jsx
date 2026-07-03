@@ -11,12 +11,15 @@ import {
   MenuOutlined,
 } from "@ant-design/icons";
 import { Outlet } from "react-router-dom";
+import { useDispatch } from "react-redux";
+// import { logout } from "../service/authSlice";
+import { TOKEN_LABEL } from "../variables/constants";
 
 const { Sider, Content, Header } = Layout;
 
 const AdminLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+  const dispatch = useDispatch();
   const menuItems = [
     { key: "dashboard", icon: <AppstoreOutlined />, label: "Dashboard" },
     { key: "rooms", icon: <HomeOutlined />, label: "Room Management" },
@@ -54,26 +57,16 @@ const AdminLayout = () => {
       </div>
 
       <div className="p-4 border-t border-slate-50 bg-white space-y-4">
-        <button className="w-full bg-primary hover:bg-primary-container text-white py-3 px-4 rounded-xl font-title text-sm font-semibold shadow-sm flex items-center justify-center space-x-2 transition-all active:scale-95">
-          <PlusOutlined />
-          <span>Add New Room</span>
+        <button
+          onClick={() => {
+            // dispatch(logout());
+            localStorage.removeItem(TOKEN_LABEL);
+          }}
+          className="w-full bg-primary hover:bg-primary-container text-white py-3 px-4 rounded-xl font-title text-sm font-semibold shadow-sm flex items-center justify-center space-x-2 transition-all active:scale-95"
+        >
+          {/* <PlusOutlined /> */}
+          <span>Log out</span>
         </button>
-
-        <div className="flex items-center space-x-3 p-2 rounded-xl bg-surface/80 border border-slate-100">
-          <Avatar
-            src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix"
-            size="large"
-            className="bg-slate-100"
-          />
-          <div className="overflow-hidden">
-            <h4 className="text-sm font-bold text-on-surface truncate">
-              Admin Profile
-            </h4>
-            <p className="text-xs text-on-surface-variant/70 truncate">
-              Hotel Manager
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );

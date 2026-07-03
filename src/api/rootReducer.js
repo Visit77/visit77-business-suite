@@ -1,8 +1,20 @@
 import { combineReducers } from "redux";
 import authReducer from "../service/authSlice.jsx";
+import roomOccupantReducer from "../service/roomOccupantSlice.jsx";
+import roomStandardReducer from "../service/roomStandardSlice.jsx";
+import roomViewReducer from "../service/roomViewSlice.jsx";
+import roomTypeReducer from "../service/roomTypeSlice.jsx";
+import roomFacilityReducer from "../service/roomFacilitySlice.jsx";
+import roomAmenityReducer from "../service/roomAmenitySlice.jsx";
 
 const appReducer = combineReducers({
   auth: authReducer,
+  roomOccupant: roomOccupantReducer,
+  roomView: roomViewReducer,
+  roomStandard: roomStandardReducer,
+  roomType: roomTypeReducer,
+  roomFacility: roomFacilityReducer,
+  roomAmenity: roomAmenityReducer,
 });
 
 const rootReducer = (state, action) => {
