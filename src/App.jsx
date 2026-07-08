@@ -5,6 +5,7 @@ import Login from "./page/Login";
 import Dashboard from "./page/Dashboard";
 import AdminLayout from "./components/AdminLayout";
 import AddRoom from "./page/AddRoom";
+import Room from "./page/Room";
 
 function App() {
   return (
@@ -16,7 +17,7 @@ function App() {
           <Route element={<AdminLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/rooms/add" element={<AddRoom />} />
-            {/* <Route path="/rooms" element={<RoomManagement />} /> */}
+            <Route path="/rooms" element={<Room />} />
             {/* <Route path="/bookings" element={<Bookings />} /> */}
           </Route>
         </Route>
