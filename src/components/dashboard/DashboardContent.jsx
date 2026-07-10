@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Table, Space, Tooltip, Select } from "antd";
+import { Button, Table, Space, Select } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -15,31 +15,31 @@ const DashboardContent = () => {
 
   const stats = [
     {
-      title: "အခန်းစုစုပေါင်း",
-      value: "၁၂၄",
-      sub: "↑ ၄ အခန်း (ယခုလ)",
+      title: "Total Rooms",
+      value: "124",
+      sub: "↑ 4 Rooms (This Month)",
       color: "border-l-primary",
       icon: "🏨",
     },
     {
-      title: "လက်ရှိငှားထားသောအခန်း",
-      value: "၈၆",
-      sub: "စက်ဝန်းညွှန်းကိန်း ၇၀%",
+      title: "Occupied Rooms",
+      value: "86",
+      sub: "Occupancy Rate 70%",
       color: "border-l-blue-600",
       icon: "👤",
       progress: true,
     },
     {
-      title: "အားလပ်သောအခန်း",
-      value: "၃၂",
-      sub: "၂၅.၈% အားလပ်သည်",
+      title: "Available Rooms",
+      value: "32",
+      sub: "25.8% Vacant",
       color: "border-l-emerald-500",
       icon: "✅",
     },
     {
-      title: "ပြင်ဆင်နေသောအခန်း",
-      value: "၆",
-      sub: "အရေးပေါ်ပြင်ဆင်မှု (၂)",
+      title: "Under Maintenance",
+      value: "6",
+      sub: "Urgent Repair (2)",
       color: "border-l-rose-500",
       icon: "🛠️",
     },
@@ -118,7 +118,7 @@ const DashboardContent = () => {
   const data = [
     {
       id: 1,
-      roomNo: "အခန်း ၁၀၁",
+      roomNo: "Room 101",
       type: "Deluxe Suite",
       floor: "First Floor",
       price: 240,
@@ -126,7 +126,7 @@ const DashboardContent = () => {
     },
     {
       id: 2,
-      roomNo: "အခန်း ၁၀၂",
+      roomNo: "Room 102",
       type: "Double Standard",
       floor: "First Floor",
       price: 120,
@@ -134,7 +134,7 @@ const DashboardContent = () => {
     },
     {
       id: 3,
-      roomNo: "အခန်း ၂၀၄",
+      roomNo: "Room 204",
       type: "Single Room",
       floor: "Second Floor",
       price: 85,
@@ -142,7 +142,7 @@ const DashboardContent = () => {
     },
     {
       id: 4,
-      roomNo: "အခန်း ၃၀၁",
+      roomNo: "Room 301",
       type: "Presidential Suite",
       floor: "Penthouse Floor",
       price: 550,
@@ -150,7 +150,7 @@ const DashboardContent = () => {
     },
     {
       id: 5,
-      roomNo: "အခန်း ၁၀၅",
+      roomNo: "Room 105",
       type: "Double Standard",
       floor: "First Floor",
       price: 120,
@@ -163,26 +163,26 @@ const DashboardContent = () => {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
           <h1 className="font-title text-xl md:text-2xl font-bold text-on-surface mb-0.5">
-            အခန်းစီမံခန့်ခွဲမှု
+            Room Management
           </h1>
           <p className="text-xs md:text-sm text-on-surface-variant/80">
-            ဟိုတယ်ရှိ အခန်းများအားလုံးကို စီမံခန့်ခွဲနိုင်ပါသည်။
+            Manage and monitor all hotel rooms and their operational status.
           </p>
         </div>
         <div className="flex space-x-2 sm:space-x-3 w-full sm:w-auto">
           <Button
             icon={<DownloadOutlined />}
-            className="flex-1 sm:flex-none h-9 md:h-10 rounded-xl font-medium border-slate-200 text-on-surface-variant text-xs md:text-sm"
+            className="flex-1! sm:flex-none! h-9! md:h-10! rounded-xl! font-medium! border-slate-200! text-on-surface-variant! text-xs! md:text-sm!"
           >
-            ထုတ်ယူရန်
+            Export
           </Button>
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            className="flex-1 sm:flex-none h-9 md:h-10 rounded-xl bg-primary hover:bg-primary-container font-semibold border-none text-xs md:text-sm"
+            className="flex-1! sm:flex-none! h-9! md:h-10! rounded-xl! bg-primary! hover:bg-primary-container! font-semibold! border-none! text-xs! md:text-sm!"
             onClick={() => navigate("/rooms/add")}
           >
-            အခန်းအသစ်ထည့်ရန်
+            Add New Room
           </Button>
         </div>
       </div>
@@ -223,17 +223,17 @@ const DashboardContent = () => {
           <div className="flex flex-wrap gap-2 sm:gap-4">
             <Select
               defaultValue="all"
-              className="w-full sm:w-36 h-9"
-              options={[{ value: "all", label: "အခြေအနေ: အားလုံး" }]}
+              className="w-full! sm:w-36! h-9!"
+              options={[{ value: "all", label: "Status: All" }]}
             />
             <Select
               defaultValue="all-types"
-              className="w-full sm:w-44 h-9"
-              options={[{ value: "all-types", label: "အမျိုးအစား: အားလုံး" }]}
+              className="w-full! sm:w-44! h-9!"
+              options={[{ value: "all-types", label: "Type: All" }]}
             />
           </div>
           <p className="text-xs font-medium text-outline hidden md:block">
-            စုစုပေါင်း ၁၂၄ ခုတွင် ၅ ခုပြသနေသည်
+            Showing 5 of 124 entries
           </p>
         </div>
 
@@ -244,7 +244,7 @@ const DashboardContent = () => {
             dataSource={data}
             rowKey="id"
             pagination={false}
-            className="border border-slate-50 rounded-xl overflow-hidden font-sans min-w-150"
+            className="border! border-slate-50! rounded-xl! overflow-hidden! font-sans! min-w-150!"
           />
         </div>
 
@@ -253,13 +253,13 @@ const DashboardContent = () => {
             Showing 5 of 124 entries
           </span>
           <div className="flex justify-center space-x-2">
-            <Button size="small" className="rounded-lg text-xs font-medium">
+            <Button size="small" className="rounded-lg! text-xs! font-medium!">
               Previous
             </Button>
             <Button
               size="small"
               type="primary"
-              className="bg-primary rounded-lg text-xs font-semibold"
+              className="bg-primary! rounded-lg! text-xs! font-semibold!"
             >
               Next
             </Button>
@@ -273,7 +273,7 @@ const DashboardContent = () => {
             Room Occupancy Trends
           </h4>
           <p className="text-xs text-on-surface-variant/70 mb-6">
-            လွန်ခဲ့သော ၇ ရက်အတွင်း အခန်းငှားရမ်းမှု အခြေအနေ
+            Room occupancy performance statistics over the past 7 days.
           </p>
           <div className="overflow-x-auto">
             <div className="h-40 flex items-end justify-between px-2 border-b border-slate-100 pb-2 text-[10px] font-bold text-outline uppercase tracking-wider min-w-100">
@@ -303,17 +303,17 @@ const DashboardContent = () => {
             {[
               {
                 title: "Cleaning Check",
-                desc: "သန့်ရှင်းရေး အခြေအနေစစ်ရန်",
+                desc: "Review room cleanliness status",
                 icon: "🧹",
               },
               {
                 title: "Manage Amenities",
-                desc: "အခန်းသုံးပစ္စည်းများ စီမံရန်",
+                desc: "Manage room inventory and supplies",
                 icon: "📦",
               },
               {
                 title: "Bulk Check-out",
-                desc: "အစုလိုက် ထွက်ခွာခြင်း စာရင်းသွင်းရန်",
+                desc: "Process group check-outs instantly",
                 icon: "🚪",
               },
             ].map((act, i) => (
@@ -332,7 +332,7 @@ const DashboardContent = () => {
                     </p>
                   </div>
                 </div>
-                <RightOutlined className="text-xs text-outline group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                <RightOutlined className="text-xs! text-outline! group-hover:text-primary! group-hover:translate-x-0.5! transition-all!" />
               </div>
             ))}
           </div>

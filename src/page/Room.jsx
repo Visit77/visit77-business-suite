@@ -3,7 +3,7 @@ import { Select, Input, Button } from "antd";
 import RoomCard from "../components/room/RoomCard";
 
 const Room = () => {
-  // Mock Data for Rooms (ဒီဇိုင်းထဲက အခန်းပုံစံများအတိုင်း)
+  // Mock Data for Rooms
   const roomsData = [
     {
       id: 1,
@@ -69,34 +69,34 @@ const Room = () => {
 
   return (
     <div className="space-y-6 md:space-y-8 animate-fade-in">
-      {/* ၁။ Top Filter Control Panel */}
+      {/* 1. Top Filter Control Panel */}
       <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
           <div className="space-y-1.5">
             <span className="text-[11px] font-bold text-on-surface-variant/70 tracking-wide block">
-              အခန်းအမျိုးအစား
+              Room Type
             </span>
             <Select
               defaultValue="all"
               className="w-full h-10 rounded-xl"
-              options={[{ value: "all", label: "အားလုံး" }]}
+              options={[{ value: "all", label: "All Types" }]}
             />
           </div>
 
           <div className="space-y-1.5">
             <span className="text-[11px] font-bold text-on-surface-variant/70 tracking-wide block">
-              အခြေအနေ
+              Status
             </span>
             <Select
               defaultValue="all"
               className="w-full! h-10! rounded-xl!"
-              options={[{ value: "all", label: "အားလုံး" }]}
+              options={[{ value: "all", label: "All Status" }]}
             />
           </div>
 
           <div className="space-y-1.5">
             <span className="text-[11px] font-bold text-on-surface-variant/70 tracking-wide block">
-              ဈေးနှုန်း အပိုင်းအခြား
+              Price Range
             </span>
             <div className="flex items-center space-x-2">
               <Input
@@ -113,16 +113,16 @@ const Room = () => {
 
           <div>
             <button
-              type="primary"
-              className="w-full h-10 bg-amber-300 hover:bg-amber-400 font-title text-xs font-bold text-slate-800 rounded-xl border-none shadow-none"
+              type="button"
+              className="w-full h-10 bg-amber-300 hover:bg-amber-400 font-title text-xs font-bold text-slate-800 rounded-xl border-none shadow-none cursor-pointer transition-colors"
             >
-              စစ်ထုတ်မည်
+              Filter Rooms
             </button>
           </div>
         </div>
       </div>
 
-      {/* ၂။ Responsive Room Grid Layout */}
+      {/* 2. Responsive Room Grid Layout */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {roomsData.map((room) => (
           <RoomCard key={room.id} room={room} />

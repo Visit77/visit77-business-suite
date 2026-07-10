@@ -1,14 +1,5 @@
 import React, { useState } from "react";
-import {
-  Form,
-  Input,
-  Select,
-  Checkbox,
-  Upload,
-  Button,
-  Breadcrumb,
-  message,
-} from "antd";
+import { Form, Input, Select, Checkbox, Upload, Button, message } from "antd";
 import {
   CloudUploadOutlined,
   InfoCircleOutlined,
@@ -30,11 +21,11 @@ const AddRoom = () => {
 
     setTimeout(() => {
       message.success({
-        content: "အခန်းအသစ်ကို အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ။",
+        content: "New room has been successfully saved.",
         key: "updatable",
         duration: 2,
       });
-      navigate("/dashboard"); // ပြီးရင် dashboard ကို ပြန်ပို့မည်
+      navigate("/dashboard");
     }, 1500);
   };
 
@@ -52,7 +43,7 @@ const AddRoom = () => {
             className="flex items-center justify-center"
           />
           <h1 className="font-title text-2xl font-bold text-on-surface">
-            အခန်းအသစ်ထည့်သွင်းရန်
+            Add New Room
           </h1>
         </div>
       </div>
@@ -68,7 +59,7 @@ const AddRoom = () => {
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-8">
               <h2 className="font-title text-xl font-bold text-on-surface">
-                အခန်းအချက်အလက်များ
+                Room Details
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
@@ -82,7 +73,7 @@ const AddRoom = () => {
                   rules={[
                     {
                       required: true,
-                      message: "အခန်းနံပါတ် ထည့်သွင်းပေးပါရန်။",
+                      message: "Please enter the room number.",
                     },
                   ]}
                 >
@@ -134,7 +125,7 @@ const AddRoom = () => {
                   }
                   name="price"
                   rules={[
-                    { required: true, message: "ဈေးနှုန်း ထည့်သွင်းပေးပါရန်။" },
+                    { required: true, message: "Please enter the room price." },
                   ]}
                 >
                   <Input
@@ -200,10 +191,10 @@ const AddRoom = () => {
               <h2 className="font-title text-base font-bold text-on-surface">
                 Room Photos
               </h2>
-             
+
               <Form.Item name="photos">
                 <Upload
-                  action="https://660d2bd96ddfa1943b3bd318.mockapi.io/api/upload" // နမူနာ upload API
+                  action="https://660d2bd96ddfa1943b3bd318.mockapi.io/api/upload"
                   listType="picture-card"
                   fileList={fileList}
                   onChange={handleUploadChange}

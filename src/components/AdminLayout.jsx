@@ -7,52 +7,68 @@ import {
   UserOutlined,
   SettingOutlined,
   BellOutlined,
-  PlusOutlined,
   MenuOutlined,
 } from "@ant-design/icons";
-import { Outlet } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router-dom"; // 1. Link နှင့် useLocation ကို import ယူပါ
 import { useDispatch } from "react-redux";
 // import { logout } from "../service/authSlice";
 import { TOKEN_LABEL } from "../variables/constants";
-
+import logo from "../assets/v77_logo.png";
 const { Sider, Content, Header } = Layout;
 
 const AdminLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dispatch = useDispatch();
+  const location = useLocation();
+
   const menuItems = [
-    { key: "dashboard", icon: <AppstoreOutlined />, label: "Dashboard" },
-    { key: "rooms", icon: <HomeOutlined />, label: "Room Management" },
-    { key: "bookings", icon: <CalendarOutlined />, label: "Bookings" },
-    { key: "guests", icon: <UserOutlined />, label: "Guests" },
-    { key: "settings", icon: <SettingOutlined />, label: "Settings" },
+    {
+      key: "dashboard",
+      icon: <AppstoreOutlined />,
+      label: <Link to="/dashboard">Dashboard</Link>,
+    },
+    {
+      key: "rooms",
+      icon: <HomeOutlined />,
+      label: <Link to="/rooms">Room Management</Link>,
+    },
   ];
+
+  const getCurrentKey = () => {
+    const path = location.pathname;
+    if (path.includes("/dashboard")) return "dashboard";
+    if (path.includes("/rooms")) return "rooms";
+
+    return "dashboard";
+  };
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full justify-between bg-white">
       <div>
         {/* Brand Logo */}
         <div className="p-6 border-b border-slate-50 flex items-center space-x-3">
-          <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-sm">
-            LM
-          </div>
+          <img
+            className="w-9 h-9  rounded-xl flex items-center justify-center "
+            src={logo}
+          />
+
           <div>
             <h2 className="font-title text-base font-bold text-on-surface leading-tight">
-              LuxeManage
+              Visit 77
             </h2>
-            <p className="text-[10px] uppercase font-bold tracking-wider text-outline">
+            {/* <p className="text-[10px] uppercase font-bold tracking-wider text-outline">
               Premium Hospitality
-            </p>
+            </p> */}
           </div>
         </div>
 
         <Menu
           mode="inline"
-          defaultSelectedKeys={["rooms"]}
+          selectedKeys={[getCurrentKey()]}
           items={menuItems}
           className="border-none pt-4 px-3 space-y-1 text-on-surface-variant font-medium"
           style={{ backgroundColor: "transparent" }}
-          onClick={() => setMobileMenuOpen(false)} // Mobile မှာ menu တစ်ခုနှိပ်ရင် drawer ပိတ်သွားစေရန်
+          onClick={() => setMobileMenuOpen(false)}
         />
       </div>
 
@@ -64,7 +80,6 @@ const AdminLayout = () => {
           }}
           className="w-full bg-primary hover:bg-primary-container text-white py-3 px-4 rounded-xl font-title text-sm font-semibold shadow-sm flex items-center justify-center space-x-2 transition-all active:scale-95"
         >
-          {/* <PlusOutlined /> */}
           <span>Log out</span>
         </button>
       </div>
