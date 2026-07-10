@@ -102,12 +102,15 @@ const DashboardContent = () => {
     {
       title: "ACTIONS",
       key: "actions",
-      render: () => (
+      render: (id) => (
         <Space size="small">
           <Button
             type="text"
             size="small"
             icon={<EditOutlined className="text-blue-500" />}
+            onClick={() => {
+              navigate(`/rooms/edit/${id}`);
+            }}
           />
           <Button type="text" size="small" danger icon={<DeleteOutlined />} />
         </Space>
@@ -267,7 +270,7 @@ const DashboardContent = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white p-4 md:p-6 rounded-2xl border border-slate-100 shadow-sm">
           <h4 className="font-title text-base font-bold text-on-surface mb-1">
             Room Occupancy Trends
@@ -337,7 +340,7 @@ const DashboardContent = () => {
             ))}
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
