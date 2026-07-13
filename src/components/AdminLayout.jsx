@@ -14,12 +14,15 @@ import { useDispatch } from "react-redux";
 // import { logout } from "../service/authSlice";
 import { TOKEN_LABEL } from "../variables/constants";
 import logo from "../assets/v77_logo.png";
+import { useNavigate } from "react-router-dom";
+
 const { Sider, Content, Header } = Layout;
 
 const AdminLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const location = useLocation();
+  const navigate = useNavigate();
 
   const menuItems = [
     {
@@ -77,6 +80,8 @@ const AdminLayout = () => {
           onClick={() => {
             // dispatch(logout());
             localStorage.removeItem(TOKEN_LABEL);
+
+            navigate("/login");
           }}
           className="w-full bg-primary hover:bg-primary-container text-white py-3 px-4 rounded-xl font-title text-sm font-semibold shadow-sm flex items-center justify-center space-x-2 transition-all active:scale-95"
         >
