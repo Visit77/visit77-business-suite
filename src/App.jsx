@@ -9,6 +9,7 @@ const Room = lazy(() => import("./page/Room"));
 const RoomDetail = lazy(() => import("./page/RoomDetail"));
 const AddRoom = lazy(() => import("./page/AddRoom"));
 const EditRoom = lazy(() => import("./page/EditRoom"));
+const RoomBookingList = lazy(() => import("./page/RoomBookingList"));
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
               <Route path="/rooms/add" element={<AddRoom />} />
               <Route path="/rooms/edit/:id" element={<EditRoom />} />
               <Route path="/rooms/:id" element={<RoomDetail />} />
+              <Route path="/rooms/:id/history" element={<RoomBookingList />} />
             </Route>
           </Route>
 

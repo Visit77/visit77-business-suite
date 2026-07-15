@@ -13,7 +13,7 @@ import {
   BuildOutlined,
   MoreOutlined,
 } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const RoomDetail = () => {
   const imagesList = [
@@ -315,12 +315,14 @@ const RoomDetail = () => {
           <h4 className="font-title text-base font-bold text-on-surface">
             Recent Booking History
           </h4>
-          <Button
-            type="text"
-            className="text-blue-600! font-semibold! text-xs!"
-          >
-            View All
-          </Button>
+          <Link to={`/rooms/1/history`}>
+            <Button
+              type="text"
+              className="text-blue-600! font-semibold! text-xs!"
+            >
+              View All
+            </Button>
+          </Link>
         </div>
         <div className="overflow-x-auto">
           <Table
