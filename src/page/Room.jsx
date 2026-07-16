@@ -1,6 +1,6 @@
 import React from "react";
 import { Select, Input, Button } from "antd";
-import RoomCard from "../components/room/RoomCard";
+import RoomCard from "../components/card/RoomCard";
 
 const Room = () => {
   // Mock Data for Rooms

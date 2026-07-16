@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./page/Login";
 import AdminLayout from "./components/AdminLayout";
+import OtpVerification from "./page/OtpVerification";
+import SelectBusiness from "./page/SelectBusiness";
 
 const Dashboard = lazy(() => import("./page/Dashboard"));
 const Room = lazy(() => import("./page/Room"));
@@ -23,8 +25,10 @@ function App() {
       >
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/confirm-otp" element={<OtpVerification />} />
 
           <Route element={<ProtectedRoute />}>
+            <Route path="/select-business" element={<SelectBusiness />} />
             <Route element={<AdminLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/rooms" element={<Room />} />

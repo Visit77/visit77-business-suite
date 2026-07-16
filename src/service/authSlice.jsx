@@ -11,6 +11,7 @@ import {
 import { decodeToken } from "../utils/utils";
 import { decryptData, encryptData } from "../utils/encryptionUtil";
 import api from "../api/axiosInstance";
+
 const checkBusiness = JSON.parse(localStorage.getItem(CHECK_BUSINESS_LABEL));
 
 const persistAuthSession = (data) => {
@@ -18,17 +19,14 @@ const persistAuthSession = (data) => {
   localStorage.setItem(REFRESH_TOKEN_LABEL, data?.refresh);
   localStorage.setItem(FCM_TOKEN_LABEL, data?.fcm_token);
 
-  const localData = localStorage.getItem(6)
+  const localData = localStorage.getItem(USER_TOKEN_LABEL)
     ? localStorage.getItem(USER_TOKEN_LABEL)
     : [];
 
   if (localData.length) {
     const users = decryptData(localData);
-    const checkUser = users?.find((d) => d.id == data?.id);
-    const updateUsers = checkUser
-      ? [checkUser, ...users.filter((d) => d.id != data?.id)]
-      : [{ ...data }, ...users];
-    const encryptedData = encryptData(updateUsers);
+
+    const encryptedData = encryptData(users);
     if (encryptedData) {
       localStorage.setItem(USER_TOKEN_LABEL, encryptedData);
     }
@@ -71,6 +69,37 @@ export const logout = createAsyncThunk(
       // Remove the curly braces around formData
       const response = await api.post(`${API_URL}accounts/logout/`, formData);
 
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
+    }
+  },
+);
+
+export const requestOtp = createAsyncThunk(
+  "auth/requestOtp",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`${API_URL}accounts/request-otp/`, {
+        ...data,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data);
+    }
+  },
+);
+
+export const verifyRequestOtp = createAsyncThunk(
+  "auth/verifyRequestOtp",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await api.post(
+        `${API_URL}accounts/verify-request-otp/`,
+        {
+          ...data,
+        },
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data);
@@ -131,6 +160,13 @@ export const authSlice = createSlice({
         state.isAuthenticated = false;
         state.hasError = true;
         state.credential = {};
+      })
+      .addCase(verifyRequestOtp.fulfilled, (state, { payload }) => {
+        if (!payload?.data?.otp_required) {
+          persistAuthSession(payload?.data);
+
+          return decodeToken(initialState);
+        }
       });
   },
 });

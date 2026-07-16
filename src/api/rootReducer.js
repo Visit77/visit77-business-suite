@@ -6,9 +6,13 @@ import roomViewReducer from "../service/roomViewSlice.jsx";
 import roomTypeReducer from "../service/roomTypeSlice.jsx";
 import roomFacilityReducer from "../service/roomFacilitySlice.jsx";
 import roomAmenityReducer from "../service/roomAmenitySlice.jsx";
+import userReducer from "../service/userSlice.jsx";
+import businessReducer from "../service/businessSlice.jsx";
 
 const appReducer = combineReducers({
   auth: authReducer,
+  user: userReducer,
+  business: businessReducer,
   roomOccupant: roomOccupantReducer,
   roomView: roomViewReducer,
   roomStandard: roomStandardReducer,

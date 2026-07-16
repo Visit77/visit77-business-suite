@@ -13,8 +13,12 @@ import {
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-// import { login } from "../service/authSlice";
-import { TOKEN_LABEL } from "../variables/constants";
+import {
+  TOKEN_LABEL,
+  UNIQUE_DEVICE_ID,
+  UNIQUE_DEVICE_MODEL,
+} from "../variables/constants";
+import { login } from "../service/authSlice";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -22,47 +26,66 @@ const Login = () => {
   const dispatch = useDispatch();
   const [loginMethod, setLoginMethod] = useState("email");
 
-  const onFinish = (values) => {
+  const onFinish = async (values) => {
     setLoading(false);
 
+    let device_id = localStorage.getItem(UNIQUE_DEVICE_ID);
+    let device_model = localStorage.getItem(UNIQUE_DEVICE_MODEL);
+    if (!device_id) {
+      device_id = crypto.randomUUID();
+      localStorage.setItem(UNIQUE_DEVICE_ID, device_id);
+    }
+
+    // 2. Await the High Entropy Values
+    if (!device_model) {
+      if (navigator.userAgentData) {
+        try {
+          const ua = await navigator.userAgentData.getHighEntropyValues([
+            "model",
+            "platform",
+          ]);
+          device_model = ua.brands[2]?.brand || ua.platform;
+          localStorage.setItem(UNIQUE_DEVICE_MODEL, device_model);
+        } catch (err) {
+          console.error("UA Data Error:", err);
+        }
+      }
+    }
     const loginData = {
+      device_id,
+      device_model,
       password: values.password,
-      username: loginMethod === "email" ? values.email : values.phone,
+      username:
+        loginMethod === "email"
+          ? values.email
+          : `+95${values.phone?.replace(/\s/g, "").replace(/^0/, "")}`,
     };
 
     setLoading(true);
+
     setTimeout(() => {
       setLoading(false);
-      localStorage.setItem(TOKEN_LABEL, "mock-luxury-admin-token-xyz");
-      message.success(
-        `${loginMethod === "email" ? "Email" : "Phone"} ဖြင့် အောင်မြင်စွာ ဝင်ရောက်ပြီးပါပြီ။`,
-      );
-      navigate("/dashboard", { replace: true });
-    }, 1500);
-    // setTimeout(() => {
-    //   setLoading(false);
-    //   dispatch(login({ ...loginData }))
-    //     .then((res) => {
-    //       if (res.type.endsWith("fulfilled")) {
-    //         const { payload } = res;
+      dispatch(login({ ...loginData }))
+        .then((res) => {
+          if (res.type.endsWith("fulfilled")) {
+            const { payload } = res;
 
-    //         if (payload?.data?.otp_required == true) {
-    //           navigate("/confirm_otp", {
-    //             state: {
-    //               values: { ...payload?.data?.otp_data, change_login: false },
-    //             },
-    //           });
-    //         } else {
-    //           message.success("Login is successfully");
-    //           navigate("/");
-    //         }
-    //       }
-    //     })
-    //     .finally(() => {
-    //       setIsSubmit(false);
-    //     });
-    //   navigate("/dashboard", { replace: true });
-    // }, 1500);
+            if (payload?.data?.otp_required == true) {
+              navigate("/confirm-otp", {
+                state: {
+                  values: { ...payload?.data?.otp_data, change_login: false },
+                },
+              });
+            } else {
+              message.success("Login is successfully");
+              navigate("/dashboard");
+            }
+          }
+        })
+        .finally(() => {
+          // setIsSubmit(false);
+        });
+    }, 1500);
   };
 
   return (

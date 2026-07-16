@@ -12,7 +12,6 @@ import {
 const { RangePicker } = DatePicker;
 
 const RoomBookingList = () => {
-  // Columns သစ်များဖြစ်သော Guest Name, Room Type, Check-in, Check-out, Total Price, Status နှင့် Action တို့အတွက် Data အသစ်များ
   const guestsData = [
     {
       key: "1",
