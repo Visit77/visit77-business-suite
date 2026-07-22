@@ -78,7 +78,7 @@ const Login = () => {
               });
             } else {
               message.success("Login is successfully");
-              navigate("/dashboard");
+              navigate("/select-business");
             }
           }
         })

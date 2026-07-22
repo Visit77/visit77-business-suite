@@ -6,6 +6,7 @@ const initialState = {
   hasError: false,
   data: [],
   details: {},
+
   count: 0,
 };
 
@@ -153,6 +154,9 @@ const businessSlice = createSlice({
     clearBusiness: (state) => {
       state.data = [];
     },
+    selectedBusiness: (state, action) => {
+      state.details = action?.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -220,6 +224,6 @@ const businessSlice = createSlice({
       });
   },
 });
-export const { clearBusiness } = businessSlice.actions;
+export const { clearBusiness, selectedBusiness } = businessSlice.actions;
 export default businessSlice.reducer;
 export const businessSelector = (state) => state.business;

@@ -4,50 +4,41 @@ import { LoadingOutlined, ShopOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import BusinessCard from "../components/card/BusinessCard";
 import { useDispatch, useSelector } from "react-redux";
-import { getBusiness } from "../service/businessSlice";
-import { userSelector } from "../service/userSlice";
+import {
+  businessSelector,
+  getBusiness,
+  selectedBusiness,
+} from "../service/businessSlice";
+import { authSelector } from "../service/authSlice";
 
 const SelectBusiness = () => {
   const navigate = useNavigate();
-  const [selectedBranchId, setSelectedBranchId] = useState(null);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
+  const { user } = useSelector(authSelector);
+  const { data: business, isPending } = useSelector(businessSelector);
 
-  const branches = [
-    {
-      id: "b-1",
-      name: "Yangon Head Office",
-      location: "No. 123, Pyay Road, Kamayut Township, Yangon.",
-      phone: "+95 9 123 456 789",
-    },
-    {
-      id: "b-2",
-      name: "Mandalay Branch",
-      location: "No. 45, 78th Street, Chanayethazan Township, Mandalay.",
-      phone: "+95 9 987 654 321",
-    },
-    {
-      id: "b-3",
-      name: "Naypyidaw Branch",
-      location: "Yaza Thingaha Road, Dekkhinathiri Township, Naypyidaw.",
-      phone: "+95 9 456 789 123",
-    },
-  ];
+  useEffect(() => {
+    if (user) {
+      dispatch(getBusiness({ owner: user?.user_id }));
+    }
+  }, [user, dispatch]);
 
   const handleSelectBusiness = (id) => {
-    setSelectedBranchId(id);
     setLoading(true);
 
-    const chosenBranch = branches.find((b) => b.id === id);
+    const chosenBusiness = business.find((b) => b.id === id);
+    dispatch(selectedBusiness(chosenBusiness));
+
     message.loading({
-      content: `${chosenBranch.name} သို့ ချိတ်ဆက်နေပါသည်...`,
-      key: "branch-select",
+      content: `Connecting to the ${chosenBusiness.name_1} ...`,
+      key: "business-select",
     });
 
     setTimeout(() => {
       message.success({
-        content: `${chosenBranch.name} ကို ရွေးချယ်မှု အောင်မြင်ပါသည်။`,
-        key: "branch-select",
+        content: ` The choice of ${chosenBusiness.name_1} is successful.`,
+        key: "business-select",
         duration: 2,
       });
       setLoading(false);
@@ -71,31 +62,26 @@ const SelectBusiness = () => {
             )}
           </div>
           <h1 className="font-title! text-2xl! md:text-3xl! font-bold! text-slate-800! tracking-tight!">
-            Select Branch Office
+            Select Business Office
           </h1>
           <p className="text-xs! md:text-sm! text-slate-400! font-medium! max-w-md! mx-auto! leading-relaxed!">
-            Please choose a branch location to manage bookings, guest
+            Please choose a business location to manage bookings, guest
             registries, and room services.
           </p>
         </div>
 
         <div className="grid! grid-cols-1! sm:grid-cols-2! lg:grid-cols-3! gap-5! md:gap-6!">
-          {branches.map((branch) => (
+          {business.map((biz) => (
             <BusinessCard
-              key={branch.id}
-              id={branch.id}
-              name={branch.name}
-              location={branch.location}
-              phone={branch.phone}
-              isActive={selectedBranchId === branch.id}
-              onSelect={handleSelectBusiness}
+              onSelect={() => handleSelectBusiness(biz?.id)}
+              business={biz}
             />
           ))}
         </div>
 
         <div className="text-center! pt-2!">
           <p className="text-xs! text-slate-400! font-medium!">
-            Need to add a new outlet branch? Contact your{" "}
+            Need to add a new outlet business? Contact your{" "}
             <span className="text-[#0F296D]! font-bold! cursor-pointer! hover:underline!">
               System Administrator
             </span>
