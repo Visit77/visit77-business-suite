@@ -3,7 +3,6 @@ import { Button, Tooltip, Carousel, Image } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
-  HeartOutlined,
   EyeOutlined,
   LeftOutlined,
   RightOutlined,
@@ -75,11 +74,6 @@ const RoomCard = ({ room }) => {
         >
           {statusText}
         </span>
-
-        {/* Wishlist Button */}
-        <button className="absolute top-4 right-4 w-8 h-8 bg-white/80 hover:bg-white backdrop-blur-sm rounded-full flex items-center justify-center text-slate-600 hover:text-rose-500 shadow-sm transition-colors active:scale-90 z-10">
-          <HeartOutlined className="text-sm" />
-        </button>
       </div>
 
       {/* Ant Design Hidden Image Preview Group (Full view & Navigation support) */}

@@ -16,11 +16,13 @@ import { API_URL, BUSINESS_LABEL, TOKEN_LABEL } from "../variables/constants";
 import logo from "../assets/v77_logo.png";
 import { useNavigate } from "react-router-dom";
 import { selectBusinessDetails } from "../service/businessSlice";
+import LogoutModal from "./modal/LogoutModal";
 
 const { Sider, Content, Header } = Layout;
 
 const AdminLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const details = useSelector(selectBusinessDetails);
@@ -44,6 +46,18 @@ const AdminLayout = () => {
     if (path.includes("/rooms")) return "rooms";
 
     return "dashboard";
+  };
+
+  const handleLogout = () => {
+    //   // dispatch(logout());
+    localStorage.removeItem(TOKEN_LABEL);
+    localStorage.removeItem(BUSINESS_LABEL);
+    navigate("/login");
+  };
+
+  // Switch Business Handle Logic
+  const handleSwitchBusiness = () => {
+    navigate("/select-business");
   };
 
   const SidebarContent = () => (
@@ -78,18 +92,18 @@ const AdminLayout = () => {
 
       <div className="p-4 border-t border-slate-50 bg-white space-y-4">
         <button
-          onClick={() => {
-            // dispatch(logout());
-            localStorage.removeItem(TOKEN_LABEL);
-            localStorage.removeItem(BUSINESS_LABEL);
-
-            navigate("/login");
-          }}
+          onClick={() => setIsLogoutModalOpen(true)}
           className="w-full bg-primary hover:bg-primary-container text-white py-3 px-4 rounded-xl font-title text-sm font-semibold shadow-sm flex items-center justify-center space-x-2 transition-all active:scale-95"
         >
           <span>Log out</span>
         </button>
       </div>
+      <LogoutModal
+        open={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onLogout={handleLogout}
+        onSwitchBusiness={handleSwitchBusiness}
+      />
     </div>
   );
 
