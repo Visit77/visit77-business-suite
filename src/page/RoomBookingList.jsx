@@ -8,10 +8,13 @@ import {
   PlusOutlined,
   CalendarOutlined,
 } from "@ant-design/icons";
+import { useDispatch } from "react-redux";
 
 const { RangePicker } = DatePicker;
 
 const RoomBookingList = () => {
+  const dispatch = useDispatch();
+
   const guestsData = [
     {
       key: "1",

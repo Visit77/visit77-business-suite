@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../api/axiosInstance";
+import { BUSINESS_LABEL } from "../variables/constants";
+import { base64UrlEncode } from "../utils/utils";
 
 const initialState = {
   isPending: false,
@@ -156,6 +158,10 @@ const businessSlice = createSlice({
     },
     selectedBusiness: (state, action) => {
       state.details = action?.payload;
+      localStorage.setItem(
+        BUSINESS_LABEL,
+        base64UrlEncode(action?.payload?.id),
+      );
     },
   },
   extraReducers: (builder) => {
@@ -227,3 +233,6 @@ const businessSlice = createSlice({
 export const { clearBusiness, selectedBusiness } = businessSlice.actions;
 export default businessSlice.reducer;
 export const businessSelector = (state) => state.business;
+export const selectBusinessDetails = (state) => state.business.details;
+export const selectBusinessId = (state) => state.business.details?.id;
+export const selectIsBusinessReady = (state) => Boolean(state.business.details?.id);

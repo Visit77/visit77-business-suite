@@ -3,10 +3,10 @@ import api from "../api/axiosInstance";
 
 export const getRoomType = createAsyncThunk(
   "room_types/getRoomType",
-  async ({ page, limit }, { rejectWithValue }) => {
+  async (params, { rejectWithValue }) => {
     try {
       const response = await api.get(`/room_types`, {
-        params: { page, limit },
+        params: { ...params },
       });
       return response.data;
     } catch (error) {
@@ -30,7 +30,7 @@ export const deleteRoomType = createAsyncThunk(
 const roomTypeSlice = createSlice({
   name: "data",
   initialState: {
-    items: [],
+    data: [],
     total: 0,
     loading: false,
     error: null,
@@ -43,7 +43,7 @@ const roomTypeSlice = createSlice({
       })
       .addCase(getRoomType.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload.data;
+        state.data = action.payload.data;
         state.total = action.payload.total;
       })
       .addCase(getRoomType.rejected, (state, action) => {
@@ -51,10 +51,11 @@ const roomTypeSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(deleteRoomType.fulfilled, (state, action) => {
-        state.items = state.items.filter((item) => item.id !== action.payload);
+        state.data = state.data.filter((item) => item.id !== action.payload);
         state.total -= 1;
       });
   },
 });
 
 export default roomTypeSlice.reducer;
+export const roomTypeSelector = (state) => state.roomType;

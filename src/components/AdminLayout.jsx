@@ -10,19 +10,20 @@ import {
   MenuOutlined,
 } from "@ant-design/icons";
 import { Outlet, Link, useLocation } from "react-router-dom"; // 1. Link နှင့် useLocation ကို import ယူပါ
-import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 // import { logout } from "../service/authSlice";
-import { TOKEN_LABEL } from "../variables/constants";
+import { API_URL, BUSINESS_LABEL, TOKEN_LABEL } from "../variables/constants";
 import logo from "../assets/v77_logo.png";
 import { useNavigate } from "react-router-dom";
+import { selectBusinessDetails } from "../service/businessSlice";
 
 const { Sider, Content, Header } = Layout;
 
 const AdminLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
+  const details = useSelector(selectBusinessDetails);
 
   const menuItems = [
     {
@@ -80,6 +81,7 @@ const AdminLayout = () => {
           onClick={() => {
             // dispatch(logout());
             localStorage.removeItem(TOKEN_LABEL);
+            localStorage.removeItem(BUSINESS_LABEL);
 
             navigate("/login");
           }}
@@ -142,12 +144,20 @@ const AdminLayout = () => {
               </button>
             </Badge>
 
-            <Avatar
-              size="large"
-              shape="square"
-              icon={<UserOutlined />}
-              className="bg-gray-400! cursor-pointer! hidden! sm:inline-block! px-2!"
-            />
+            {details?.profile ? (
+              <img
+                src={`${API_URL}${details.profile}`}
+                alt={details?.name_1 || "Business profile"}
+                className="w-12 h-12 rounded-lg object-cover"
+              />
+            ) : (
+              <Avatar
+                size="large"
+                shape="square"
+                icon={<UserOutlined />}
+                className="bg-gray-400! cursor-pointer! hidden! sm:inline-block! px-2!"
+              />
+            )}
           </div>
         </Header>
 

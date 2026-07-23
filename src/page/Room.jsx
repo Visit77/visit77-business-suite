@@ -1,72 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Select, Input, Button } from "antd";
 import RoomCard from "../components/card/RoomCard";
+import { selectBusinessId } from "../service/businessSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { getRoomType, roomTypeSelector } from "../service/roomTypeSlice";
 
 const Room = () => {
   // Mock Data for Rooms
-  const roomsData = [
-    {
-      id: 1,
-      roomNo: "Room 101",
-      name: "Single Premium",
-      type: "First Floor",
-      price: 120,
-      status: "AVAILABLE",
-      image:
-        "https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=600",
-    },
-    {
-      id: 2,
-      roomNo: "Room 204",
-      name: "Double Deluxe",
-      type: "Second Floor",
-      price: 250,
-      status: "OCCUPIED",
-      image:
-        "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=600",
-    },
-    {
-      id: 3,
-      roomNo: "Room 305",
-      name: "Executive Suite",
-      type: "Third Floor",
-      price: 450,
-      status: "CLEANING",
-      image:
-        "https://images.unsplash.com/photo-1566665797739-1674de7a421a?q=80&w=600",
-    },
-    {
-      id: 4,
-      roomNo: "Room 102",
-      name: "Single Economy",
-      type: "First Floor",
-      price: 95,
-      status: "MAINTENANCE",
-      image:
-        "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?q=80&w=600",
-    },
-    {
-      id: 5,
-      roomNo: "Room 205",
-      name: "Double Suite",
-      type: "Second Floor",
-      price: 280,
-      status: "AVAILABLE",
-      image:
-        "https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=600",
-    },
-    {
-      id: 6,
-      roomNo: "Room 108",
-      name: "Single King",
-      type: "First Floor",
-      price: 150,
-      status: "OCCUPIED",
-      image:
-        "https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=600",
-    },
-  ];
+  const businessId = useSelector(selectBusinessId);
+  const dispatch = useDispatch();
 
+  useEffect(() => {
+    dispatch(getRoomType({ business_id: businessId }));
+  }, [businessId, dispatch]);
+
+  const { data: roomType, isPending } = useSelector(roomTypeSelector);
+  console.log("room type", roomType);
   return (
     <div className="space-y-6 md:space-y-8 animate-fade-in">
       {/* 1. Top Filter Control Panel */}
@@ -123,11 +72,13 @@ const Room = () => {
       </div>
 
       {/* 2. Responsive Room Grid Layout */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {roomsData.map((room) => (
-          <RoomCard key={room.id} room={room} />
-        ))}
-      </div>
+      {!isPending && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {roomType?.map((room) => (
+            <RoomCard key={room.id} room={room} />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
