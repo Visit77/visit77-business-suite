@@ -175,7 +175,7 @@ const AdminLayout = () => {
           </div>
         </Header>
 
-        <Content className="p-4 md:p-8 max-w-7xl w-full mx-auto">
+        <Content className="p-4 md:p-8 max-w-7xl w-full mx-auto bg-gray-50">
           <Outlet />
         </Content>
       </Layout>

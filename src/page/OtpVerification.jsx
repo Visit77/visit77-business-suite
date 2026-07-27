@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button, Input, message } from "antd";
 import {
   ArrowLeftOutlined,
@@ -6,7 +6,7 @@ import {
 } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import _ from "lodash";
-import { verifyRequestOtp } from "../service/authSlice";
+import { requestOtp, verifyRequestOtp } from "../service/authSlice";
 import { updateProfile } from "../service/userSlice";
 
 const OtpVerification = () => {
@@ -15,6 +15,9 @@ const OtpVerification = () => {
   const [loading, setLoading] = useState(false);
   const location = useLocation();
   const { values } = location?.state || {};
+  const [countdown, setCountdown] = useState(150);
+  const [showResend, setShowResend] = useState(false);
+  const intervalRef = useRef(null);
 
   const handleVerify = () => {
     if (otpValue.length < 6) {
@@ -64,6 +67,50 @@ const OtpVerification = () => {
     }
   };
 
+  const startCountdown = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    intervalRef.current = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+          setShowResend(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  useEffect(() => {
+    setCountdown(150);
+    setShowResend(false);
+    startCountdown();
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
+
+  const handleResendOtp = () => {
+    setLoading(true);
+    dispatch(requestOtp(values)).then((res) => {
+      if (_.endsWith(res.type, "fulfilled")) {
+        message.success("Request OTP successfully!");
+        setLoading(false);
+        setCountdown(150);
+        setShowResend(false);
+        startCountdown();
+      } else if (_.endsWith(res.type, "rejected")) {
+        setLoading(false);
+      }
+    });
+  };
+
   return (
     <div className="min-h-screen! bg-[#FAFBFD]! flex! items-center! justify-center! p-4! font-sans!">
       {/* Main Container Card */}
@@ -107,7 +154,7 @@ const OtpVerification = () => {
                 value={otpValue}
                 onChange={(value) => setOtpValue(value)}
                 size="large"
-                formatter={(str) => str.replace(/\D/g, "")} // နံပါတ်သီးသန့်ပဲ ရိုက်လို့ရစေရန်
+                formatter={(str) => str.replace(/\D/g, "")}
                 className="[&_input]:h-12! [&_input]:sm:h-14! [&_input]:w-10! [&_input]:sm:w-12! [&_input]:rounded-xl! [&_input]:border-slate-200! [&_input]:text-lg! [&_input]:font-bold! [&_input]:text-slate-800! [&_input]:bg-slate-50/50! [&_input:focus]:border-[#0F296D]! [&_input:focus]:shadow-none!"
               />
             </div>
@@ -120,9 +167,7 @@ const OtpVerification = () => {
               <button
                 type="button"
                 className="text-blue-600! font-bold! hover:underline! bg-transparent! border-none! cursor-pointer! p-0!"
-                onClick={() =>
-                  message.success("ကုဒ်အသစ်ကို ထပ်မံပေးပို့လိုက်ပါပြီ။")
-                }
+                onClick={handleResendOtp}
               >
                 Resend Code
               </button>

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Select, Input, Button } from "antd";
+import { Select, Input, Button, Empty } from "antd";
 import RoomCard from "../components/card/RoomCard";
 import { selectBusinessId } from "../service/businessSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,7 +15,7 @@ const Room = () => {
   }, [businessId, dispatch]);
 
   const { data: roomType, isPending } = useSelector(roomTypeSelector);
-  console.log("room type", roomType);
+
   return (
     <div className="space-y-6 md:space-y-8 animate-fade-in">
       {/* 1. Top Filter Control Panel */}
@@ -73,11 +73,19 @@ const Room = () => {
 
       {/* 2. Responsive Room Grid Layout */}
       {!isPending && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {roomType?.map((room) => (
-            <RoomCard key={room.id} room={room} />
-          ))}
-        </div>
+        <>
+          {roomType?.length > 1 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {roomType?.map((room) => (
+                <RoomCard key={room.id} room={room} />
+              ))}
+            </div>
+          ) : (
+            <div className=" w-full flex justify-center items-center">
+              <Empty />
+            </div>
+          )}
+        </>
       )}
     </div>
   );
