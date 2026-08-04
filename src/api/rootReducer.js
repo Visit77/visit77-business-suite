@@ -8,6 +8,8 @@ import roomFacilityReducer from "../service/roomFacilitySlice.jsx";
 import roomAmenityReducer from "../service/roomAmenitySlice.jsx";
 import userReducer from "../service/userSlice.jsx";
 import businessReducer from "../service/businessSlice.jsx";
+import roomBoardReducer from "../service/roomBoardSlice.jsx";
+import buildingReducer from "../service/buildingSlice.jsx";
 
 const appReducer = combineReducers({
   auth: authReducer,
@@ -19,6 +21,8 @@ const appReducer = combineReducers({
   roomType: roomTypeReducer,
   roomFacility: roomFacilityReducer,
   roomAmenity: roomAmenityReducer,
+  roomBoard: roomBoardReducer,
+  building: buildingReducer,
 });
 
 const rootReducer = (state, action) => {

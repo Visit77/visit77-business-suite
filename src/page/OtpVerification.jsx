@@ -8,6 +8,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import _ from "lodash";
 import { requestOtp, verifyRequestOtp } from "../service/authSlice";
 import { updateProfile } from "../service/userSlice";
+import { useDispatch } from "react-redux";
 
 const OtpVerification = () => {
   const navigate = useNavigate();
@@ -18,52 +19,50 @@ const OtpVerification = () => {
   const [countdown, setCountdown] = useState(150);
   const [showResend, setShowResend] = useState(false);
   const intervalRef = useRef(null);
+  const dispatch = useDispatch();
 
   const handleVerify = () => {
     if (otpValue.length < 6) {
-      message.error(
-        "ကျေးဇူးပြု၍ OTP ကုဒ် ၆ လုံး ပြည့်အောင်ရိုက်နှိပ်ပေးပါရန်။",
-      );
+      message.error("Please type the full 6-digit OTP code.");
       return;
     }
 
     setLoading(true);
-    if (otp?.length === 6) {
-      if (values?.change_login == true) {
-        dispatch(
-          verifyRequestOtp({
-            ...values,
-            account_id: values?.account_id,
-            otp: otpValue,
-            is_grace_window_verify: false,
-          }),
-        )
-          .then((res) => {
-            message.loading({ content: "Verifying OTP...", key: "otp-verify" });
+    console.log("otp", otpValue, values);
+    if (otpValue?.length === 6) {
+      dispatch(
+        verifyRequestOtp({
+          ...values,
+          account_id: values?.account_id,
+          otp: otpValue,
+          is_grace_window_verify: false,
+        }),
+      )
+        .then((res) => {
+          message.loading({ content: "Verifying OTP...", key: "otp-verify" });
 
-            if (_.endsWith(res.type, "fulfilled")) {
-              message.success("OTP verify successfully!");
+          if (_.endsWith(res.type, "fulfilled")) {
+            message.success("OTP verify successfully!");
 
-              const updateUser = { ...profile, ...values };
-              dispatch(
-                updateProfile({ id: profile?.id, values: updateUser }),
-              ).then((res) => {
-                if (_.endsWith(res.type, "fulfilled")) {
-                  nav("/dashboard");
-                } else if (_.endsWith(res.type, "rejected")) {
-                  setLoading(false);
-                }
-              });
-            }
-          })
-          .catch(() => {
-            console.error("error");
-          })
-          .finally(() => {
-            setLoading(false);
-            setOtpValue("");
-          });
-      }
+            const updateUser = { ...profile, ...values };
+            dispatch(
+              updateProfile({ id: profile?.id, values: updateUser }),
+            ).then((res) => {
+              if (_.endsWith(res.type, "fulfilled")) {
+                nav("/dashboard");
+              } else if (_.endsWith(res.type, "rejected")) {
+                setLoading(false);
+              }
+            });
+          }
+        })
+        .catch(() => {
+          console.error("error");
+        })
+        .finally(() => {
+          setLoading(false);
+          setOtpValue("");
+        });
     }
   };
 

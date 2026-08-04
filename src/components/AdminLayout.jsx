@@ -3,20 +3,17 @@ import { Layout, Menu, Input, Badge, Avatar, Drawer, Button } from "antd";
 import {
   AppstoreOutlined,
   HomeOutlined,
-  CalendarOutlined,
   UserOutlined,
-  SettingOutlined,
   BellOutlined,
   MenuOutlined,
 } from "@ant-design/icons";
-import { Outlet, Link, useLocation } from "react-router-dom"; // 1. Link နှင့် useLocation ကို import ယူပါ
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-// import { logout } from "../service/authSlice";
 import { API_URL, BUSINESS_LABEL, TOKEN_LABEL } from "../variables/constants";
 import logo from "../assets/v77_logo.png";
-import { useNavigate } from "react-router-dom";
 import { selectBusinessDetails } from "../service/businessSlice";
 import LogoutModal from "./modal/LogoutModal";
+import { MdOutlineBedroomParent } from "react-icons/md";
 
 const { Sider, Content, Header } = Layout;
 
@@ -34,28 +31,33 @@ const AdminLayout = () => {
       label: <Link to="/dashboard">Dashboard</Link>,
     },
     {
+      key: "rooms-board",
+      icon: <MdOutlineBedroomParent />,
+      label: <Link to="/rooms-board">Room</Link>,
+    },
+    {
       key: "rooms",
       icon: <HomeOutlined />,
-      label: <Link to="/rooms">Room Management</Link>,
+      label: <Link to="/rooms">Room Type</Link>,
     },
   ];
 
   const getCurrentKey = () => {
     const path = location.pathname;
-    if (path.includes("/dashboard")) return "dashboard";
+
+    if (path.includes("/rooms-board")) return "rooms-board";
     if (path.includes("/rooms")) return "rooms";
+    if (path.includes("/dashboard")) return "dashboard";
 
     return "dashboard";
   };
 
   const handleLogout = () => {
-    //   // dispatch(logout());
     localStorage.removeItem(TOKEN_LABEL);
     localStorage.removeItem(BUSINESS_LABEL);
     navigate("/login");
   };
 
-  // Switch Business Handle Logic
   const handleSwitchBusiness = () => {
     navigate("/select-business");
   };
@@ -66,23 +68,20 @@ const AdminLayout = () => {
         {/* Brand Logo */}
         <div className="p-6 border-b border-slate-50 flex items-center space-x-3">
           <img
-            className="w-9 h-9  rounded-xl flex items-center justify-center "
+            className="w-9 h-9 rounded-xl flex items-center justify-center"
             src={logo}
+            alt="Logo"
           />
-
           <div>
             <h2 className="font-title text-base font-bold text-on-surface leading-tight">
               Visit 77
             </h2>
-            {/* <p className="text-[10px] uppercase font-bold tracking-wider text-outline">
-              Premium Hospitality
-            </p> */}
           </div>
         </div>
 
         <Menu
           mode="inline"
-          selectedKeys={[getCurrentKey()]}
+          selectedKeys={[getCurrentKey()]} // ဒီနေရာမှာ Key တိတိကျကျ ရရှိပါမယ်
           items={menuItems}
           className="border-none pt-4 px-3 space-y-1 text-on-surface-variant font-medium"
           style={{ backgroundColor: "transparent" }}
@@ -132,7 +131,6 @@ const AdminLayout = () => {
       </Drawer>
 
       <Layout className="lg:pl-65 bg-background min-h-screen">
-        {/* Top Navbar */}
         <Header className="bg-white! border-b! border-slate-100! h-16! px-4! md:px-8! flex! items-center! justify-between! sticky! top-0! z-50!">
           <div className="flex items-center space-x-3">
             <Button

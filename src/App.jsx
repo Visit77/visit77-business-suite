@@ -7,6 +7,7 @@ import Login from "./page/Login";
 import AdminLayout from "./components/AdminLayout";
 import OtpVerification from "./page/OtpVerification";
 import SelectBusiness from "./page/SelectBusiness";
+import RoomBoard from "./page/RoomBoard";
 
 const Dashboard = lazy(() => import("./page/Dashboard"));
 const Room = lazy(() => import("./page/Room"));
@@ -32,7 +33,11 @@ function App() {
                 <Route path="/rooms/add" element={<AddRoom />} />
                 <Route path="/rooms/edit/:id" element={<EditRoom />} />
                 <Route path="/rooms/:id" element={<RoomDetail />} />
-                <Route path="/rooms/:id/history" element={<RoomBookingList />} />
+                <Route
+                  path="/rooms/:id/history"
+                  element={<RoomBookingList />}
+                />
+                <Route path="/rooms-board" element={<RoomBoard />} />
               </Route>
             </Route>
           </Route>
