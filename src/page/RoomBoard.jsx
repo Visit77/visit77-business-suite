@@ -6,36 +6,55 @@ import { getRoomBoard, roomBoardSelector } from "../service/roomBoardSlice";
 import moment from "moment";
 import { buildingSelector, getHotelBuilding } from "../service/buildingSlice";
 import PageLoading from "../components/PageLoading";
+import { Divider } from "antd";
+import RoomDetailsModal from "../components/modal/RoomDetailsModal";
 
 const getRoomCardStyle = (status) => {
   switch (status) {
     case "available":
-      return "bg-green-400/40 border-green-400"; // rgba(187, 247, 208, 1)
+      return "bg-green-400/40 border-green-400";
     case "occupied":
-      return "bg-blue-600/40 border-blue-600"; // rgba(37, 99, 235, 1)
+      return "bg-blue-600/40 border-blue-600";
     case "reserved":
-      return "bg-[#FB923C]/40 border-[#FB923C]"; // bg-orange-400
+      return "bg-[#FB923C]/40 border-[#FB923C]";
     case "cleaning":
-      return "bg-[#7C3AED]/40 border-[#7C3AED]"; // bg-violet-600
+      return "bg-[#7C3AED]/40 border-[#7C3AED]";
     case "out_of_service":
-      return "bg-slate-500/40 border-slate-500"; // rgba(100, 116, 139, 1)
+      return "bg-slate-500/40 border-slate-500";
     default:
       return "bg-green-200/40 border-green-200";
+  }
+};
+
+const getRoomBorderStyle = (status) => {
+  switch (status) {
+    case "available":
+      return " border-green-400";
+    case "occupied":
+      return " border-blue-600";
+    case "reserved":
+      return "order-[#FB923C]";
+    case "cleaning":
+      return "border-[#7C3AED]";
+    case "out_of_service":
+      return " border-slate-500";
+    default:
+      return " border-green-200";
   }
 };
 
 const getDotColor = (status) => {
   switch (status) {
     case "available":
-      return "bg-green-400 border-green-400"; // rgba(187, 247, 208, 1)
+      return "bg-green-400 border-green-400";
     case "occupied":
-      return "bg-blue-600 border-blue-600"; // rgba(37, 99, 235, 1)
+      return "bg-blue-600 border-blue-600";
     case "reserved":
-      return "bg-[#FB923C] border-[#FB923C]"; // bg-orange-400
+      return "bg-[#FB923C] border-[#FB923C]";
     case "cleaning":
-      return "bg-[#7C3AED] border-[#7C3AED]"; // bg-violet-600
+      return "bg-[#7C3AED] border-[#7C3AED]";
     case "out_of_service":
-      return "bg-slate-500 border-slate-500"; // rgba(100, 116, 139, 1)
+      return "bg-slate-500 border-slate-500";
     default:
       return "bg-green-200 border-green-200";
   }
@@ -47,6 +66,7 @@ const RoomBoard = () => {
   const { data: building, isPending: isBuildingPending } =
     useSelector(buildingSelector);
   const { data: roomBoard, isPending } = useSelector(roomBoardSelector);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     dispatch(
@@ -68,6 +88,10 @@ const RoomBoard = () => {
   if (isBuildingPending || isPending) {
     return <PageLoading message="Loading business data..." />;
   }
+
+  const handleRoomClick = () => {
+    setIsModalOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-[#F5F7FB] p-6 font-sans text-slate-800">
@@ -179,20 +203,54 @@ const RoomBoard = () => {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                 {floor?.rooms?.map((room, rIdx) => (
                   <div
-                    key={rIdx}
-                    className={`relative h-20 rounded-xl border p-3 flex items-center justify-center font-bold text-sm transition-transform hover:scale-[1.02] cursor-pointer bg-op ${getRoomCardStyle(
+                    className={`relative shadow transition-transform hover:scale-[1.02] cursor-pointer rounded-xl  ${getRoomBorderStyle(
                       room.display_status,
                     )}`}
+                    onClick={() => {
+                      handleRoomClick();
+                    }}
                   >
-                    {room.checked && (
-                      <CheckCircleFilled className="absolute top-2 left-2 text-[#10B981] text-xs" />
-                    )}
+                    <div
+                      key={rIdx}
+                      className={` rounded-t-xl p-3 flex items-center justify-center font-bold text-sm  ${getRoomCardStyle(
+                        room.display_status,
+                      )}`}
+                    >
+                      {room.checked && (
+                        <CheckCircleFilled className="absolute top-2 left-2 text-[#10B981] text-xs" />
+                      )}
 
-                    <span
-                      className={`absolute top-1 right-2 w-2 h-2 rounded-full ${getDotColor(room.display_status)}`}
-                    />
+                      <span
+                        className={`absolute -top-1 right-0 w-4 h-4 rounded-full ${getDotColor(room.display_status)}`}
+                      />
 
-                    <span className="tracking-wide">{room.room_number}</span>
+                      <span className="tracking-wide text-lg">
+                        {room.room_number}
+                      </span>
+                    </div>
+                    <div className=" p-3 pb-0!">
+                      <div className=" text-neutral-800 text-md font-semibold">
+                        {room?.room_type?.name}
+                      </div>
+                      <div className=" text-secondary-500 text-lg font-semibold">
+                        {room?.room_type?.price?.currency}&nbsp;
+                        {room?.room_type?.price?.base_price}
+                      </div>
+                    </div>
+                    <div className=" border-dashed m-1! px-3! border border-neutral-300" />
+                    <div className=" p-3 pt-0! text-neutral-600 text-sm font-semibold">
+                      {room?.timeline?.text}
+                      {room?.timeline?.vacant_days &&
+                        ` ${room?.timeline?.vacant_days}`}
+                      {room?.timeline?.checkout &&
+                        ` ${room?.timeline?.checkout}`}
+                      {room?.timeline?.next_reserved &&
+                        ` ${room?.timeline?.next_reserved}`}
+                      {room?.timeline?.reserved_nights &&
+                        ` ${room?.timeline?.reserved_nights}`}
+                      {room?.timeline?.stay_nights &&
+                        ` ${room?.timeline?.stay_nights}`}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -200,6 +258,10 @@ const RoomBoard = () => {
           ))}
         </div>
       </div>
+      <RoomDetailsModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };
