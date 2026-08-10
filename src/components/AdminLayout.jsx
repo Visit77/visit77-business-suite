@@ -13,7 +13,8 @@ import { API_URL, BUSINESS_LABEL, TOKEN_LABEL } from "../variables/constants";
 import logo from "../assets/v77_logo.png";
 import { selectBusinessDetails } from "../service/businessSlice";
 import LogoutModal from "./modal/LogoutModal";
-import { MdOutlineBedroomParent } from "react-icons/md";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { MeetingRoomIcon } from "@hugeicons/core-free-icons";
 
 const { Sider, Content, Header } = Layout;
 
@@ -32,7 +33,7 @@ const AdminLayout = () => {
     },
     {
       key: "rooms-board",
-      icon: <MdOutlineBedroomParent />,
+      icon: <HugeiconsIcon icon={MeetingRoomIcon} />,
       label: <Link to="/rooms-board">Room</Link>,
     },
     {

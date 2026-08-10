@@ -40,12 +40,37 @@ export const deleteRoom = createAsyncThunk(
   },
 );
 
+export const getOneRoom = createAsyncThunk(
+  "room_board/getOneRoom",
+  async (params = {}, { rejectWithValue }) => {
+    const { business_id, ...queryParams } = params;
+
+    try {
+      const response = await api.get(
+        `/admin/physical-rooms/${queryParams?.id}/`,
+        {
+          baseURL: BOOKING_URL,
+          params: queryParams,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Something went wrong");
+    }
+  },
+);
+
 const roomBoardSlice = createSlice({
   name: "data",
   initialState: {
     data: [],
     total: 0,
     isPending: false,
+    details: {},
     error: null,
   },
   reducers: {},
@@ -63,6 +88,19 @@ const roomBoardSlice = createSlice({
         state.isPending = false;
         state.error = action.payload;
       })
+
+      .addCase(getOneRoom.pending, (state) => {
+        state.isPending = true;
+      })
+      .addCase(getOneRoom.fulfilled, (state, action) => {
+        state.isPending = false;
+        state.details = action.payload.data;
+      })
+      .addCase(getOneRoom.rejected, (state, action) => {
+        state.isPending = false;
+        state.error = action.payload;
+      })
+
       .addCase(deleteRoom.fulfilled, (state, action) => {
         state.data = state.data.filter((item) => item.id !== action.payload);
         state.total -= 1;

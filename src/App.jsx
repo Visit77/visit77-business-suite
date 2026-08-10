@@ -8,6 +8,8 @@ import AdminLayout from "./components/AdminLayout";
 import OtpVerification from "./page/OtpVerification";
 import SelectBusiness from "./page/SelectBusiness";
 import RoomBoard from "./page/RoomBoard";
+import RoomDetailsPage from "./page/RoomDetailsPage";
+import CheckIn from "./page/CheckIn";
 
 const Dashboard = lazy(() => import("./page/Dashboard"));
 const Room = lazy(() => import("./page/Room"));
@@ -38,6 +40,8 @@ function App() {
                   element={<RoomBookingList />}
                 />
                 <Route path="/rooms-board" element={<RoomBoard />} />
+                <Route path="/room-details/:id" element={<RoomDetailsPage />} />
+                <Route path="/room/:id/check-in/" element={<CheckIn />} />
               </Route>
             </Route>
           </Route>
