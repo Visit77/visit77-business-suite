@@ -217,7 +217,12 @@ const RoomDetailsPage = () => {
             {/* Guest Services */}
             <div className="space-y-2">
               <div className="grid grid-cols-2 gap-2">
-                <button className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-info-600  cursor-pointer">
+                <button
+                  onClick={() => {
+                    navigate(`/room/${id}/check-in/`);
+                  }}
+                  className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-info-600  cursor-pointer "
+                >
                   <HugeiconsIcon
                     icon={CalendarCheckIn01Icon}
                     className=" text-primary-400"

@@ -15,6 +15,7 @@ import {
   CalendarOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { nrcCodes, nrcTownships, nrcTypes } from "../../utils/utils";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -23,7 +24,7 @@ const CheckInForm = () => {
   const [form] = Form.useForm();
   const [guestType, setGuestType] = useState("Local");
   const [guests, setGuests] = useState([{ id: 1 }]);
-
+  const [selectedCode, setSelectedCode] = useState("12");
   const handleAddGuest = () => {
     setGuests([...guests, { id: guests.length + 1 }]);
   };
@@ -207,9 +208,15 @@ const CheckInForm = () => {
                     name={["guests", index, "nrcCode"]}
                     className="mb-0"
                   >
-                    <Select className="h-9 [&_.ant-select-selector]:rounded-xl! [&_.ant-select-selector]:bg-neutral-50! text-xs">
-                      <Option value="12">12</Option>
-                      <Option value="13">13</Option>
+                    <Select
+                      onChange={(val) => setSelectedCode(val)}
+                      className="h-9 [&_.ant-select-selector]:rounded-xl! text-xs"
+                    >
+                      {nrcCodes.map((code) => (
+                        <Option key={code} value={code}>
+                          {code}
+                        </Option>
+                      ))}
                     </Select>
                   </Form.Item>
                   <Form.Item
@@ -217,8 +224,11 @@ const CheckInForm = () => {
                     className="mb-0"
                   >
                     <Select className="h-9 [&_.ant-select-selector]:rounded-xl! [&_.ant-select-selector]:bg-neutral-50! text-xs">
-                      <Option value="MaYaKa">MaYaKa</Option>
-                      <Option value="DaGaNa">DaGaNa</Option>
+                      {(nrcTownships[selectedCode] || []).map((item) => (
+                        <Option key={item.value} value={item.value}>
+                          {item.label}
+                        </Option>
+                      ))}
                     </Select>
                   </Form.Item>
                   <Form.Item
@@ -226,8 +236,11 @@ const CheckInForm = () => {
                     className="mb-0"
                   >
                     <Select className="h-9 [&_.ant-select-selector]:rounded-xl! [&_.ant-select-selector]:bg-neutral-50! text-xs">
-                      <Option value="Naing">Naing</Option>
-                      <Option value="Ae">Ae</Option>
+                      {nrcTypes.map((type) => (
+                        <Option key={type.value} value={type.value}>
+                          {type.label}
+                        </Option>
+                      ))}
                     </Select>
                   </Form.Item>
                 </div>
