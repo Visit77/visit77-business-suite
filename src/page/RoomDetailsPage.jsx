@@ -65,7 +65,7 @@ const RoomDetailsPage = () => {
           <div>
             <div className="flex items-center space-x-3">
               <h1 className="text-2xl font-black text-neutral-900">
-                {roomData?.room_number}
+                #{roomData?.room_number}
               </h1>
 
               <span
@@ -219,26 +219,29 @@ const RoomDetailsPage = () => {
             {/* Guest Services */}
             <div className="space-y-2">
               <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => {
-                    navigate(`/room/${id}/check-in/`);
-                  }}
-                  className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-info-600  cursor-pointer "
-                >
-                  <HugeiconsIcon
-                    icon={CalendarCheckIn01Icon}
-                    className=" text-primary-400"
-                  />
-                  <span>Check In</span>
-                </button>
-
-                <button className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-orange-400 cursor-pointer">
-                  <HugeiconsIcon
-                    icon={CardExchange01Icon}
-                    className=" text-primary-400"
-                  />
-                  <span>Reserve</span>
-                </button>
+                {roomData?.display_status == "available" && (
+                  <>
+                    <button
+                      onClick={() => {
+                        navigate(`/room/${id}/check-in/`);
+                      }}
+                      className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-info-600  cursor-pointer "
+                    >
+                      <HugeiconsIcon
+                        icon={CalendarCheckIn01Icon}
+                        className=" text-primary-400"
+                      />
+                      <span>Check In</span>
+                    </button>
+                    <button className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-orange-400 cursor-pointer">
+                      <HugeiconsIcon
+                        icon={CardExchange01Icon}
+                        className=" text-primary-400"
+                      />
+                      <span>Reserve</span>
+                    </button>
+                  </>
+                )}
               </div>
               <div className=" grid grid-cols-4 gap-3 ">
                 <button className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer">

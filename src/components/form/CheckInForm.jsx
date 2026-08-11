@@ -24,6 +24,7 @@ import {
   nrcTypes,
 } from "../../utils/utils";
 import _ from "lodash";
+import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -41,6 +42,8 @@ const CheckInForm = ({ data }) => {
   const handleSubmit = (values) => {
     console.log("Form Values:", values);
   };
+
+  const navigate = useNavigate();
 
   return (
     <div className=" px-3">
@@ -75,25 +78,20 @@ const CheckInForm = ({ data }) => {
         layout="vertical"
         onFinish={handleSubmit}
         initialValues={{
-          checkIn: dayjs("2026-07-06"),
-          checkOut: dayjs("2026-07-08"),
-          adults: 3,
-          children: 1,
-          guestType: "Local",
-          paymentMethod: "MMQR",
-          paymentStatus: "Paid",
-          currency: "MMK",
-          amount: 50000,
-          nrcCode: "12",
-          nrcTownship: "MaYaKa",
-          nrcType: "Naing",
+          physical_room_id: data?.id,
+          rate_plan_id: "",
+          check_in: dayjs(),
+          check_out: dayjs().add(1, "day"),
+          adults: 2,
+          children: 0,
+          guest_market: "Local",
         }}
         className="space-y-3"
       >
         {/* 2. Dates & Guest Count Card */}
         <div className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-2xs space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <Form.Item label="Check-in" name="checkIn" className="mb-0">
+            <Form.Item label="Check-in" name="check_in" className="mb-0">
               <DatePicker
                 format="DD MMM YYYY"
                 className="w-full h-10 rounded-xl bg-neutral-50 border-neutral-200"
@@ -101,7 +99,7 @@ const CheckInForm = ({ data }) => {
               />
             </Form.Item>
 
-            <Form.Item label="Check-out" name="checkOut" className="mb-0">
+            <Form.Item label="Check-out" name="check_out" className="mb-0">
               <DatePicker
                 format="DD MMM YYYY"
                 className="w-full h-10 rounded-xl bg-neutral-50 border-neutral-200"
@@ -133,7 +131,7 @@ const CheckInForm = ({ data }) => {
           </div>
 
           <div className="pt-2 flex justify-center space-x-6">
-            <Form.Item name="guestType" className="mb-0">
+            <Form.Item name="guest_market" className="mb-0">
               <Radio.Group
                 onChange={(e) => setGuestType(e.target.value)}
                 value={guestType}
@@ -401,7 +399,12 @@ const CheckInForm = ({ data }) => {
 
         {/* 6. Footer Action Buttons */}
         <div className="grid grid-cols-2 gap-3 pt-2">
-          <Button className="h-11 rounded-xl bg-neutral-200/80 hover:bg-neutral-300 border-none text-neutral-700 font-bold text-xs">
+          <Button
+            onClick={() => {
+              navigate(-1);
+            }}
+            className="h-11 rounded-xl bg-neutral-200/80 hover:bg-neutral-300 border-none text-neutral-700 font-bold text-xs"
+          >
             Cancel
           </Button>
 

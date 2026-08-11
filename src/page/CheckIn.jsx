@@ -17,6 +17,10 @@ const CheckIn = () => {
   const { details: roomData, isPending } = useSelector(roomBoardSelector);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+  }, []);
+
+  useEffect(() => {
     if (id) {
       dispatch(
         getOneRoom({

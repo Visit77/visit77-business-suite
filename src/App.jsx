@@ -17,6 +17,7 @@ import {
 } from "./service/languageSettingSlice";
 import { useLanguage } from "./context/LanguageContext";
 import { getLanguage } from "./service/languageSlice";
+import ScrollToTop from "./components/ScrollToTop";
 
 const Dashboard = lazy(() => import("./page/Dashboard"));
 const Room = lazy(() => import("./page/Room"));
@@ -48,6 +49,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Suspense fallback={<PageLoading message="Loading page..." />}>
         <Routes>
           <Route path="/login" element={<Login />} />

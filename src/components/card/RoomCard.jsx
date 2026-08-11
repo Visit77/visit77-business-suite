@@ -126,7 +126,7 @@ const RoomCard = ({ room }) => {
         <div className="flex items-center space-x-2 pt-2 border-t border-slate-100">
           <Button
             type="primary"
-            className="flex-1! h-10! bg-blue-600! hover:bg-blue-700! font-title! text-xs! font-semibold! rounded-xl! border-none! transition-all!"
+            className="flex-1! h-10! bg-blue-600! hover:bg-blue-700! text-xs! font-semibold! rounded-xl! border-none! transition-all!"
             onClick={() => {
               navigate(`/rooms/${room?.id}`);
             }}

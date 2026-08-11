@@ -94,7 +94,7 @@ const AdminLayout = () => {
       <div className="p-4 border-t border-slate-50 bg-white space-y-4">
         <button
           onClick={() => setIsLogoutModalOpen(true)}
-          className="w-full bg-primary hover:bg-primary-container text-white py-3 px-4 rounded-xl font-title text-sm font-semibold shadow-sm flex items-center justify-center space-x-2 transition-all active:scale-95"
+          className="w-full bg-primary hover:bg-primary-container text-white py-3 px-4 rounded-xl text-sm font-semibold shadow-sm flex items-center justify-center space-x-2 transition-all active:scale-95"
         >
           <span>Log out</span>
         </button>
