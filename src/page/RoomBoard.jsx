@@ -193,7 +193,7 @@ const RoomBoard = () => {
                       </div>
                       <div className=" text-secondary-500 text-lg font-semibold">
                         {room?.room_type?.price?.currency}&nbsp;
-                        {room?.room_type?.price?.base_price}
+                        {room?.room_type?.price?.default_price}
                       </div>
                     </div>
                     <div className=" border-dashed m-1! px-3! border border-neutral-300" />

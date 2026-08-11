@@ -15,6 +15,7 @@ import { selectBusinessDetails } from "../service/businessSlice";
 import LogoutModal from "./modal/LogoutModal";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { MeetingRoomIcon } from "@hugeicons/core-free-icons";
+import LanguageSelect from "./LanguageSelect";
 
 const { Sider, Content, Header } = Layout;
 
@@ -146,10 +147,7 @@ const AdminLayout = () => {
           </div>
 
           <div className="flex! items-center! space-x-3! md:space-x-6!">
-            <Input
-              placeholder="ရှာဖွေရန်..."
-              className="w-36! sm:w-48! md:w-72! bg-surface/60! border-slate-200/80! rounded-xl! px-3! py-1.5! text-xs! font-sans!"
-            />
+            <LanguageSelect />
 
             <Badge count={3} size="small" offset={[-2, 2]}>
               <button className="text-outline! hover:text-primary! transition-colors! flex items-center">

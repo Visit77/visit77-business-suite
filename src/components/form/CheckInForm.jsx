@@ -15,16 +15,25 @@ import {
   CalendarOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { nrcCodes, nrcTownships, nrcTypes } from "../../utils/utils";
+import {
+  getDotColor,
+  getRoomBorderStyle,
+  getRoomCardStyle,
+  nrcCodes,
+  nrcTownships,
+  nrcTypes,
+} from "../../utils/utils";
+import _ from "lodash";
 
 const { Option } = Select;
 const { TextArea } = Input;
 
-const CheckInForm = () => {
+const CheckInForm = ({ data }) => {
   const [form] = Form.useForm();
   const [guestType, setGuestType] = useState("Local");
   const [guests, setGuests] = useState([{ id: 1 }]);
   const [selectedCode, setSelectedCode] = useState("12");
+
   const handleAddGuest = () => {
     setGuests([...guests, { id: guests.length + 1 }]);
   };
@@ -34,17 +43,30 @@ const CheckInForm = () => {
   };
 
   return (
-    <div>
+    <div className=" px-3">
       {/* 1. Header Banner */}
-      <div className="space-y-1 px-1">
+      <div className="py-4  space-y-1 px-1">
         <div className="flex items-center space-x-2">
-          <h2 className="text-base font-extrabold text-neutral-900">#M 303</h2>
-          <span className="bg-success-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">
-            Available
+          <h2 className="text-base font-extrabold text-neutral-900">
+            #{data?.room_number}
+          </h2>
+          <span
+            className={`${getDotColor(data?.display_status)} text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider`}
+          >
+            {data?.display_status}
           </span>
         </div>
-        <p className="text-xs text-neutral-500 font-medium">
-          Double Room • King Bed • City View • 301 sqft
+        <p className="text-xs font-medium text-neutral-500 mt-1.5">
+          {data?.room_type?.name} &nbsp;
+          {_.map(data?.core_snapshot?.beds, (bed, index) => {
+            return <span key={index}>.&nbsp;{bed?.bed_type?.name}&nbsp;</span>;
+          })}
+          {data?.core_snapshot?.room_view?.name && (
+            <span>.&nbsp;{data?.core_snapshot?.room_view?.name}</span>
+          )}
+          {data?.core_snapshot?.room_area && <span>.&nbsp;</span>}
+          {data?.core_snapshot?.room_area}
+          {data?.core_snapshot?.area_unit}
         </p>
       </div>
 
@@ -147,7 +169,7 @@ const CheckInForm = () => {
             <Form.Item
               label={
                 <span className="text-xs font-semibold text-neutral-600">
-                  Name <span className="text-red-500">*</span>
+                  {"Name".toMultiLan()} <span className="text-red-500">*</span>
                 </span>
               }
               name={["guests", index, "name"]}
@@ -279,7 +301,7 @@ const CheckInForm = () => {
                 <Button
                   type="primary"
                   icon={<PlusOutlined />}
-                  className="w-full h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-xs font-semibold border-none flex items-center justify-center space-x-1"
+                  className="w-full h-10 rounded-xl bg-white! text-secondary-500! border-secondary-500! text-xs font-semibold border-none flex items-center justify-center space-x-1"
                 >
                   Upload Identity Photo
                 </Button>

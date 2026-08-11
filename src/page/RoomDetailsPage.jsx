@@ -52,9 +52,11 @@ const RoomDetailsPage = () => {
       );
     }
   }, [id, businessId, dispatch]);
+
   if (isPending) {
     return <PageLoading message="Loading room data..." />;
   }
+
   return (
     <div className="min-h-screen bg-[#F5F7FB] p-8">
       <div className="space-y-5">
@@ -101,7 +103,7 @@ const RoomDetailsPage = () => {
                   <div className="text-lg font-bold text-primary-400">
                     {plan?.currency}{" "}
                     {plan?.guest_market == "local"
-                      ? plan?.base_price
+                      ? plan?.default_price
                       : plan?.usd_display_price}
                     <span className="text-[10px] text-neutral-600 font-bold">
                       / Night

@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from "react";
+import React, { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import BusinessGate from "./components/BusinessGate";
@@ -10,6 +10,13 @@ import SelectBusiness from "./page/SelectBusiness";
 import RoomBoard from "./page/RoomBoard";
 import RoomDetailsPage from "./page/RoomDetailsPage";
 import CheckIn from "./page/CheckIn";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getLanguageSetting,
+  languageSettingSelector,
+} from "./service/languageSettingSlice";
+import { useLanguage } from "./context/LanguageContext";
+import { getLanguage } from "./service/languageSlice";
 
 const Dashboard = lazy(() => import("./page/Dashboard"));
 const Room = lazy(() => import("./page/Room"));
@@ -19,6 +26,26 @@ const EditRoom = lazy(() => import("./page/EditRoom"));
 const RoomBookingList = lazy(() => import("./page/RoomBookingList"));
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getLanguage({ is_active: "true" }));
+    dispatch(getLanguageSetting());
+  }, [dispatch]);
+
+  const { data: languageSettings } = useSelector(languageSettingSelector);
+  const { language } = useLanguage();
+  console.log("langauge", languageSettings, language);
+
+  String.prototype.toMultiLan = function () {
+    let lan = this.toString();
+    const setting = languageSettings?.find(
+      (value) => value.key === lan && value.language.lang_code === language,
+    );
+
+    return setting?.value || lan;
+  };
+
   return (
     <BrowserRouter>
       <Suspense fallback={<PageLoading message="Loading page..." />}>

@@ -1,5 +1,80 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "SF UI Display";
+  src: url("../src/assets/fonts/sf-ui-display-black-58646a6b80d5a.otf")
+    format("opentype");
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "SF UI Display Bold";
+  src: url("../src/assets/fonts/sf-ui-display-bold-58646a511e3d9.otf")
+    format("opentype");
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "SF UI Display Heavy";
+  src: url("../src/assets/fonts/sf-ui-display-heavy-586470160b9e5.otf")
+    format("opentype");
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "SF UI Display Light";
+  src: url("../src/assets/fonts/sf-ui-display-light-58646b33e0551.otf")
+    format("opentype");
+  font-style: normal;
+}
+@font-face {
+  font-family: "SF UI Display Medium";
+  src: url("../src/assets/fonts/sf-ui-display-medium-58646be638f96.otf")
+    format("opentype");
+  font-style: normal;
+}
+@font-face {
+  font-family: "SF UI Display Semibold";
+  src: url("../src/assets/fonts/sf-ui-display-semibold-58646eddcae92.otf")
+    format("opentype");
+  font-style: normal;
+}
+@font-face {
+  font-family: "SF UI Display Thin";
+  src: url("../src/assets/fonts/sf-ui-display-thin-58646e9b26e8b.otf")
+    format("opentype");
+  font-style: normal;
+}
+@font-face {
+  font-family: "SF UI Display Ultralight";
+  src: url("../src/assets/fonts/sf-ui-display-ultralight-58646b19bf205.otf")
+    format("opentype");
+  font-style: normal;
+}
+html {
+  overflow-y: scroll;
+  background: rgba(248, 250, 252, 1);
+  font-family: "SF UI Display Medium", sans-serif !important;
+
+  body {
+    font-family: "SF UI Display Medium", sans-serif !important;
+    /* Change arrow color */
+    line-height: 20px;
+    width: 100% !important;
+    .ant-modal-content {
+      font-family: "SF UI Display Medium", sans-serif !important;
+    }
+    .ant-input,
+    .ant-form-item-required,
+    .ant-btn,
+    .ant-form-item-label,
+    .ant-select-item-option,
+    .ant-select-selection-item,
+    .ant-radio-button-label {
+      font-family: "SF UI Display Medium", sans-serif !important;
+    }
+  }
+}
 @theme {
   --color-primary-container: #1e3a8a;
   --color-on-primary: #ffffff;
@@ -116,6 +191,15 @@
   --text-lg: 16px;
   --text-md: 14px;
   --text-sm: 12px;
+
+  --font-black: "SF UI Display", sans-serif;
+  --font-blod: "SF UI Display Bold ", sans-serif;
+  --font-light: "SF UI Display Light", sans-serif;
+  --font-medium: "SF UI Display Medium", sans-serif;
+  --font-semibold: "SF UI Display Semibold", sans-serif;
+  --font-thin: "SF UI Display Thin", sans-serif;
+  --font-ultralight: "SF UI Display Ultralight", sans-serif;
+  --font-heavy: "SF UI Display Heavy", sans-serif;
 
   --shadow-blog:
     0px 2px 8px 0px rgba(0, 0, 0, 0.08), 2px 0px 8px 0px rgba(0, 0, 0, 0.04),
