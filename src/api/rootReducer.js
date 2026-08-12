@@ -12,6 +12,7 @@ import roomBoardReducer from "../service/roomBoardSlice.jsx";
 import buildingReducer from "../service/buildingSlice.jsx";
 import languageSettingReducer from "../service/languageSettingSlice.jsx";
 import languageReducer from "../service/languageSlice.jsx";
+import actionReducer from "../service/actionSlice.jsx";
 
 const appReducer = combineReducers({
   auth: authReducer,
@@ -27,6 +28,7 @@ const appReducer = combineReducers({
   building: buildingReducer,
   languageSetting: languageSettingReducer,
   language: languageReducer,
+  action: actionReducer,
 });
 
 const rootReducer = (state, action) => {

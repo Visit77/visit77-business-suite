@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal } from "antd";
 import {
   CloseOutlined,
@@ -31,6 +31,8 @@ import {
   Settings01Icon,
   SquareLockRemove01Icon,
 } from "@hugeicons/core-free-icons";
+import OutOfServiceModal from "../components/modal/OutOfServiceModal";
+import RoomBlockModal from "../components/modal/RoomBlockModal";
 
 const RoomDetailsPage = () => {
   const { id } = useParams();
@@ -40,7 +42,8 @@ const RoomDetailsPage = () => {
   const dispatch = useDispatch();
   const businessId = useSelector(selectBusinessId);
   const { details: roomData, isPending } = useSelector(roomBoardSelector);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
   useEffect(() => {
     if (id) {
       dispatch(
@@ -244,7 +247,12 @@ const RoomDetailsPage = () => {
                 )}
               </div>
               <div className=" grid grid-cols-4 gap-3 ">
-                <button className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer">
+                <button
+                  onClick={() => {
+                    setIsBlockModalOpen(true);
+                  }}
+                  className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer"
+                >
                   <HugeiconsIcon
                     icon={SquareLockRemove01Icon}
                     className=" text-primary-400"
@@ -267,7 +275,12 @@ const RoomDetailsPage = () => {
                   <span>Room History</span>
                 </button>
 
-                <button className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer">
+                <button
+                  onClick={() => {
+                    setIsModalOpen(true);
+                  }}
+                  className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer"
+                >
                   <HugeiconsIcon
                     icon={Settings01Icon}
                     className=" text-primary-400"
@@ -279,6 +292,16 @@ const RoomDetailsPage = () => {
           </div>
         </div>
       </div>
+      <OutOfServiceModal
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        id={id}
+      />
+      <RoomBlockModal
+        isBlockModalOpen={isBlockModalOpen}
+        setIsBlockModalOpen={setIsBlockModalOpen}
+        id={id}
+      />
     </div>
   );
 };

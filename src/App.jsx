@@ -36,7 +36,6 @@ function App() {
 
   const { data: languageSettings } = useSelector(languageSettingSelector);
   const { language } = useLanguage();
-  console.log("langauge", languageSettings, language);
 
   String.prototype.toMultiLan = function () {
     let lan = this.toString();

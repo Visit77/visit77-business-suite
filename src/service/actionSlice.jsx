@@ -1,0 +1,77 @@
+import { createSlice, createAsyncThunk, isPending } from "@reduxjs/toolkit";
+import api from "../api/axiosInstance";
+import { BOOKING_ADMIN_KEY, BOOKING_URL } from "../variables/constants";
+
+export const makeOutOfService = createAsyncThunk(
+  "room_action/MakeOutOfService",
+  async ({ id, business_id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.patch(
+        `/admin/physical-rooms/${id}`,
+        { ...data, status: "out_of_service" },
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
+export const roomBlock = createAsyncThunk(
+  "room_action/roomBlock",
+  async ({ id, business_id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(
+        `/admin/room-blocks/`,
+        { ...data },
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
+const actionSlice = createSlice({
+  name: "data",
+  initialState: {
+    data: [],
+    total: 0,
+    isPending: false,
+    details: {},
+    error: null,
+  },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder;
+
+    // .addCase(getOneRoom.pending, (state) => {
+    //   state.isPending = true;
+    // })
+    // .addCase(getOneRoom.fulfilled, (state, action) => {
+    //   state.isPending = false;
+    //   state.details = action.payload.data;
+    // })
+    // .addCase(getOneRoom.rejected, (state, action) => {
+    //   state.isPending = false;
+    //   state.error = action.payload;
+    // });
+  },
+});
+
+export default actionSlice.reducer;
+export const actionSelector = (state) => state.action;
