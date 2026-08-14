@@ -110,7 +110,7 @@ const Login = () => {
           {/* Glassmorphism Login Card */}
           <div className=" mt-6 backdrop-blur-md bg-white/85 border border-slate-200/80 rounded-2xl shadow-sm p-8 md:p-10">
             <div className="mb-6">
-              <h2 className="font-title text-2xl font-semibold text-on-surface mb-2">
+              <h2 className=" text-2xl font-semibold text-on-surface mb-2">
                 Admin Login
               </h2>
               <p className="text-sm text-on-surface-variant">
@@ -257,7 +257,7 @@ const Login = () => {
                   type="primary"
                   htmlType="submit"
                   disabled={loading}
-                  className="w-full! bg-primary! hover:bg-primary-container! text-on-primary! font-title! font-semibold! text-base! h-12! rounded-xl! border-none! flex! items-center! justify-center! space-x-2! transition-all! group!"
+                  className="w-full! bg-primary! hover:bg-primary-container! text-on-primary! font-semibold! text-base! h-12! rounded-xl! border-none! flex! items-center! justify-center! space-x-2! transition-all! group!"
                 >
                   {loading ? (
                     <>

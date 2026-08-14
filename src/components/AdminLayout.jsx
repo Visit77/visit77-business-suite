@@ -51,7 +51,7 @@ const AdminLayout = () => {
     if (path.includes("/rooms")) return "rooms";
     if (path.includes("/dashboard")) return "dashboard";
 
-    return "dashboard";
+    // return "dashboard";
   };
 
   const handleLogout = () => {
