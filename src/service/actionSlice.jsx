@@ -46,6 +46,30 @@ export const roomBlock = createAsyncThunk(
   },
 );
 
+export const roomUnblock = createAsyncThunk(
+  "room_action/roomUnblock",
+  async ({ id, business_id }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(
+        `/admin/room-blocks/${id}/unblock/`,
+        {},
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
+
+
 const actionSlice = createSlice({
   name: "data",
   initialState: {

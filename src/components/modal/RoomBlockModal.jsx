@@ -5,17 +5,13 @@ import { selectBusinessId } from "../../service/businessSlice";
 import { roomBlock } from "../../service/actionSlice";
 import _ from "lodash";
 import { getOneRoom } from "../../service/roomBoardSlice";
+import moment from "moment";
 
 const RoomBlockModal = ({ isBlockModalOpen, setIsBlockModalOpen, id }) => {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const businessId = useSelector(selectBusinessId);
-
-  // Open Modal
-  const showModal = () => {
-    setIsBlockModalOpen(true);
-  };
 
   // Handle Submit / OK Click
   const handleOk = () => {
@@ -79,10 +75,6 @@ const RoomBlockModal = ({ isBlockModalOpen, setIsBlockModalOpen, id }) => {
 
   return (
     <div style={{ padding: 20 }}>
-      <Button type="primary" onClick={showModal}>
-        Open Schedule Modal
-      </Button>
-
       <Modal
         title="Create Schedule"
         open={isBlockModalOpen}

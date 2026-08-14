@@ -201,14 +201,16 @@ const RoomBoard = () => {
                       {room?.timeline?.text}
                       {room?.timeline?.vacant_days &&
                         ` ${room?.timeline?.vacant_days}`}
+                      <br />
                       {room?.timeline?.checkout &&
-                        ` ${room?.timeline?.checkout}`}
+                        `${room?.timeline?.checkout?.label} - ${room?.timeline?.checkout?.date} `}
+                      <br />
                       {room?.timeline?.next_reserved &&
                         ` ${room?.timeline?.next_reserved}`}
                       {room?.timeline?.reserved_nights &&
                         ` ${room?.timeline?.reserved_nights}`}
-                      {room?.timeline?.stay_nights &&
-                        ` ${room?.timeline?.stay_nights}`}
+                      {/* {room?.timeline?.stay_nights &&
+                        ` ${room?.timeline?.stay_nights}`} */}
                     </div>
                   </div>
                 ))}

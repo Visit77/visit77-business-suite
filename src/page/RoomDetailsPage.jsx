@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Modal } from "antd";
+import { message, Modal } from "antd";
 import {
   CloseOutlined,
   CalendarOutlined,
@@ -33,6 +33,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import OutOfServiceModal from "../components/modal/OutOfServiceModal";
 import RoomBlockModal from "../components/modal/RoomBlockModal";
+import { roomUnblock } from "../service/actionSlice";
 
 const RoomDetailsPage = () => {
   const { id } = useParams();
@@ -247,20 +248,56 @@ const RoomDetailsPage = () => {
                 )}
               </div>
               <div className=" grid grid-cols-4 gap-3 ">
+                {roomData?.display_status == "blocked" ? (
+                  <button
+                    onClick={() => {
+                      dispatch(
+                        roomUnblock({
+                          business_id: businessId,
+                          id: roomData?.block?.id,
+                        }),
+                      ).then((res) => {
+                        if (_.endsWith(res.type, "fulfilled")) {
+                          message.success("Room Unblock Successful.");
+                          dispatch(
+                            getOneRoom({
+                              business_id: businessId,
+                              date: moment().format("YYYY-MM-DD"),
+                              id: id,
+                            }),
+                          );
+                        }
+                      });
+                    }}
+                    className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer"
+                  >
+                    <HugeiconsIcon
+                      icon={SquareLockRemove01Icon}
+                      className=" text-primary-400"
+                    />
+                    <span>Unblock</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setIsBlockModalOpen(true);
+                    }}
+                    className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer"
+                  >
+                    <HugeiconsIcon
+                      icon={SquareLockRemove01Icon}
+                      className=" text-primary-400"
+                    />
+                    <span>Block</span>
+                  </button>
+                )}
+
                 <button
                   onClick={() => {
-                    setIsBlockModalOpen(true);
+                    navigate(`/rooms/${id}`);
                   }}
                   className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer"
                 >
-                  <HugeiconsIcon
-                    icon={SquareLockRemove01Icon}
-                    className=" text-primary-400"
-                  />
-                  <span>Block</span>
-                </button>
-
-                <button className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer">
                   <HugeiconsIcon
                     icon={InformationCircleIcon}
                     className=" text-primary-400"
