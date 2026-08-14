@@ -46,6 +46,42 @@ export const roomBlock = createAsyncThunk(
   },
 );
 
+export const walkInBooking = createAsyncThunk(
+  "room_action/walkInBooking",
+  async ({ business_id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(
+        `/admin/walk-in-booking-v2/`,
+        { ...data },
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
+export const finalVerifiedCheckIn = createAsyncThunk(
+  "room_action/finalVerifiedCheckIn",
+  async ({ booking_id }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(
+        `/admin/bookings/${booking_id}/check-in/`,
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
 export const roomUnblock = createAsyncThunk(
   "room_action/roomUnblock",
   async ({ id, business_id }, { rejectWithValue }) => {
@@ -67,8 +103,6 @@ export const roomUnblock = createAsyncThunk(
     }
   },
 );
-
-
 
 const actionSlice = createSlice({
   name: "data",

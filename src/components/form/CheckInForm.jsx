@@ -13,6 +13,7 @@ import {
   PlusOutlined,
   UploadOutlined,
   CalendarOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import {
@@ -25,22 +26,99 @@ import {
 } from "../../utils/utils";
 import _ from "lodash";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { finalVerifiedCheckIn, walkInBooking } from "../../service/actionSlice";
+import { selectBusinessId } from "../../service/businessSlice";
 
 const { Option } = Select;
 const { TextArea } = Input;
 
 const CheckInForm = ({ data }) => {
   const [form] = Form.useForm();
-  const [guestType, setGuestType] = useState("Local");
-  const [guests, setGuests] = useState([{ id: 1 }]);
-  const [selectedCode, setSelectedCode] = useState("12");
+  const dispatch = useDispatch();
+  const [guests, setGuests] = useState([
+    { id: 1, guestType: "local", selectedCode: "12", is_primary: true },
+  ]);
+  const businessId = useSelector(selectBusinessId);
 
   const handleAddGuest = () => {
-    setGuests([...guests, { id: guests.length + 1 }]);
+    setGuests([
+      ...guests,
+      { id: Date.now(), guestType: "local", selectedCode: "12" },
+    ]);
+  };
+
+  const handleRemoveGuest = (index) => {
+    const updatedGuests = guests.filter((_, i) => i !== index);
+    setGuests(updatedGuests);
+  };
+
+  const handleGuestTypeChange = (index, value) => {
+    const updatedGuests = [...guests];
+    updatedGuests[index].guestType = value;
+    setGuests(updatedGuests);
+  };
+
+  const handleNrcCodeChange = (index, value) => {
+    const updatedGuests = [...guests];
+    updatedGuests[index].selectedCode = value;
+    setGuests(updatedGuests);
   };
 
   const handleSubmit = (values) => {
-    console.log("Form Values:", values);
+    const formattedCheckIn = values?.check_in
+      ? dayjs(values.check_in).format("YYYY-MM-DD")
+      : null;
+    const formattedCheckOut = values?.check_out
+      ? dayjs(values.check_out).format("YYYY-MM-DD")
+      : null;
+
+    try {
+      // Simulated API Request
+      dispatch(
+        walkInBooking({
+          business_id: businessId,
+          data: {
+            ...values,
+            check_in: formattedCheckIn,
+            check_out: formattedCheckOut,
+            physical_room_id: data?.id,
+            contact_name: values?.guests[0]?.name,
+            contact_phone: values?.guests[0]?.phone,
+            payment: {
+              provider: values?.paymentMethod,
+              status: values?.paymentStatus,
+              payment_type: "full_payment",
+            },
+            rate_plan_id: data?.room_type?.rate_plans?.find(
+              (plan) => plan?.guest_market == values?.guest_market,
+            )?.id,
+            guests: values?.guests.map((guest) => {
+              return {
+                ...guest,
+                nrc_number: `${guest?.nrcCode}/${guest?.nrcTownship}(${guest?.nrcType})/${guest?.nrcNumber}`,
+              };
+            }),
+          },
+        }),
+      ).then((res) => {
+        const { payload } = res;
+        if (_.endsWith(res.type, "fulfilled")) {
+          message.success("Success Check In");
+          // setLoading(false);
+          dispatch(finalVerifiedCheckIn({ booking_id: payload?.booking?.id }));
+        } else if (_.endsWith(res.type, "rejected")) {
+          // setLoading(false);
+        }
+      });
+
+      form.resetFields();
+      setIsBlockModalOpen(false);
+    } catch (error) {
+      message.error("Something went wrong!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const navigate = useNavigate();
@@ -48,7 +126,7 @@ const CheckInForm = ({ data }) => {
   return (
     <div className=" px-3">
       {/* 1. Header Banner */}
-      <div className="py-4  space-y-1 px-1">
+      <div className="py-4 space-y-1 px-1">
         <div className="flex items-center space-x-2">
           <h2 className="text-base font-extrabold text-neutral-900">
             #{data?.room_number}
@@ -78,13 +156,12 @@ const CheckInForm = ({ data }) => {
         layout="vertical"
         onFinish={handleSubmit}
         initialValues={{
-          physical_room_id: data?.id,
           rate_plan_id: "",
           check_in: dayjs(),
           check_out: dayjs().add(1, "day"),
           adults: 2,
           children: 0,
-          guest_market: "Local",
+          guest_market: "local",
         }}
         className="space-y-3"
       >
@@ -93,7 +170,7 @@ const CheckInForm = ({ data }) => {
           <div className="grid grid-cols-2 gap-3">
             <Form.Item label="Check-in" name="check_in" className="mb-0">
               <DatePicker
-                format="DD MMM YYYY"
+                format="YYYY-MM-DD"
                 className="w-full h-10 rounded-xl bg-neutral-50 border-neutral-200"
                 suffixIcon={<CalendarOutlined className="text-blue-500" />}
               />
@@ -101,7 +178,7 @@ const CheckInForm = ({ data }) => {
 
             <Form.Item label="Check-out" name="check_out" className="mb-0">
               <DatePicker
-                format="DD MMM YYYY"
+                format="YYYY-MM-DD"
                 className="w-full h-10 rounded-xl bg-neutral-50 border-neutral-200"
                 suffixIcon={<CalendarOutlined className="text-blue-500" />}
               />
@@ -133,18 +210,18 @@ const CheckInForm = ({ data }) => {
           <div className="pt-2 flex justify-center space-x-6">
             <Form.Item name="guest_market" className="mb-0">
               <Radio.Group
-                onChange={(e) => setGuestType(e.target.value)}
-                value={guestType}
+                onChange={(e) => handleGuestTypeChange(0, e.target.value)}
+                value={guests[0]?.guestType || "local"}
                 className="flex space-x-6"
               >
                 <Radio
-                  value="Local"
+                  value="local"
                   className="text-xs font-semibold text-indigo-600"
                 >
                   Local
                 </Radio>
                 <Radio
-                  value="Foreigner"
+                  value="foreigner"
                   className="text-xs font-semibold text-neutral-600"
                 >
                   Foreigner
@@ -155,158 +232,224 @@ const CheckInForm = ({ data }) => {
         </div>
 
         {/* 3. Guest Information Section */}
-        {guests.map((guest, index) => (
-          <div
-            key={guest.id}
-            className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-2xs space-y-3"
-          >
-            <div className="text-xs font-bold text-teal-500 tracking-wider">
-              Guest Information {guests.length > 1 ? `#${index + 1}` : ""}
-            </div>
+        {guests.map((guest, index) => {
+          const isMainGuest = index === 0;
 
-            <Form.Item
-              label={
-                <span className="text-xs font-semibold text-neutral-600">
-                  {"Name".toMultiLan()} <span className="text-red-500">*</span>
-                </span>
-              }
-              name={["guests", index, "name"]}
-              rules={[{ required: true, message: "Please enter name" }]}
-              className="mb-2"
+          return (
+            <div
+              key={guest.id}
+              className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-2xs space-y-3"
             >
-              <Input
-                placeholder="Type Here..."
-                className="h-10 rounded-xl bg-neutral-50 border-neutral-200 text-xs"
-              />
-            </Form.Item>
+              {/* Card Header & Remove Button */}
+              <div className="flex items-center justify-between">
+                <div className="text-xs font-bold text-teal-500 tracking-wider">
+                  Guest Information {guests.length > 1 ? `#${index + 1}` : ""}
+                </div>
+                {!isMainGuest && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveGuest(index)}
+                    className="text-red-500 hover:text-red-700 text-xs font-semibold flex items-center space-x-1 cursor-pointer transition-colors"
+                  >
+                    <DeleteOutlined className="text-xs" />
+                    <span>Remove</span>
+                  </button>
+                )}
+              </div>
 
-            <Form.Item
-              label={
-                <span className="text-xs font-semibold text-neutral-600">
-                  Phone Number <span className="text-red-500">*</span>
-                </span>
-              }
-              name={["guests", index, "phone"]}
-              rules={[{ required: true, message: "Please enter phone number" }]}
-              className="mb-2"
-            >
-              <Input
-                placeholder="Type Here..."
-                className="h-10 rounded-xl bg-neutral-50 border-neutral-200 text-xs"
-              />
-            </Form.Item>
-
-            <Form.Item
-              label={
-                <span className="text-xs font-semibold text-neutral-600">
-                  Email <span className="text-red-500">*</span>
-                </span>
-              }
-              name={["guests", index, "email"]}
-              rules={[
-                {
-                  required: true,
-                  type: "email",
-                  message: "Please enter valid email",
-                },
-              ]}
-              className="mb-2"
-            >
-              <Input
-                placeholder="Type Here..."
-                className="h-10 rounded-xl bg-neutral-50 border-neutral-200 text-xs"
-              />
-            </Form.Item>
-
-            {guestType === "Local" ? (
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-neutral-600">
-                  NRC Number
-                </label>
-                <div className="grid grid-cols-3 gap-1.5">
+              {!isMainGuest && (
+                <div className="pt-1">
                   <Form.Item
-                    name={["guests", index, "nrcCode"]}
+                    name={["guests", index, "guestType"]}
+                    initialValue={guest.guestType}
                     className="mb-0"
                   >
-                    <Select
-                      onChange={(val) => setSelectedCode(val)}
-                      className="h-9 [&_.ant-select-selector]:rounded-xl! text-xs"
+                    <Radio.Group
+                      onChange={(e) =>
+                        handleGuestTypeChange(index, e.target.value)
+                      }
+                      value={guest.guestType}
+                      className="flex space-x-6"
                     >
-                      {nrcCodes.map((code) => (
-                        <Option key={code} value={code}>
-                          {code}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                  <Form.Item
-                    name={["guests", index, "nrcTownship"]}
-                    className="mb-0"
-                  >
-                    <Select className="h-9 [&_.ant-select-selector]:rounded-xl! [&_.ant-select-selector]:bg-neutral-50! text-xs">
-                      {(nrcTownships[selectedCode] || []).map((item) => (
-                        <Option key={item.value} value={item.value}>
-                          {item.label}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                  <Form.Item
-                    name={["guests", index, "nrcType"]}
-                    className="mb-0"
-                  >
-                    <Select className="h-9 [&_.ant-select-selector]:rounded-xl! [&_.ant-select-selector]:bg-neutral-50! text-xs">
-                      {nrcTypes.map((type) => (
-                        <Option key={type.value} value={type.value}>
-                          {type.label}
-                        </Option>
-                      ))}
-                    </Select>
+                      <Radio
+                        value="local"
+                        className="text-xs font-semibold text-indigo-600"
+                      >
+                        Local
+                      </Radio>
+                      <Radio
+                        value="foreigner"
+                        className="text-xs font-semibold text-neutral-600"
+                      >
+                        Foreigner
+                      </Radio>
+                    </Radio.Group>
                   </Form.Item>
                 </div>
-                <Form.Item
-                  name={["guests", index, "nrcNumber"]}
-                  className="mb-2 pt-1"
-                >
-                  <Input
-                    placeholder="Enter NRC Number..."
-                    className="h-10 rounded-xl bg-neutral-50 border-neutral-200 text-xs"
-                  />
-                </Form.Item>
-              </div>
-            ) : (
+              )}
+
+              {/* Name Field */}
               <Form.Item
                 label={
                   <span className="text-xs font-semibold text-neutral-600">
-                    Passport Number
+                    {"Name".toMultiLan()}{" "}
+                    <span className="text-red-500">*</span>
                   </span>
                 }
-                name={["guests", index, "passport"]}
+                name={["guests", index, "name"]}
+                rules={[{ required: true, message: "Please enter name" }]}
                 className="mb-2"
               >
                 <Input
-                  placeholder="Enter Passport Number..."
+                  placeholder="Type Here..."
                   className="h-10 rounded-xl bg-neutral-50 border-neutral-200 text-xs"
                 />
               </Form.Item>
-            )}
 
-            <Form.Item
-              name={["guests", index, "identityPhoto"]}
-              className="mb-0"
-            >
-              <Upload maxCount={1} showUploadList={false}>
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  className="w-full h-10 rounded-xl bg-white! text-secondary-500! border-secondary-500! text-xs font-semibold border-none flex items-center justify-center space-x-1"
+              {/* Phone & Email Fields*/}
+              {isMainGuest && (
+                <>
+                  <Form.Item
+                    label={
+                      <span className="text-xs font-semibold text-neutral-600">
+                        Phone Number <span className="text-red-500">*</span>
+                      </span>
+                    }
+                    name={["guests", index, "phone"]}
+                    rules={[
+                      { required: true, message: "Please enter phone number" },
+                    ]}
+                    className="mb-2"
+                  >
+                    <Input
+                      placeholder="Type Here..."
+                      className="h-10 rounded-xl bg-neutral-50 border-neutral-200 text-xs"
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    label={
+                      <span className="text-xs font-semibold text-neutral-600">
+                        Email <span className="text-red-500">*</span>
+                      </span>
+                    }
+                    name={["guests", index, "email"]}
+                    rules={[
+                      {
+                        required: true,
+                        type: "email",
+                        message: "Please enter valid email",
+                      },
+                    ]}
+                    className="mb-2"
+                  >
+                    <Input
+                      placeholder="Type Here..."
+                      className="h-10 rounded-xl bg-neutral-50 border-neutral-200 text-xs"
+                    />
+                  </Form.Item>
+                </>
+              )}
+
+              {/* NRC or Passport Field */}
+              {guest.guestType === "local" ? (
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-neutral-600">
+                    NRC Number
+                  </label>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    <Form.Item
+                      name={["guests", index, "nrcCode"]}
+                      initialValue="12"
+                      className="mb-0"
+                    >
+                      <Select
+                        onChange={(val) => handleNrcCodeChange(index, val)}
+                        className="h-9 [&_.ant-select-selector]:rounded-xl! text-xs"
+                      >
+                        {nrcCodes.map((code) => (
+                          <Option key={code} value={code}>
+                            {code}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                      name={["guests", index, "nrcTownship"]}
+                      initialValue="MaYaKa"
+                      className="mb-0"
+                    >
+                      <Select className="h-9 [&_.ant-select-selector]:rounded-xl! [&_.ant-select-selector]:bg-neutral-50! text-xs">
+                        {(nrcTownships[guest.selectedCode] || []).map(
+                          (item) => (
+                            <Option key={item.value} value={item.value}>
+                              {item.label}
+                            </Option>
+                          ),
+                        )}
+                      </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                      name={["guests", index, "nrcType"]}
+                      initialValue="Naing"
+                      className="mb-0"
+                    >
+                      <Select className="h-9 [&_.ant-select-selector]:rounded-xl! [&_.ant-select-selector]:bg-neutral-50! text-xs">
+                        {nrcTypes.map((type) => (
+                          <Option key={type.value} value={type.value}>
+                            {type.label}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </div>
+
+                  <Form.Item
+                    name={["guests", index, "nrcNumber"]}
+                    className="mb-2 pt-1"
+                  >
+                    <Input
+                      placeholder="Enter NRC Number..."
+                      className="h-10 rounded-xl bg-neutral-50 border-neutral-200 text-xs"
+                    />
+                  </Form.Item>
+                </div>
+              ) : (
+                <Form.Item
+                  label={
+                    <span className="text-xs font-semibold text-neutral-600">
+                      Passport Number
+                    </span>
+                  }
+                  name={["guests", index, "passport"]}
+                  className="mb-2"
                 >
-                  Upload Identity Photo
-                </Button>
-              </Upload>
-            </Form.Item>
-          </div>
-        ))}
+                  <Input
+                    placeholder="Enter Passport Number..."
+                    className="h-10 rounded-xl bg-neutral-50 border-neutral-200 text-xs"
+                  />
+                </Form.Item>
+              )}
+
+              <Form.Item
+                name={["guests", index, "identityPhoto"]}
+                className="mb-0"
+              >
+                <Upload maxCount={1} showUploadList={false}>
+                  <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    className="w-full h-10 rounded-xl bg-white! text-secondary-500! border-secondary-500! text-xs font-semibold border-none flex items-center justify-center space-x-1"
+                  >
+                    Upload Identity Photo
+                  </Button>
+                </Upload>
+              </Form.Item>
+            </div>
+          );
+        })}
 
         {/* Add Guest Button */}
         <button
@@ -349,9 +492,11 @@ const CheckInForm = ({ data }) => {
             className="mb-2"
           >
             <Select className="w-full h-10 [&_.ant-select-selector]:rounded-xl! [&_.ant-select-selector]:bg-neutral-50! text-xs">
-              <Option value="MMQR">MMQR</Option>
-              <Option value="KBZ Pay">KBZ Pay</Option>
-              <Option value="Cash">Cash</Option>
+              <Option value="aya">AYA</Option>
+              <Option value="mmqr">MMQR</Option>
+              <Option value="kbz">KBZ</Option>
+              <Option value="cash">Cash</Option>
+              <Option value="other">Other</Option>
             </Select>
           </Form.Item>
 
@@ -366,12 +511,11 @@ const CheckInForm = ({ data }) => {
             className="mb-2"
           >
             <Select className="w-full h-10 [&_.ant-select-selector]:rounded-xl! [&_.ant-select-selector]:bg-neutral-50! text-xs">
-              <Option value="Paid">Paid</Option>
-              <Option value="Pending">Pending</Option>
+              <Option value="paid">Paid</Option>
             </Select>
           </Form.Item>
 
-          <div className="space-y-1">
+          {/* <div className="space-y-1">
             <label className="text-xs font-semibold text-neutral-600 block">
               Amount <span className="text-red-500">*</span>
             </label>
@@ -394,7 +538,7 @@ const CheckInForm = ({ data }) => {
                 />
               </Form.Item>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* 6. Footer Action Buttons */}
