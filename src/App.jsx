@@ -18,6 +18,7 @@ import {
 import { useLanguage } from "./context/LanguageContext";
 import { getLanguage } from "./service/languageSlice";
 import ScrollToTop from "./components/ScrollToTop";
+import Reserved from "./page/Reserved";
 
 const Dashboard = lazy(() => import("./page/Dashboard"));
 const Room = lazy(() => import("./page/Room"));
@@ -70,6 +71,7 @@ function App() {
                 <Route path="/rooms-board" element={<RoomBoard />} />
                 <Route path="/room-details/:id" element={<RoomDetailsPage />} />
                 <Route path="/room/:id/check-in/" element={<CheckIn />} />
+                <Route path="/room/:id/reserve/" element={<Reserved />} />
               </Route>
             </Route>
           </Route>

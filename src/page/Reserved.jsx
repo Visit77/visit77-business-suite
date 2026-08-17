@@ -15,21 +15,15 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
-import {
-  getDotColor,
-  nrcCodes,
-  nrcTownships,
-  nrcTypes,
-} from "../../utils/utils";
+import { getDotColor, nrcCodes, nrcTownships, nrcTypes } from "../utils/utils";
 import _ from "lodash";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  finalVerifiedCheckIn,
-  updateCheckInInfo,
-  walkInBooking,
-} from "../../service/actionSlice";
-import { selectBusinessId } from "../../service/businessSlice";
+import { walkInBooking } from "../service/actionSlice";
+import { selectBusinessId } from "../service/businessSlice";
+import PageLoading from "../components/PageLoading";
+import { getOneRoom, roomBoardSelector } from "../service/roomBoardSlice";
+import moment from "moment";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -59,71 +53,43 @@ const parseNrcString = (nrcStr) => {
   };
 };
 
-const CheckInForm = ({ data }) => {
+const Reserved = () => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const businessId = useSelector(selectBusinessId);
   const [loading, setLoading] = useState(false);
 
+  const { id } = useParams();
+  const { details: data, isPending } = useSelector(roomBoardSelector);
+
   const [guests, setGuests] = useState([
     { id: 1, guestType: "local", selectedCode: "12", is_primary: true },
   ]);
 
   useEffect(() => {
-    const booking = data?.current_booking;
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+  }, []);
 
-    if (booking) {
-      const bookingGuests =
-        booking?.guests?.length > 0 ? booking.guests : [booking.primary_guest];
-
-      const formattedGuestState = bookingGuests.map((g, index) => {
-        const guestType = booking.guest_market || "local";
-        const nrcParsed = parseNrcString(g?.nrc_number);
-        return {
-          id: g?.id || Date.now() + index,
-          guestType: guestType,
-          selectedCode: nrcParsed.nrcCode,
-          is_primary: index === 0,
-        };
-      });
-
-      setGuests(formattedGuestState);
-
-      const formattedGuestsFormValue = bookingGuests.map((g, index) => {
-        const nrcParsed = parseNrcString(g?.nrc_number);
-        return {
-          name: g?.name || "",
-          phone: g?.phone || booking?.contact?.phone || "",
-          email: g?.email || booking?.contact?.email || "",
-          guestType: booking.guest_market || "local",
-          nrcCode: nrcParsed.nrcCode,
-          nrcTownship: nrcParsed.nrcTownship,
-          nrcType: nrcParsed.nrcType,
-          nrcNumber: nrcParsed.nrcNumber,
-          passport: g?.passport_number || "",
-        };
-      });
-
-      form.setFieldsValue({
-        check_in: booking?.check_in ? dayjs(booking.check_in) : dayjs(),
-        check_out: booking?.check_out
-          ? dayjs(booking.check_out)
-          : dayjs().add(1, "day"),
-        adults: booking?.guest_count?.adults ?? 2,
-        children: booking?.guest_count?.children ?? 0,
-        guest_market: booking?.guest_market || "local",
-        specialRequest: booking?.special_request || "",
-        paymentMethod: booking?.payments?.[0]?.provider || "cash",
-        paymentStatus: booking?.payment_status || "paid",
-        guests: formattedGuestsFormValue,
-      });
+  useEffect(() => {
+    if (id) {
+      dispatch(
+        getOneRoom({
+          business_id: businessId,
+          date: moment().format("YYYY-MM-DD"),
+          id: id,
+        }),
+      );
     }
-  }, [data, form]);
+  }, [id, businessId, dispatch]);
+
+  if (isPending) {
+    return <PageLoading message="Loading room data..." />;
+  }
 
   const handleAddGuest = () => {
-    setGuests([
-      ...guests,
+    setGuests((prev) => [
+      ...prev,
       {
         id: Date.now(),
         guestType: form.getFieldValue("guest_market") || "local",
@@ -133,23 +99,26 @@ const CheckInForm = ({ data }) => {
   };
 
   const handleRemoveGuest = (index) => {
-    const updatedGuests = guests.filter((_, i) => i !== index);
-    setGuests(updatedGuests);
+    setGuests((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleGuestTypeChange = (index, value) => {
-    const updatedGuests = [...guests];
-    updatedGuests[index].guestType = value;
-    setGuests(updatedGuests);
+    setGuests((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], guestType: value };
+      return updated;
+    });
   };
 
   const handleNrcCodeChange = (index, value) => {
-    const updatedGuests = [...guests];
-    updatedGuests[index].selectedCode = value;
-    setGuests(updatedGuests);
+    setGuests((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], selectedCode: value };
+      return updated;
+    });
   };
 
-  const handleSubmit = (values) => {
+  const handleSubmit = async (values) => {
     setLoading(true);
     const formattedCheckIn = values?.check_in
       ? dayjs(values.check_in).format("YYYY-MM-DD")
@@ -157,103 +126,44 @@ const CheckInForm = ({ data }) => {
     const formattedCheckOut = values?.check_out
       ? dayjs(values.check_out).format("YYYY-MM-DD")
       : null;
-    if (data?.display_status == "reserved") {
-      try {
-        dispatch(
-          updateCheckInInfo({
-            business_id: businessId,
-            booking_id: data?.current_booking?.id,
-            data: {
-              ...values,
-              check_in: formattedCheckIn,
-              check_out: formattedCheckOut,
-              physical_room_id: data?.id,
-              contact_name: values?.guests?.[0]?.name,
-              contact_phone: values?.guests?.[0]?.phone,
-              payment: {
-                provider: values?.paymentMethod,
-                status: values?.paymentStatus,
-                payment_type: "full_payment",
-              },
-              rate_plan_id: data?.room_type?.rate_plans?.find(
-                (plan) => plan?.guest_market === values?.guest_market,
-              )?.id,
-              guests: values?.guests?.map((guest, index) => ({
-                ...guest,
-                is_primary: index === 0,
-                nrc_number: `${guest?.nrcCode}/${guest?.nrcTownship}(${guest?.nrcType})/${guest?.nrcNumber}`,
-              })),
-            },
-          }),
-        ).then((res) => {
-          const { payload } = res;
-          if (_.endsWith(res.type, "fulfilled")) {
-            dispatch(
-              finalVerifiedCheckIn({
-                business_id: businessId,
-                booking_id: payload?.data?.booking?.id,
-              }),
-            ).then((res) => {
-              if (_.endsWith(res.type, "fulfilled")) {
-                message.success("Success Check In");
-                navigate(-1);
-              }
-            });
-          }
-        });
-      } catch (error) {
-        message.error("Something went wrong!");
-      } finally {
-        setLoading(false);
+
+    const payloadData = {
+      ...values,
+      check_in: formattedCheckIn,
+      check_out: formattedCheckOut,
+      physical_room_id: data?.id,
+      contact_name: values?.guests?.[0]?.name,
+      contact_phone: values?.guests?.[0]?.phone,
+      payment: {
+        provider: values?.paymentMethod,
+        status: values?.paymentStatus,
+        payment_type: "full_payment",
+      },
+      rate_plan_id: data?.room_type?.rate_plans?.find(
+        (plan) => plan?.guest_market === values?.guest_market,
+      )?.id,
+      guests: values?.guests?.map((guest, index) => ({
+        ...guest,
+        is_primary: index === 0,
+        nrc_number: `${guest?.nrcCode}/${guest?.nrcTownship}(${guest?.nrcType})/${guest?.nrcNumber}`,
+      })),
+    };
+
+    const actionToDispatch = walkInBooking({
+      business_id: businessId,
+      data: payloadData,
+    });
+
+    try {
+      const res = await dispatch(actionToDispatch);
+      if (_.endsWith(res.type, "fulfilled")) {
+        message.success("Success Reserved");
+        navigate(-1);
       }
-    } else {
-      try {
-        dispatch(
-          walkInBooking({
-            business_id: businessId,
-            data: {
-              ...values,
-              check_in: formattedCheckIn,
-              check_out: formattedCheckOut,
-              physical_room_id: data?.id,
-              contact_name: values?.guests?.[0]?.name,
-              contact_phone: values?.guests?.[0]?.phone,
-              payment: {
-                provider: values?.paymentMethod,
-                status: values?.paymentStatus,
-                payment_type: "full_payment",
-              },
-              rate_plan_id: data?.room_type?.rate_plans?.find(
-                (plan) => plan?.guest_market === values?.guest_market,
-              )?.id,
-              guests: values?.guests?.map((guest, index) => ({
-                ...guest,
-                is_primary: index === 0,
-                nrc_number: `${guest?.nrcCode}/${guest?.nrcTownship}(${guest?.nrcType})/${guest?.nrcNumber}`,
-              })),
-            },
-          }),
-        ).then((res) => {
-          const { payload } = res;
-          if (_.endsWith(res.type, "fulfilled")) {
-            dispatch(
-              finalVerifiedCheckIn({
-                business_id: businessId,
-                booking_id: payload?.data?.booking?.id,
-              }),
-            ).then((res) => {
-              if (_.endsWith(res.type, "fulfilled")) {
-                message.success("Success Check In");
-                navigate(-1);
-              }
-            });
-          }
-        });
-      } catch (error) {
-        message.error("Something went wrong!");
-      } finally {
-        setLoading(false);
-      }
+    } catch (error) {
+      message.error("Something went wrong!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -659,4 +569,4 @@ const CheckInForm = ({ data }) => {
   );
 };
 
-export default CheckInForm;
+export default Reserved;

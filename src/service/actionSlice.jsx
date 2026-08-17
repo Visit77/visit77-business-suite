@@ -93,12 +93,58 @@ export const finalVerifiedCheckIn = createAsyncThunk(
   },
 );
 
+export const updateCheckInInfo = createAsyncThunk(
+  "room_action/updateCheckInInfo",
+  async ({ booking_id, business_id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.patch(
+        `/admin/bookings/${booking_id}/check-in-form/`,
+        {
+          ...data,
+        },
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
 export const roomUnblock = createAsyncThunk(
   "room_action/roomUnblock",
   async ({ id, business_id }, { rejectWithValue }) => {
     try {
       const response = await api.post(
         `/admin/room-blocks/${id}/unblock/`,
+        {},
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
+export const checkOutRoom = createAsyncThunk(
+  "room_action/checkOutRoom",
+  async ({ booking_id, business_id }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(
+        `/admin/bookings/${booking_id}/check-out/`,
         {},
         {
           baseURL: BOOKING_URL,
