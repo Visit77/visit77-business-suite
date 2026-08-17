@@ -70,10 +70,21 @@ export const walkInBooking = createAsyncThunk(
 
 export const finalVerifiedCheckIn = createAsyncThunk(
   "room_action/finalVerifiedCheckIn",
-  async ({ booking_id }, { rejectWithValue }) => {
+  async ({ booking_id, business_id }, { rejectWithValue }) => {
     try {
       const response = await api.post(
         `/admin/bookings/${booking_id}/check-in/`,
+        {
+          verification_confirmed: true,
+          verification_note: "Guest identity and room assignment verified.",
+        },
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
       );
       return response.data;
     } catch (error) {

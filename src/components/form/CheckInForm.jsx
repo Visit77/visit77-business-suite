@@ -39,6 +39,8 @@ const CheckInForm = ({ data }) => {
   const [guests, setGuests] = useState([
     { id: 1, guestType: "local", selectedCode: "12", is_primary: true },
   ]);
+
+  const [loading, setLoading] = useState(false);
   const businessId = useSelector(selectBusinessId);
 
   const handleAddGuest = () => {
@@ -96,6 +98,7 @@ const CheckInForm = ({ data }) => {
             guests: values?.guests.map((guest) => {
               return {
                 ...guest,
+                is_primary: index === 0,
                 nrc_number: `${guest?.nrcCode}/${guest?.nrcTownship}(${guest?.nrcType})/${guest?.nrcNumber}`,
               };
             }),
@@ -105,10 +108,12 @@ const CheckInForm = ({ data }) => {
         const { payload } = res;
         if (_.endsWith(res.type, "fulfilled")) {
           message.success("Success Check In");
-          // setLoading(false);
-          dispatch(finalVerifiedCheckIn({ booking_id: payload?.booking?.id }));
+          setLoading(false);
+          dispatch(
+            finalVerifiedCheckIn({ booking_id: payload?.data?.booking?.id }),
+          );
         } else if (_.endsWith(res.type, "rejected")) {
-          // setLoading(false);
+          setLoading(false);
         }
       });
 

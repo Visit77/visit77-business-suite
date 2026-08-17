@@ -33,7 +33,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import OutOfServiceModal from "../components/modal/OutOfServiceModal";
 import RoomBlockModal from "../components/modal/RoomBlockModal";
-import { roomUnblock } from "../service/actionSlice";
+import { finalVerifiedCheckIn, roomUnblock } from "../service/actionSlice";
 
 const RoomDetailsPage = () => {
   const { id } = useParams();
@@ -45,6 +45,7 @@ const RoomDetailsPage = () => {
   const { details: roomData, isPending } = useSelector(roomBoardSelector);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
+
   useEffect(() => {
     if (id) {
       dispatch(
@@ -224,28 +225,50 @@ const RoomDetailsPage = () => {
             <div className="space-y-2">
               <div className="grid grid-cols-2 gap-2">
                 {roomData?.display_status == "available" && (
-                  <>
+                  <button
+                    onClick={() => {
+                      navigate(`/room/${id}/check-in/`);
+                    }}
+                    className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-info-600  cursor-pointer "
+                  >
+                    <HugeiconsIcon
+                      icon={CalendarCheckIn01Icon}
+                      className=" text-primary-400"
+                    />
+                    <span>Check In</span>
+                  </button>
+                )}
+                {roomData?.display_status == "available" ||
+                  (roomData?.display_status == "reserved" && (
                     <button
                       onClick={() => {
-                        navigate(`/room/${id}/check-in/`);
+                        dispatch(
+                          finalVerifiedCheckIn({
+                            business_id: businessId,
+                            booking_id: roomData?.current_booking?.id,
+                          }),
+                        ).then((res) => {
+                          if (_.endsWith(res.type, "fulfilled")) {
+                            message.success("Room Unblock Successful.");
+                            dispatch(
+                              getOneRoom({
+                                business_id: businessId,
+                                date: moment().format("YYYY-MM-DD"),
+                                id: id,
+                              }),
+                            );
+                          }
+                        });
                       }}
-                      className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-info-600  cursor-pointer "
+                      className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-orange-400 cursor-pointer"
                     >
-                      <HugeiconsIcon
-                        icon={CalendarCheckIn01Icon}
-                        className=" text-primary-400"
-                      />
-                      <span>Check In</span>
-                    </button>
-                    <button className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-orange-400 cursor-pointer">
                       <HugeiconsIcon
                         icon={CardExchange01Icon}
                         className=" text-primary-400"
                       />
-                      <span>Reserve</span>
+                      <span>Check In</span>
                     </button>
-                  </>
-                )}
+                  ))}
               </div>
               <div className=" grid grid-cols-4 gap-3 ">
                 {roomData?.display_status == "blocked" ? (
@@ -301,7 +324,7 @@ const RoomDetailsPage = () => {
                   <HugeiconsIcon
                     icon={InformationCircleIcon}
                     className=" text-primary-400"
-                  />
+                  /> 
                   <span>Room Details</span>
                 </button>
                 <button className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer">
