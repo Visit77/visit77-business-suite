@@ -59,6 +59,14 @@ const parseNrcString = (nrcStr) => {
   };
 };
 
+// Ant Design Upload Event Handler Helper
+const normFile = (e) => {
+  if (Array.isArray(e)) {
+    return e;
+  }
+  return e?.fileList;
+};
+
 const CheckInForm = ({ data }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
@@ -90,7 +98,7 @@ const CheckInForm = ({ data }) => {
 
       setGuests(formattedGuestState);
 
-      const formattedGuestsFormValue = bookingGuests.map((g, index) => {
+      const formattedGuestsFormValue = bookingGuests.map((g) => {
         const nrcParsed = parseNrcString(g?.nrc_number);
         return {
           name: g?.name || "",
@@ -101,7 +109,17 @@ const CheckInForm = ({ data }) => {
           nrcTownship: nrcParsed.nrcTownship,
           nrcType: nrcParsed.nrcType,
           nrcNumber: nrcParsed.nrcNumber,
-          passport: g?.passport_number || "",
+          identity_number: g?.passport_number || "",
+          identityPhoto: g?.identity_photo_url
+            ? [
+                {
+                  uid: "-1",
+                  name: "identity.png",
+                  status: "done",
+                  url: g?.identity_photo_url,
+                },
+              ]
+            : [],
         };
       });
 
@@ -151,110 +169,100 @@ const CheckInForm = ({ data }) => {
 
   const handleSubmit = (values) => {
     setLoading(true);
+
+    const formData = new FormData();
+
     const formattedCheckIn = values?.check_in
       ? dayjs(values.check_in).format("YYYY-MM-DD")
-      : null;
+      : "";
     const formattedCheckOut = values?.check_out
       ? dayjs(values.check_out).format("YYYY-MM-DD")
-      : null;
-    if (data?.display_status == "reserved") {
-      try {
-        dispatch(
-          updateCheckInInfo({
+      : "";
+
+    formData.append("check_in", formattedCheckIn);
+    formData.append("check_out", formattedCheckOut);
+    formData.append("physical_room_id", data?.id || "");
+    formData.append("adults", values?.adults ?? 2);
+    formData.append("children", values?.children ?? 0);
+    formData.append("guest_market", values?.guest_market || "local");
+    formData.append("special_request", values?.specialRequest || "");
+    formData.append("contact_name", values?.guests?.[0]?.name || "");
+    formData.append("contact_phone", values?.guests?.[0]?.phone || "");
+
+    // Payment Data
+    formData.append("payment[provider]", values?.paymentMethod || "cash");
+    formData.append("payment[status]", values?.paymentStatus || "paid");
+    formData.append("payment[payment_type]", "full_payment");
+
+    const ratePlanId = data?.room_type?.rate_plans?.find(
+      (plan) => plan?.guest_market === values?.guest_market,
+    )?.id;
+    if (ratePlanId) {
+      formData.append("rate_plan_id", ratePlanId);
+    }
+
+    values?.guests?.forEach((guest, index) => {
+      formData.append(`guests[${index}][is_primary]`, index === 0 ? "1" : "0");
+      formData.append(`guests[${index}][name]`, guest?.name || "");
+      formData.append(`guests[${index}][phone]`, guest?.phone || "");
+      formData.append(`guests[${index}][email]`, guest?.email || "");
+
+      if (guest?.guestType === "local") {
+        const nrcNumber = `${guest?.nrcCode}/${guest?.nrcTownship}(${guest?.nrcType})/${guest?.nrcNumber || ""}`;
+        formData.append(`guests[${index}][nrc_number]`, nrcNumber);
+      } else {
+        formData.append(
+          `guests[${index}][identity_number]`,
+          guest?.passport || "",
+        );
+      }
+
+      const fileList = guest?.identityPhoto;
+      const fileObj = fileList?.[0]?.originFileObj;
+
+      if (fileObj) {
+        formData.append(`guests[${index}][photo]`, fileObj, fileObj.name);
+      }
+    });
+
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
+    }
+    const actionToDispatch =
+      data?.display_status === "reserved"
+        ? updateCheckInInfo({
             business_id: businessId,
             booking_id: data?.current_booking?.id,
-            data: {
-              ...values,
-              check_in: formattedCheckIn,
-              check_out: formattedCheckOut,
-              physical_room_id: data?.id,
-              contact_name: values?.guests?.[0]?.name,
-              contact_phone: values?.guests?.[0]?.phone,
-              payment: {
-                provider: values?.paymentMethod,
-                status: values?.paymentStatus,
-                payment_type: "full_payment",
-              },
-              rate_plan_id: data?.room_type?.rate_plans?.find(
-                (plan) => plan?.guest_market === values?.guest_market,
-              )?.id,
-              guests: values?.guests?.map((guest, index) => ({
-                ...guest,
-                is_primary: index === 0,
-                nrc_number: `${guest?.nrcCode}/${guest?.nrcTownship}(${guest?.nrcType})/${guest?.nrcNumber}`,
-              })),
-            },
-          }),
-        ).then((res) => {
-          const { payload } = res;
-          if (_.endsWith(res.type, "fulfilled")) {
-            dispatch(
-              finalVerifiedCheckIn({
-                business_id: businessId,
-                booking_id: payload?.data?.booking?.id,
-              }),
-            ).then((res) => {
-              if (_.endsWith(res.type, "fulfilled")) {
-                message.success("Success Check In");
-                navigate(-1);
-              }
-            });
-          }
-        });
-      } catch (error) {
-        message.error("Something went wrong!");
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      try {
-        dispatch(
-          walkInBooking({
+            data: formData,
+          })
+        : walkInBooking({
             business_id: businessId,
-            data: {
-              ...values,
-              check_in: formattedCheckIn,
-              check_out: formattedCheckOut,
-              physical_room_id: data?.id,
-              contact_name: values?.guests?.[0]?.name,
-              contact_phone: values?.guests?.[0]?.phone,
-              payment: {
-                provider: values?.paymentMethod,
-                status: values?.paymentStatus,
-                payment_type: "full_payment",
-              },
-              rate_plan_id: data?.room_type?.rate_plans?.find(
-                (plan) => plan?.guest_market === values?.guest_market,
-              )?.id,
-              guests: values?.guests?.map((guest, index) => ({
-                ...guest,
-                is_primary: index === 0,
-                nrc_number: `${guest?.nrcCode}/${guest?.nrcTownship}(${guest?.nrcType})/${guest?.nrcNumber}`,
-              })),
-            },
-          }),
-        ).then((res) => {
-          const { payload } = res;
-          if (_.endsWith(res.type, "fulfilled")) {
-            dispatch(
-              finalVerifiedCheckIn({
-                business_id: businessId,
-                booking_id: payload?.data?.booking?.id,
-              }),
-            ).then((res) => {
-              if (_.endsWith(res.type, "fulfilled")) {
-                message.success("Success Check In");
-                navigate(-1);
-              }
-            });
-          }
-        });
-      } catch (error) {
+            data: formData,
+          });
+
+    dispatch(actionToDispatch)
+      .then((res) => {
+        const { payload } = res;
+        if (_.endsWith(res.type, "fulfilled")) {
+          dispatch(
+            finalVerifiedCheckIn({
+              business_id: businessId,
+              booking_id: payload?.data?.booking?.id,
+            }),
+          ).then((finalRes) => {
+            if (_.endsWith(finalRes.type, "fulfilled")) {
+              message.success("Success Check In");
+              navigate(-1);
+            }
+          });
+        }
+      })
+      .catch(() => {
         message.error("Something went wrong!");
-      } finally {
+      })
+      .finally(() => {
         setLoading(false);
-      }
-    }
+      });
   };
 
   return (
@@ -553,17 +561,20 @@ const CheckInForm = ({ data }) => {
                 </Form.Item>
               )}
 
+              {/* Upload Field - Corrected Fix */}
               <Form.Item
                 name={["guests", index, "identityPhoto"]}
+                valuePropName="fileList"
+                getValueFromEvent={normFile}
                 className="mb-0"
               >
-                <Upload maxCount={1} showUploadList={false}>
-                  <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    className="w-full h-10 rounded-xl bg-white! text-secondary-500! border-secondary-500! text-xs font-semibold border-none flex items-center justify-center space-x-1"
-                  >
-                    Upload Identity Photo
+                <Upload
+                  maxCount={1}
+                  beforeUpload={() => false} // Auto upload မလုပ်ဘဲ Manual ခဏတားထားရန်
+                  listType="picture"
+                >
+                  <Button className="w-full h-10 rounded-xl bg-white text-teal-600 border-teal-500 border-dashed text-xs font-semibold flex items-center justify-center space-x-1">
+                    <PlusOutlined /> Upload Identity Photo
                   </Button>
                 </Upload>
               </Form.Item>

@@ -153,11 +153,11 @@ const AdminLayout = () => {
           <div className="flex! items-center! space-x-3! md:space-x-6!">
             <LanguageSelect />
 
-            <Badge count={3} size="small" offset={[-2, 2]}>
+            {/* <Badge count={3} size="small" offset={[-2, 2]}>
               <button className="text-outline! hover:text-primary! transition-colors! flex items-center">
                 <BellOutlined className="text-lg! md:text-xl!" />
               </button>
-            </Badge>
+            </Badge> */}
 
             {details?.profile ? (
               <img

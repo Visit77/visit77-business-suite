@@ -20,7 +20,7 @@ const SelectBusiness = () => {
 
   useEffect(() => {
     if (user) {
-      dispatch(getBusiness({ owner: user?.user_id }));
+      dispatch(getBusiness({ owner: user?.user_id, limit: 20 }));
     }
   }, [user, dispatch]);
 
