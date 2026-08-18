@@ -14,7 +14,11 @@ import logo from "../assets/v77_logo.png";
 import { selectBusinessDetails } from "../service/businessSlice";
 import LogoutModal from "./modal/LogoutModal";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { MeetingRoomIcon } from "@hugeicons/core-free-icons";
+import {
+  BedSingle02Icon,
+  DashboardSquare01Icon,
+  MeetingRoomIcon,
+} from "@hugeicons/core-free-icons";
 import LanguageSelect from "./LanguageSelect";
 
 const { Sider, Content, Header } = Layout;
@@ -29,7 +33,7 @@ const AdminLayout = () => {
   const menuItems = [
     {
       key: "dashboard",
-      icon: <AppstoreOutlined />,
+      icon: <HugeiconsIcon icon={DashboardSquare01Icon} />,
       label: <Link to="/dashboard">Dashboard</Link>,
     },
     {
@@ -39,7 +43,7 @@ const AdminLayout = () => {
     },
     {
       key: "rooms",
-      icon: <HomeOutlined />,
+      icon: <HugeiconsIcon icon={BedSingle02Icon} />,
       label: <Link to="/rooms">Room Type</Link>,
     },
   ];
@@ -68,7 +72,7 @@ const AdminLayout = () => {
     <div className="flex flex-col h-full justify-between bg-white">
       <div>
         {/* Brand Logo */}
-        <div className="p-6 border-b border-slate-50 flex items-center space-x-3">
+        <div className="p-6 border-b border-slate-50 flex items-center space-x-3 font-medium">
           <img
             className="w-9 h-9 rounded-xl flex items-center justify-center"
             src={logo}
@@ -83,9 +87,9 @@ const AdminLayout = () => {
 
         <Menu
           mode="inline"
-          selectedKeys={[getCurrentKey()]} // ဒီနေရာမှာ Key တိတိကျကျ ရရှိပါမယ်
+          selectedKeys={[getCurrentKey()]}
           items={menuItems}
-          className="border-none pt-4 px-3 space-y-1 text-on-surface-variant font-medium"
+          className="border-none pt-4 px-3 space-y-1 text-on-surface-variant font-medium!"
           style={{ backgroundColor: "transparent" }}
           onClick={() => setMobileMenuOpen(false)}
         />

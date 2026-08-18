@@ -85,6 +85,7 @@ const RoomBlockModal = ({ isBlockModalOpen, setIsBlockModalOpen, id }) => {
         cancelButtonProps={{ disabled: loading }}
         okText="Save"
         cancelText="Cancel"
+        className=" font-semibold!"
       >
         <Form form={form} layout="vertical" name="schedule_form">
           {/* Start Date */}

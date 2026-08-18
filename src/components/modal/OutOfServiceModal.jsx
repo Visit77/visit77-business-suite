@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Modal, Form, Input, message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import _ from "lodash";
-import { makeOutOfService } from "../../service/actionSlice";
+import { updateRoomStatus } from "../../service/actionSlice";
 import { selectBusinessId } from "../../service/businessSlice";
 import { getOneRoom } from "../../service/roomBoardSlice";
 import moment from "moment";
@@ -21,7 +21,11 @@ const OutOfServiceModal = ({ isModalOpen, setIsModalOpen, id }) => {
         setLoading(true);
         try {
           dispatch(
-            makeOutOfService({ id: id, business_id: businessId, data: values }),
+            updateRoomStatus({
+              id: id,
+              business_id: businessId,
+              data: { ...values, status: "out_of_service" },
+            }),
           ).then((res) => {
             if (_.endsWith(res.type, "fulfilled")) {
               message.success("Success");

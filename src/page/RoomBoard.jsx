@@ -13,6 +13,8 @@ import {
   getRoomCardStyle,
 } from "../utils/utils";
 import { useNavigate } from "react-router-dom";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { SquareLock02Icon } from "@hugeicons/core-free-icons";
 
 const RoomBoard = () => {
   const [activeTab, setActiveTab] = useState();
@@ -130,7 +132,7 @@ const RoomBoard = () => {
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-2 flex-wrap font-medium">
                   <span
                     className={`px-3 py-1 rounded-lg text-[10px] font-extrabold tracking-wider text-white ${getDotColor("available")}`}
                   >
@@ -149,7 +151,7 @@ const RoomBoard = () => {
                   <span
                     className={`px-3 py-1 rounded-lg text-[10px] font-extrabold tracking-wider text-white ${getDotColor("cleaning")}`}
                   >
-                    {floor?.counts?.cleaning} CLN
+                    {floor?.counts?.cleaning} DRT
                   </span>
                   <span
                     className={`px-3 py-1 rounded-lg text-[10px] font-extrabold tracking-wider  text-white ${getDotColor("out_of_service")}`}
@@ -162,6 +164,7 @@ const RoomBoard = () => {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
                 {floor?.rooms?.map((room, rIdx) => (
                   <div
+                    key={rIdx}
                     className={`relative shadow transition-transform hover:scale-[1.02] cursor-pointer rounded-xl  ${getRoomBorderStyle(
                       room.display_status,
                     )}`}
@@ -179,9 +182,28 @@ const RoomBoard = () => {
                         <CheckCircleFilled className="absolute top-2 left-2 text-[#10B981] text-xs" />
                       )}
 
-                      <span
-                        className={`absolute -top-1 right-0 w-4 h-4 rounded-full ${getDotColor(room.display_status)}`}
-                      />
+                      {room?.next_reservations?.length > 0 ? (
+                        <span
+                          className={`absolute -top-1 right-0 w-4 h-4 rounded-full ${getDotColor("reserved")}`}
+                        />
+                      ) : (
+                        <>
+                          {room?.display_status == "blocked" ? (
+                            <span
+                              className={`absolute -top-3 right-0 bg-white`}
+                            >
+                              <HugeiconsIcon
+                                icon={SquareLock02Icon}
+                                className=" "
+                              />
+                            </span>
+                          ) : (
+                            <span
+                              className={`absolute -top-1 right-0 w-4 h-4 rounded-full ${getDotColor(room.display_status)}`}
+                            />
+                          )}
+                        </>
+                      )}
 
                       <span className="tracking-wide text-lg">
                         {room.room_number}
@@ -205,10 +227,10 @@ const RoomBoard = () => {
                       {room?.timeline?.checkout &&
                         `${room?.timeline?.checkout?.label} - ${room?.timeline?.checkout?.date} `}
                       <br />
-                      {room?.timeline?.next_reserved &&
-                        ` ${room?.timeline?.next_reserved}`}
-                      {room?.timeline?.reserved_nights &&
-                        ` ${room?.timeline?.reserved_nights}`}
+                      {/* {room?.timeline?.next_reserved &&
+                        ` ${room?.timeline?.next_reserved}`} */}
+                      {/* {room?.timeline?.reserved_nights &&
+                        ` ${room?.timeline?.reserved_nights}`} */}
                       {/* {room?.timeline?.stay_nights &&
                         ` ${room?.timeline?.stay_nights}`} */}
                     </div>

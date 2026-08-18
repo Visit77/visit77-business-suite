@@ -2,18 +2,14 @@ import React, { useState } from "react";
 import { Button, message, Modal } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { selectBusinessId } from "../../service/businessSlice";
-import { checkOutRoom } from "../../service/actionSlice";
+import { checkOutRoom, updateRoomStatus } from "../../service/actionSlice";
 import { getOneRoom } from "../../service/roomBoardSlice";
 import _ from "lodash";
 import moment from "moment";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Alert02Icon } from "@hugeicons/core-free-icons";
 
-const CheckOutModal = ({
-  isCheckOutModalOpen,
-  setIsCheckOutModalOpen,
-  data,
-}) => {
+const CleanRoomModal = ({ isCleanModalOpen, setIsCleanModalOpen, data }) => {
   const dispatch = useDispatch();
   const businessId = useSelector(selectBusinessId);
   const [loading, setLoading] = useState(false);
@@ -21,9 +17,10 @@ const CheckOutModal = ({
   const handleOk = () => {
     try {
       dispatch(
-        checkOutRoom({
-          booking_id: data?.current_booking?.id,
+        updateRoomStatus({
+          id: data?.id,
           business_id: businessId,
+          data: { status: "vacant", note: "Available" },
         }),
       ).then((res) => {
         if (_.endsWith(res.type, "fulfilled")) {
@@ -41,7 +38,7 @@ const CheckOutModal = ({
         }
       });
 
-      setIsCheckOutModalOpen(false);
+      setIsCleanModalOpen(false);
     } catch (error) {
       //   message.error("တစ်ခုခု မှားယွင်းနေပါသည်။");
     } finally {
@@ -49,7 +46,7 @@ const CheckOutModal = ({
     }
   };
   const handleCancel = () => {
-    setIsCheckOutModalOpen(false);
+    setIsCleanModalOpen(false);
   };
   return (
     <>
@@ -57,11 +54,11 @@ const CheckOutModal = ({
         title={
           <div className=" flex">
             <HugeiconsIcon icon={Alert02Icon} className=" text-warning-500!" />
-            &nbsp;Check Out Room
+            &nbsp;Clean Room
           </div>
         }
         closable={{ "aria-label": "Custom Close Button" }}
-        open={isCheckOutModalOpen}
+        open={isCleanModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
         confirmLoading={loading}
@@ -69,8 +66,8 @@ const CheckOutModal = ({
         cancelButtonProps={{ disabled: loading }}
         className=" font-semibold!"
       >
-        <div className=" font-bold! text-lg ">
-          Do you want to check out the&nbsp;
+        <div className=" font-semibold text-lg ">
+          Do you want to clean the&nbsp;
           <span className=" text-primary-500">#{data?.room_number}</span> room
           ?.
         </div>
@@ -78,4 +75,4 @@ const CheckOutModal = ({
     </>
   );
 };
-export default CheckOutModal;
+export default CleanRoomModal;

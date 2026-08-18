@@ -2,13 +2,13 @@ import { createSlice, createAsyncThunk, isPending } from "@reduxjs/toolkit";
 import api from "../api/axiosInstance";
 import { BOOKING_ADMIN_KEY, BOOKING_URL } from "../variables/constants";
 
-export const makeOutOfService = createAsyncThunk(
-  "room_action/MakeOutOfService",
+export const updateRoomStatus = createAsyncThunk(
+  "room_action/updateRoomStatus",
   async ({ id, business_id, data }, { rejectWithValue }) => {
     try {
       const response = await api.patch(
         `/admin/physical-rooms/${id}`,
-        { ...data, status: "out_of_service" },
+        { ...data },
         {
           baseURL: BOOKING_URL,
           headers: {

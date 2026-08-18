@@ -39,17 +39,20 @@ export const base64UrlDecode = (str) => {
 export const getRoomCardStyle = (status) => {
   switch (status) {
     case "available":
-      return "bg-green-400/40 border-green-400";
+      return "bg-green-400/80 border-green-400";
     case "occupied":
-      return "bg-blue-600/40 border-blue-600";
+      return "bg-blue-600/80 border-blue-600";
     case "reserved":
-      return "bg-[#FB923C]/40 border-[#FB923C]";
+      return "bg-[#FB923C]/80 border-[#FB923C]";
     case "cleaning":
-      return "bg-[#7C3AED]/40 border-[#7C3AED]";
+      return "bg-[#7C3AED]/80 border-[#7C3AED]";
     case "out_of_service":
-      return "bg-slate-500/40 border-slate-500";
+      return "bg-slate-500/80 border-slate-500";
+    case "blocked":
+      return "bg-white border-black ";
+
     default:
-      return "bg-green-200/40 border-green-200";
+      return "bg-green-200/80 border-green-200";
   }
 };
 
@@ -65,6 +68,9 @@ export const getRoomBorderStyle = (status) => {
       return "border-[#7C3AED]";
     case "out_of_service":
       return " border-slate-500";
+    case "blocked":
+      return "border-black border-2!";
+
     default:
       return " border-green-200";
   }
@@ -82,6 +88,9 @@ export const getDotColor = (status) => {
       return "bg-[#7C3AED] border-[#7C3AED]";
     case "out_of_service":
       return "bg-slate-500 border-slate-500";
+    case "blocked":
+      return "bg-white border-black border-2!";
+
     default:
       return "bg-green-200 border-green-200";
   }

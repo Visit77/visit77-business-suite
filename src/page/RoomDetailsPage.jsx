@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { message, Modal } from "antd";
+import { Avatar, Divider, message, Modal, Tag } from "antd";
 import {
   CloseOutlined,
   CalendarOutlined,
@@ -24,18 +24,23 @@ import PageLoading from "../components/PageLoading";
 import _ from "lodash";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
+  Calendar03Icon,
   CalendarCheckIn01Icon,
   CalendarCheckOut01Icon,
   CardExchange01Icon,
+  DashboardSquare01Icon,
   FileClockIcon,
   InformationCircleIcon,
+  Moon02Icon,
   Settings01Icon,
   SquareLockRemove01Icon,
+  User02Icon,
 } from "@hugeicons/core-free-icons";
 import OutOfServiceModal from "../components/modal/OutOfServiceModal";
 import RoomBlockModal from "../components/modal/RoomBlockModal";
 import { finalVerifiedCheckIn, roomUnblock } from "../service/actionSlice";
 import CheckOutModal from "../components/modal/CheckOutModal";
+import CleanRoomModal from "../components/modal/CleanRoomModal";
 
 const RoomDetailsPage = () => {
   const { id } = useParams();
@@ -48,6 +53,7 @@ const RoomDetailsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
   const [isCheckOutModalOpen, setIsCheckOutModalOpen] = useState(false);
+  const [isCleanModalOpen, setIsCleanModalOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -77,10 +83,30 @@ const RoomDetailsPage = () => {
               </h1>
 
               <span
-                className={`${getDotColor(roomData?.display_status)} capitalize text-white text-xs font-semibold px-3 py-1 rounded-full`}
+                className={`${getDotColor(roomData?.display_status)} capitalize ${roomData?.display_status == "blocked" ? "text-black" : "text-white"} text-xs font-semibold px-3 py-1 rounded-full`}
               >
                 {roomData?.display_status}
               </span>
+              {roomData?.next_reservations?.length > 0 && (
+                <>
+                  {roomData?.next_reservations?.map((reserve) => {
+                    return (
+                      <>
+                        <span
+                          className={`${getDotColor("reserved")} capitalize text-white text-xs font-semibold px-3 py-1 rounded-full`}
+                        >
+                          reserved
+                        </span>
+                        <span
+                          className={`${getDotColor("reserved")} capitalize text-white text-xs font-semibold px-3 py-1 rounded-full`}
+                        >
+                          {roomData?.next_reservations?.length}
+                        </span>
+                      </>
+                    );
+                  })}
+                </>
+              )}
             </div>
             <p className="text-xs font-medium text-neutral-500 mt-1.5">
               {roomData?.room_type?.name} &nbsp;
@@ -122,156 +148,212 @@ const RoomDetailsPage = () => {
             })}
           </div>
         </div>
-
-        <div className="grid grid-cols-1 gap-5">
-          {/* Left Column (8 cols) */}
-          {/* <div className="lg:col-span-7 space-y-5">
-            <div className="bg-white rounded-2xl p-4 border border-neutral-200/80 shadow-xs flex items-center justify-between">
-              <div className="flex items-center space-x-3.5">
-                <img
-                  src={roomData?.avatar}
-                  alt={roomData?.guestName}
-                  className="w-12 h-12 rounded-full object-cover border border-neutral-100"
+        <div>
+          {roomData?.current_booking && (
+            <div className="bg-white rounded-2xl p-5 border border-neutral-200/80 shadow-xs space-y-4">
+              <div className=" flex items-center justify-around ">
+                <Avatar
+                  src="https://api.dicebear.com/10.x/lorelei/svg?seed=2"
+                  size={60}
                 />
                 <div>
-                  <h3 className="font-bold text-neutral-900 text-sm md:text-base">
-                    {roomData?.guestName}
-                  </h3>
-                  <p className="text-xs text-neutral-400 font-medium mt-0.5">
-                    Booking ID: {roomData?.bookingId}
-                  </p>
+                  <div className=" text-xl font-heavy">
+                    {roomData?.current_booking?.primary_guest?.name}
+                  </div>
+                  <br />
+                  <div className=" font-medium">
+                    {roomData?.current_booking?.reference}
+                  </div>
+                </div>
+                <Tag
+                  color={
+                    roomData?.current_booking?.payment_status == "paid"
+                      ? "success"
+                      : "warning"
+                  }
+                  variant="solid"
+                  className=" text-lg! capitalize!"
+                >
+                  {roomData?.current_booking?.payment_status}
+                </Tag>
+              </div>
+              <Divider />
+              <div className=" flex justify-between items-center">
+                <div className=" flex items-center">
+                  <HugeiconsIcon
+                    icon={Calendar03Icon}
+                    className=" text-success-600"
+                    size={30}
+                  />
+                  <div className=" ml-2">
+                    <div className=" font-medium">Check In</div>
+                    <div className=" font-heavy text-xl">
+                      {roomData?.current_booking?.check_in}
+                    </div>
+                  </div>
+                </div>
+                <div className=" flex items-center">
+                  <HugeiconsIcon
+                    icon={Calendar03Icon}
+                    className=" text-error-600"
+                    size={30}
+                  />
+                  <div className=" ml-2">
+                    <div className=" font-medium">Check Out</div>
+                    <div className=" font-heavy text-xl">
+                      {roomData?.current_booking?.check_out}
+                    </div>
+                  </div>
                 </div>
               </div>
-              <span className="bg-[#10B981] text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center space-x-1">
-                <CheckCircleFilled className="text-xs" />
-                <span>{roomData?.paymentStatus}</span>
-              </span>
-            </div>
-
-            <div className="bg-white rounded-2xl border border-neutral-200/80 shadow-xs divide-y divide-neutral-100">
-              <div className="grid grid-cols-2 divide-x divide-neutral-100 p-5">
-                <div className="flex items-start space-x-3">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
-                    <CalendarOutlined className="text-base" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium text-neutral-400">
-                      Check-in Date
-                    </div>
-                    <div className="text-sm font-bold text-neutral-800 mt-0.5">
-                      {roomData?.checkInDate}
-                    </div>
-                    <div className="text-[10px] text-neutral-400 mt-0.5">
-                      {roomData?.checkInTime}
+              <div className=" flex justify-between items-center">
+                <div className=" flex items-center">
+                  <HugeiconsIcon icon={Moon02Icon} size={30} />
+                  <div className=" ml-2">
+                    <div className=" font-medium">Stay</div>
+                    <div className=" font-heavy text-xl">
+                      {roomData?.current_booking?.nights} Nights
                     </div>
                   </div>
                 </div>
-
-                <div className="flex items-start space-x-3 pl-5">
-                  <div className="w-8 h-8 rounded-lg bg-rose-50 text-rose-400 flex items-center justify-center shrink-0">
-                    <CalendarOutlined className="text-base" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium text-neutral-400">
-                      Check-out Date
-                    </div>
-                    <div className="text-sm font-bold text-neutral-800 mt-0.5">
-                      {roomData?.checkOutDate}
-                    </div>
-                    <div className="text-[10px] text-neutral-400 mt-0.5">
-                      {roomData?.checkOutTime}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 divide-x divide-neutral-100 p-5">
-                <div className="flex items-start space-x-3">
-                  <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center shrink-0">
-                    <MoonOutlined className="text-base" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium text-neutral-400">
-                      Duration of Stay
-                    </div>
-                    <div className="text-sm font-bold text-neutral-800 mt-0.5">
-                      {roomData?.duration}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3 pl-5">
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
-                    <UserOutlined className="text-base" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium text-neutral-400">
-                      Occupancy
-                    </div>
-                    <div className="text-sm font-bold text-neutral-800 mt-0.5">
-                      {roomData?.occupancy}
+                <div className=" flex items-center">
+                  <HugeiconsIcon icon={User02Icon} size={30} />
+                  <div className=" ml-2">
+                    <div className=" font-medium">Guest</div>
+                    <div className=" font-heavy text-xl">
+                      {`${roomData?.current_booking?.guest_count?.adults} Adult`}
+                      &nbsp;&nbsp;
+                      {`${roomData?.current_booking?.guest_count?.children} Child`}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div> */}
+          )}
+        </div>
+        <div className="grid grid-cols-1 gap-5">
+          <>
+            {roomData?.next_reservations?.length > 0 && (
+              <>
+                {roomData?.next_reservations?.map((reserve) => {
+                  return (
+                    <div className="flex  bg-amber-400/20 rounded-2xl p-5 border border-l-4 border-l-amber-400 border-neutral-200/80 shadow-xs space-y-4">
+                      <HugeiconsIcon
+                        icon={Calendar03Icon}
+                        className=" text-amber-600"
+                      />
+                      <div className="ml-5 text-amber-600 font-blod">
+                        <div>Reserve &nbsp;{reserve?.nights} nights</div>
+                        <div>
+                          {reserve?.check_in} - {reserve?.check_out}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
+            )}
+          </>
 
           {/* Right Column: Quick Actions Panel (5 cols) */}
           <div className=" bg-white rounded-2xl p-5 border border-neutral-200/80 shadow-xs space-y-4">
-            <div className="flex items-center space-x-2 text-neutral-800 font-bold text-xs uppercase tracking-wider">
-              <AppstoreOutlined className="text-sm" />
+            <div className="flex items-center space-x-2 font-medium text-neutral-800 font-bold text-xs uppercase tracking-wider">
+              <HugeiconsIcon icon={DashboardSquare01Icon} />
               <span>Room Actions</span>
             </div>
 
             {/* Guest Services */}
-            <div className="space-y-2">
-              <div className="grid grid-cols-2 gap-2">
-                {roomData?.display_status == "available" ||
-                roomData?.display_status == "reserved" ? (
-                  <>
-                    <button
-                      onClick={() => {
-                        navigate(`/room/${id}/check-in/`);
-                      }}
-                      className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-info-600  cursor-pointer "
-                    >
-                      <HugeiconsIcon
-                        icon={CalendarCheckIn01Icon}
-                        className=" text-primary-400"
-                      />
-                      <span>Check In</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        navigate(`/room/${id}/reserve/`);
-                      }}
-                      className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-orange-400 cursor-pointer"
-                    >
-                      <HugeiconsIcon
-                        icon={CardExchange01Icon}
-                        className=" text-primary-400"
-                      />
-                      <span>Reserve</span>
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      onClick={() => {
-                        setIsCheckOutModalOpen(true);
-                      }}
-                      className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer"
-                    >
-                      <HugeiconsIcon
-                        icon={CalendarCheckOut01Icon}
-                        className=" text-primary-400"
-                      />
-                      <span>Check Out</span>
-                    </button>
-                  </>
-                )}
-              </div>
+            <div className="space-y-2 font-medium!">
+              {roomData?.display_status == "available" ||
+              roomData?.display_status == "reserved" ? (
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => {
+                      navigate(`/room/${id}/check-in/`);
+                    }}
+                    className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-info-600  cursor-pointer "
+                  >
+                    <HugeiconsIcon
+                      icon={CalendarCheckIn01Icon}
+                      className=" text-primary-400"
+                    />
+                    <span>Check In</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigate(`/room/${id}/reserve/`);
+                    }}
+                    className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-orange-400 cursor-pointer"
+                  >
+                    <HugeiconsIcon
+                      icon={CardExchange01Icon}
+                      className=" text-primary-400"
+                    />
+                    <span>Reserve</span>
+                  </button>
+                </div>
+              ) : (
+                <></>
+              )}
+              {roomData?.display_status == "occupied" && (
+                <div className="grid grid-cols-3 gap-3">
+                  <button
+                    onClick={() => {
+                      setIsCheckOutModalOpen(true);
+                    }}
+                    className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-info-600  cursor-pointer "
+                  >
+                    <HugeiconsIcon
+                      icon={CalendarCheckOut01Icon}
+                      className=" text-primary-400"
+                    />
+                    <span>Check Out</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigate(`/room/${id}/reserve/`);
+                    }}
+                    disabled={true}
+                    className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-info-600  cursor-pointer "
+                  >
+                    <HugeiconsIcon
+                      icon={CardExchange01Icon}
+                      className=" text-primary-400"
+                    />
+                    <span>Change Room</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigate(`/room/${id}/reserve/`);
+                    }}
+                    className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-orange-400 cursor-pointer"
+                  >
+                    <HugeiconsIcon
+                      icon={CardExchange01Icon}
+                      className=" text-primary-400"
+                    />
+                    <span>Reserve</span>
+                  </button>
+                </div>
+              )}
+
+              {roomData?.display_status == "cleaning" && (
+                <button
+                  onClick={() => {
+                    setIsCleanModalOpen(true);
+                  }}
+                  className="w-full  items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-success-600  cursor-pointer "
+                >
+                  <div className=" flex justify-center">
+                    <HugeiconsIcon
+                      icon={CardExchange01Icon}
+                      className=" text-primary-400"
+                    />
+                  </div>
+                  <span>Clean Room</span>
+                </button>
+              )}
+
               <div className=" grid grid-cols-4 gap-3 ">
                 {roomData?.display_status == "blocked" ? (
                   <button
@@ -367,6 +449,12 @@ const RoomDetailsPage = () => {
       <CheckOutModal
         isCheckOutModalOpen={isCheckOutModalOpen}
         setIsCheckOutModalOpen={setIsCheckOutModalOpen}
+        data={roomData}
+      />
+
+      <CleanRoomModal
+        isCleanModalOpen={isCleanModalOpen}
+        setIsCleanModalOpen={setIsCleanModalOpen}
         data={roomData}
       />
     </div>
