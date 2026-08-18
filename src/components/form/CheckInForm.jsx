@@ -34,6 +34,7 @@ import { selectBusinessId } from "../../service/businessSlice";
 const { Option } = Select;
 const { TextArea } = Input;
 
+// NRC parsing helper
 const parseNrcString = (nrcStr) => {
   if (!nrcStr)
     return {
@@ -59,7 +60,6 @@ const parseNrcString = (nrcStr) => {
   };
 };
 
-// Ant Design Upload Event Handler Helper
 const normFile = (e) => {
   if (Array.isArray(e)) {
     return e;
@@ -82,15 +82,22 @@ const CheckInForm = ({ data }) => {
     const booking = data?.current_booking;
 
     if (booking) {
+      // 1. Booking ထဲမှ Guests data များရှိပါက ရယူမည်
       const bookingGuests =
-        booking?.guests?.length > 0 ? booking.guests : [booking.primary_guest];
+        booking?.guests && booking.guests.length > 0
+          ? booking.guests
+          : booking?.primary_guest
+            ? [booking.primary_guest]
+            : [{}];
 
+      const guestMarket = booking.guest_market || "local";
+
+      // Guests state ကို initial value အဖြစ် set အမှတ်ပြုမည်
       const formattedGuestState = bookingGuests.map((g, index) => {
-        const guestType = booking.guest_market || "local";
         const nrcParsed = parseNrcString(g?.nrc_number);
         return {
           id: g?.id || Date.now() + index,
-          guestType: guestType,
+          guestType: guestMarket,
           selectedCode: nrcParsed.nrcCode,
           is_primary: index === 0,
         };
@@ -98,18 +105,19 @@ const CheckInForm = ({ data }) => {
 
       setGuests(formattedGuestState);
 
+      // Ant Design Form values အတွက် Guest details အားလုံး ပြင်ဆင်ခြင်း
       const formattedGuestsFormValue = bookingGuests.map((g) => {
         const nrcParsed = parseNrcString(g?.nrc_number);
         return {
           name: g?.name || "",
           phone: g?.phone || booking?.contact?.phone || "",
           email: g?.email || booking?.contact?.email || "",
-          guestType: booking.guest_market || "local",
+          guestType: guestMarket,
           nrcCode: nrcParsed.nrcCode,
           nrcTownship: nrcParsed.nrcTownship,
           nrcType: nrcParsed.nrcType,
           nrcNumber: nrcParsed.nrcNumber,
-          identity_number: g?.passport_number || "",
+          passport: g?.passport_number || "",
           identityPhoto: g?.identity_photo_url
             ? [
                 {
@@ -123,6 +131,7 @@ const CheckInForm = ({ data }) => {
         };
       });
 
+      // Existing booking data ရှိပါက Form သို့ initial fields မ်ား set လုပ်ပေးခြင်း
       form.setFieldsValue({
         check_in: booking?.check_in ? dayjs(booking.check_in) : dayjs(),
         check_out: booking?.check_out
@@ -130,11 +139,45 @@ const CheckInForm = ({ data }) => {
           : dayjs().add(1, "day"),
         adults: booking?.guest_count?.adults ?? 2,
         children: booking?.guest_count?.children ?? 0,
-        guest_market: booking?.guest_market || "local",
+        guest_market: guestMarket,
         specialRequest: booking?.special_request || "",
         paymentMethod: booking?.payments?.[0]?.provider || "cash",
         paymentStatus: booking?.payment_status || "paid",
         guests: formattedGuestsFormValue,
+      });
+    } else {
+      // 2. Walk-in / Booking မရှိသေးပါက Default values ဝင်စေရန်
+      setGuests([
+        {
+          id: Date.now(),
+          guestType: "local",
+          selectedCode: "12",
+          is_primary: true,
+        },
+      ]);
+
+      form.setFieldsValue({
+        check_in: dayjs(),
+        check_out: dayjs().add(1, "day"),
+        adults: 2,
+        children: 0,
+        guest_market: "local",
+        paymentMethod: "cash",
+        paymentStatus: "paid",
+        guests: [
+          {
+            name: "",
+            phone: "",
+            email: "",
+            guestType: "local",
+            nrcCode: "12",
+            nrcTownship: "MaYaKa",
+            nrcType: "Naing",
+            nrcNumber: "",
+            passport: "",
+            identityPhoto: [],
+          },
+        ],
       });
     }
   }, [data, form]);
@@ -169,7 +212,6 @@ const CheckInForm = ({ data }) => {
 
   const handleSubmit = (values) => {
     setLoading(true);
-
     const formData = new FormData();
 
     const formattedCheckIn = values?.check_in
@@ -189,7 +231,6 @@ const CheckInForm = ({ data }) => {
     formData.append("contact_name", values?.guests?.[0]?.name || "");
     formData.append("contact_phone", values?.guests?.[0]?.phone || "");
 
-    // Payment Data
     formData.append("payment[provider]", values?.paymentMethod || "cash");
     formData.append("payment[status]", values?.paymentStatus || "paid");
     formData.append("payment[payment_type]", "full_payment");
@@ -225,9 +266,6 @@ const CheckInForm = ({ data }) => {
       }
     });
 
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key}:`, value);
-    }
     const actionToDispatch =
       data?.display_status === "reserved"
         ? updateCheckInInfo({
@@ -273,7 +311,9 @@ const CheckInForm = ({ data }) => {
             #{data?.room_number}
           </h2>
           <span
-            className={`${getDotColor(data?.display_status)} text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider`}
+            className={`${getDotColor(
+              data?.display_status,
+            )} text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider`}
           >
             {data?.display_status}
           </span>
@@ -296,13 +336,6 @@ const CheckInForm = ({ data }) => {
         form={form}
         layout="vertical"
         onFinish={handleSubmit}
-        initialValues={{
-          check_in: dayjs(),
-          check_out: dayjs().add(1, "day"),
-          adults: 2,
-          children: 0,
-          guest_market: "local",
-        }}
         className="space-y-3"
       >
         <div className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-2xs space-y-3">
@@ -561,7 +594,6 @@ const CheckInForm = ({ data }) => {
                 </Form.Item>
               )}
 
-              {/* Upload Field - Corrected Fix */}
               <Form.Item
                 name={["guests", index, "identityPhoto"]}
                 valuePropName="fileList"
@@ -570,7 +602,7 @@ const CheckInForm = ({ data }) => {
               >
                 <Upload
                   maxCount={1}
-                  beforeUpload={() => false} // Auto upload မလုပ်ဘဲ Manual ခဏတားထားရန်
+                  beforeUpload={() => false}
                   listType="picture"
                 >
                   <Button className="w-full h-10 rounded-xl bg-white text-teal-600 border-teal-500 border-dashed text-xs font-semibold flex items-center justify-center space-x-1">
