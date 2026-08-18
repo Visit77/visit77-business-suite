@@ -19,7 +19,11 @@ import { getDotColor, nrcCodes, nrcTownships, nrcTypes } from "../utils/utils";
 import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { walkInBooking } from "../service/actionSlice";
+import {
+  finalVerifiedCheckIn,
+  updateCheckInInfo,
+  walkInBooking,
+} from "../service/actionSlice";
 import { selectBusinessId } from "../service/businessSlice";
 import PageLoading from "../components/PageLoading";
 import { getOneRoom, roomBoardSelector } from "../service/roomBoardSlice";
@@ -53,6 +57,14 @@ const parseNrcString = (nrcStr) => {
   };
 };
 
+// Ant Design Upload Event Handler Helper
+const normFile = (e) => {
+  if (Array.isArray(e)) {
+    return e;
+  }
+  return e?.fileList;
+};
+
 const Reserved = () => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
@@ -82,6 +94,67 @@ const Reserved = () => {
       );
     }
   }, [id, businessId, dispatch]);
+
+  useEffect(() => {
+    const booking = data?.current_booking;
+
+    if (booking) {
+      const bookingGuests =
+        booking?.guests?.length > 0 ? booking.guests : [booking.primary_guest];
+
+      const formattedGuestState = bookingGuests.map((g, index) => {
+        const guestType = booking.guest_market || "local";
+        const nrcParsed = parseNrcString(g?.nrc_number);
+        return {
+          id: g?.id || Date.now() + index,
+          guestType: guestType,
+          selectedCode: nrcParsed.nrcCode,
+          is_primary: index === 0,
+        };
+      });
+
+      setGuests(formattedGuestState);
+
+      const formattedGuestsFormValue = bookingGuests.map((g) => {
+        const nrcParsed = parseNrcString(g?.nrc_number);
+        return {
+          name: g?.name || "",
+          phone: g?.phone || booking?.contact?.phone || "",
+          email: g?.email || booking?.contact?.email || "",
+          guestType: booking.guest_market || "local",
+          nrcCode: nrcParsed.nrcCode,
+          nrcTownship: nrcParsed.nrcTownship,
+          nrcType: nrcParsed.nrcType,
+          nrcNumber: nrcParsed.nrcNumber,
+          passport: g?.passport_number || "",
+          identityPhoto: g?.identity_photo_url
+            ? [
+                {
+                  uid: "-1",
+                  name: "identity.png",
+                  status: "done",
+                  url: g?.identity_photo_url,
+                },
+              ]
+            : [],
+        };
+      });
+
+      form.setFieldsValue({
+        check_in: booking?.check_in ? dayjs(booking.check_in) : dayjs(),
+        check_out: booking?.check_out
+          ? dayjs(booking.check_out)
+          : dayjs().add(1, "day"),
+        adults: booking?.guest_count?.adults ?? 2,
+        children: booking?.guest_count?.children ?? 0,
+        guest_market: booking?.guest_market || "local",
+        specialRequest: booking?.special_request || "",
+        paymentMethod: booking?.payments?.[0]?.provider || "cash",
+        paymentStatus: booking?.payment_status || "paid",
+        guests: formattedGuestsFormValue,
+      });
+    }
+  }, [data, form]);
 
   if (isPending) {
     return <PageLoading message="Loading room data..." />;
@@ -118,53 +191,83 @@ const Reserved = () => {
     });
   };
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = (values) => {
     setLoading(true);
+
+    const formData = new FormData();
+
     const formattedCheckIn = values?.check_in
       ? dayjs(values.check_in).format("YYYY-MM-DD")
-      : null;
+      : "";
     const formattedCheckOut = values?.check_out
       ? dayjs(values.check_out).format("YYYY-MM-DD")
-      : null;
+      : "";
 
-    const payloadData = {
-      ...values,
-      check_in: formattedCheckIn,
-      check_out: formattedCheckOut,
-      physical_room_id: data?.id,
-      contact_name: values?.guests?.[0]?.name,
-      contact_phone: values?.guests?.[0]?.phone,
-      payment: {
-        provider: values?.paymentMethod,
-        status: values?.paymentStatus,
-        payment_type: "full_payment",
-      },
-      rate_plan_id: data?.room_type?.rate_plans?.find(
-        (plan) => plan?.guest_market === values?.guest_market,
-      )?.id,
-      guests: values?.guests?.map((guest, index) => ({
-        ...guest,
-        is_primary: index === 0,
-        nrc_number: `${guest?.nrcCode}/${guest?.nrcTownship}(${guest?.nrcType})/${guest?.nrcNumber}`,
-      })),
-    };
+    formData.append("check_in", formattedCheckIn);
+    formData.append("check_out", formattedCheckOut);
+    formData.append("physical_room_id", data?.id || "");
+    formData.append("adults", values?.adults ?? 2);
+    formData.append("children", values?.children ?? 0);
+    formData.append("guest_market", values?.guest_market || "local");
+    formData.append("special_request", values?.specialRequest || "");
+    formData.append("contact_name", values?.guests?.[0]?.name || "");
+    formData.append("contact_phone", values?.guests?.[0]?.phone || "");
+
+    // Payment Data
+    formData.append("payment[provider]", values?.paymentMethod || "cash");
+    formData.append("payment[status]", values?.paymentStatus || "paid");
+    formData.append("payment[payment_type]", "full_payment");
+
+    const ratePlanId = data?.room_type?.rate_plans?.find(
+      (plan) => plan?.guest_market === values?.guest_market,
+    )?.id;
+    if (ratePlanId) {
+      formData.append("rate_plan_id", ratePlanId);
+    }
+
+    values?.guests?.forEach((guest, index) => {
+      formData.append(`guests[${index}][is_primary]`, index === 0 ? "1" : "0");
+      formData.append(`guests[${index}][name]`, guest?.name || "");
+      formData.append(`guests[${index}][phone]`, guest?.phone || "");
+      formData.append(`guests[${index}][email]`, guest?.email || "");
+
+      if (guest?.guestType === "local") {
+        const nrcNumber = `${guest?.nrcCode}/${guest?.nrcTownship}(${guest?.nrcType})/${guest?.nrcNumber || ""}`;
+        formData.append(`guests[${index}][nrc_number]`, nrcNumber);
+      } else {
+        formData.append(
+          `guests[${index}][identity_number]`,
+          guest?.passport || "",
+        );
+      }
+
+      const fileList = guest?.identityPhoto;
+      const fileObj = fileList?.[0]?.originFileObj;
+
+      if (fileObj) {
+        formData.append(`guests[${index}][photo]`, fileObj, fileObj.name);
+      }
+    });
 
     const actionToDispatch = walkInBooking({
       business_id: businessId,
-      data: payloadData,
+      data: formData,
     });
 
-    try {
-      const res = await dispatch(actionToDispatch);
-      if (_.endsWith(res.type, "fulfilled")) {
-        message.success("Success Reserved");
-        navigate(-1);
-      }
-    } catch (error) {
-      message.error("Something went wrong!");
-    } finally {
-      setLoading(false);
-    }
+    dispatch(actionToDispatch)
+      .then((res) => {
+        const { payload } = res;
+        if (_.endsWith(res.type, "fulfilled")) {
+          message.success("Success Reserved");
+          navigate(-1);
+        }
+      })
+      .catch(() => {
+        message.error("Something went wrong!");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -463,17 +566,20 @@ const Reserved = () => {
                 </Form.Item>
               )}
 
+              {/* Upload Field */}
               <Form.Item
                 name={["guests", index, "identityPhoto"]}
+                valuePropName="fileList"
+                getValueFromEvent={normFile}
                 className="mb-0"
               >
-                <Upload maxCount={1} showUploadList={false}>
-                  <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    className="w-full h-10 rounded-xl bg-white! text-secondary-500! border-secondary-500! text-xs font-semibold border-none flex items-center justify-center space-x-1"
-                  >
-                    Upload Identity Photo
+                <Upload
+                  maxCount={1}
+                  beforeUpload={() => false}
+                  listType="picture"
+                >
+                  <Button className="w-full h-10 rounded-xl bg-white text-teal-600 border-teal-500 border-dashed text-xs font-semibold flex items-center justify-center space-x-1">
+                    <PlusOutlined /> Upload Identity Photo
                   </Button>
                 </Upload>
               </Form.Item>
