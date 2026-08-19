@@ -25,6 +25,7 @@ import _ from "lodash";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Calendar03Icon,
+  CalendarBlock01Icon,
   CalendarCheckIn01Icon,
   CalendarCheckOut01Icon,
   CardExchange01Icon,
@@ -89,22 +90,16 @@ const RoomDetailsPage = () => {
               </span>
               {roomData?.next_reservations?.length > 0 && (
                 <>
-                  {roomData?.next_reservations?.map((reserve) => {
-                    return (
-                      <>
-                        <span
-                          className={`${getDotColor("reserved")} capitalize text-white text-xs font-semibold px-3 py-1 rounded-full`}
-                        >
-                          reserved
-                        </span>
-                        <span
-                          className={`${getDotColor("reserved")} capitalize text-white text-xs font-semibold px-3 py-1 rounded-full`}
-                        >
-                          {roomData?.next_reservations?.length}
-                        </span>
-                      </>
-                    );
-                  })}
+                  <span
+                    className={`${getDotColor("reserved")} capitalize text-white text-xs font-semibold px-3 py-1 rounded-full`}
+                  >
+                    reserved
+                  </span>
+                  <span
+                    className={`${getDotColor("reserved")} capitalize text-white text-xs font-semibold px-3 py-1 rounded-full`}
+                  >
+                    {roomData?.next_reservations?.length}
+                  </span>
                 </>
               )}
             </div>
@@ -153,7 +148,10 @@ const RoomDetailsPage = () => {
             <div className="bg-white rounded-2xl p-5 border border-neutral-200/80 shadow-xs space-y-4">
               <div className=" flex items-center justify-around ">
                 <Avatar
-                  src="https://api.dicebear.com/10.x/lorelei/svg?seed=2"
+                  src={
+                    roomData?.current_booking?.primary_guest?.documents?.[0]
+                      ?.file_url
+                  }
                   size={60}
                 />
                 <div>
@@ -233,11 +231,71 @@ const RoomDetailsPage = () => {
         </div>
         <div className="grid grid-cols-1 gap-5">
           <>
+            {roomData?.current_block && (
+              <>
+                <div className="flex  bg-red-400/20 rounded-2xl p-5 border border-l-4 border-l-red-400 border-neutral-200/80 shadow-xs space-y-4">
+                  <HugeiconsIcon
+                    icon={CalendarBlock01Icon}
+                    className=" text-red-600"
+                  />
+                  <div className="ml-5 text-red-600 font-blod">
+                    <div>
+                      Blocked&nbsp;
+                      {moment(roomData?.current_block?.end_date).diff(
+                        moment(roomData?.current_block?.start_date),
+                        "days",
+                      )}{" "}
+                      nights
+                    </div>
+                    <div>
+                      {roomData?.current_block?.start_date} -{" "}
+                      {roomData?.current_block?.end_date}
+                    </div>
+                    <div>
+                      {roomData?.current_block?.note
+                        ? roomData?.current_block?.note
+                        : "No Reason"}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+            {roomData?.upcoming_blocks?.length > 0 && (
+              <>
+                {roomData?.upcoming_blocks?.map((block) => {
+                  return (
+                    <div className="flex  bg-red-400/20 rounded-2xl p-5 border border-l-4 border-l-red-400 border-neutral-200/80 shadow-xs space-y-4">
+                      <HugeiconsIcon
+                        icon={CalendarBlock01Icon}
+                        className=" text-red-600"
+                      />
+                      <div className="ml-5 text-red-600 font-blod">
+                        <div>
+                          Blocked&nbsp;
+                          {moment(block?.end_date).diff(
+                            moment(block?.start_date),
+                            "days",
+                          )}{" "}
+                          nights
+                        </div>
+                        <div>
+                          {block?.start_date} - {block?.end_date}
+                        </div>
+                        <div>{block?.note ? block?.note : "No Reason"}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
+            )}
             {roomData?.next_reservations?.length > 0 && (
               <>
                 {roomData?.next_reservations?.map((reserve) => {
                   return (
-                    <div className="flex  bg-amber-400/20 rounded-2xl p-5 border border-l-4 border-l-amber-400 border-neutral-200/80 shadow-xs space-y-4">
+                    <div
+                      key={reserve?.id}
+                      className="flex  bg-amber-400/20 rounded-2xl p-5 border border-l-4 border-l-amber-400 border-neutral-200/80 shadow-xs space-y-4"
+                    >
                       <HugeiconsIcon
                         icon={Calendar03Icon}
                         className=" text-amber-600"

@@ -96,14 +96,13 @@ export const updateCheckInInfo = createAsyncThunk(
     try {
       const response = await api.patch(
         `/admin/bookings/${booking_id}/check-in-form/`,
-        {
-          ...data,
-        },
+        data,
         {
           baseURL: BOOKING_URL,
           headers: {
             "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
             "X-Booking-Business-ID": business_id,
+            "Content-Type": "multipart/form-data",
           },
         },
       );

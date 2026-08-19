@@ -196,6 +196,7 @@ const Reserved = () => {
 
     const formData = new FormData();
 
+    console.log("value", values);
     const formattedCheckIn = values?.check_in
       ? dayjs(values.check_in).format("YYYY-MM-DD")
       : "";
@@ -226,24 +227,31 @@ const Reserved = () => {
     }
 
     values?.guests?.forEach((guest, index) => {
-      formData.append(`guests[${index}][is_primary]`, index === 0 ? "1" : "0");
+      const isPrimary = index === 0;
+
+      const isLocal = isPrimary
+        ? values?.guest_market === "local"
+        : guest?.guestType === "local";
+
+      formData.append(`guests[${index}][is_primary]`, isPrimary ? "1" : "0");
       formData.append(`guests[${index}][name]`, guest?.name || "");
       formData.append(`guests[${index}][phone]`, guest?.phone || "");
       formData.append(`guests[${index}][email]`, guest?.email || "");
 
-      if (guest?.guestType === "local") {
-        const nrcNumber = `${guest?.nrcCode}/${guest?.nrcTownship}(${guest?.nrcType})/${guest?.nrcNumber || ""}`;
+      if (isLocal) {
+        const nrcNumber = `${guest?.nrcCode || ""}/${guest?.nrcTownship || ""}(${guest?.nrcType || ""})/${guest?.nrcNumber || ""}`;
+        formData.append(`guests[${index}][identity_type]`, "nrc");
         formData.append(`guests[${index}][nrc_number]`, nrcNumber);
       } else {
+        formData.append(`guests[${index}][identity_type]`, "passport");
         formData.append(
           `guests[${index}][identity_number]`,
           guest?.passport || "",
         );
       }
 
-      const fileList = guest?.identityPhoto;
-      const fileObj = fileList?.[0]?.originFileObj;
-
+      // Identity Photo
+      const fileObj = guest?.identityPhoto?.[0]?.originFileObj;
       if (fileObj) {
         formData.append(`guests[${index}][photo]`, fileObj, fileObj.name);
       }

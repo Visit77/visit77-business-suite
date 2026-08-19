@@ -82,56 +82,67 @@ const CheckInForm = ({ data }) => {
     const booking = data?.current_booking;
 
     if (booking) {
-      // 1. Booking ထဲမှ Guests data များရှိပါက ရယူမည်
+      // Booking Guests မရှိရင် Primary Guest သို့မဟုတ် Array အလွတ် [ {} ] ယူမည်
       const bookingGuests =
-        booking?.guests && booking.guests.length > 0
+        booking?.guests?.length > 0
           ? booking.guests
           : booking?.primary_guest
             ? [booking.primary_guest]
             : [{}];
 
-      const guestMarket = booking.guest_market || "local";
+      const defaultMarket = booking.guest_market || "local";
 
-      // Guests state ကို initial value အဖြစ် set အမှတ်ပြုမည်
-      const formattedGuestState = bookingGuests.map((g, index) => {
-        const nrcParsed = parseNrcString(g?.nrc_number);
-        return {
+      const formattedGuestState = [];
+      const formattedGuestsFormValue = [];
+
+      bookingGuests.forEach((g, index) => {
+        // Guest တစ်ယောက်ချင်းစီမှာ identity_type ပါရင် ယူမည်၊ မပါရင် booking level market ကို သုံးမည်
+
+        const guestType = g?.identity_type
+          ? g.identity_type === "nrc"
+            ? "local"
+            : "foreigner"
+          : defaultMarket;
+
+        // NRC Number ပါမှ parse လုပ်မည် (မပါရင် empty object)
+        const nrcParsed = g?.nrc_number ? parseNrcString(g.nrc_number) : {};
+
+        // 1. Guests State အတွက် Formatted Data
+        formattedGuestState.push({
           id: g?.id || Date.now() + index,
-          guestType: guestMarket,
-          selectedCode: nrcParsed.nrcCode,
+          guestType,
+          selectedCode: nrcParsed.nrcCode || "",
           is_primary: index === 0,
-        };
-      });
+        });
 
-      setGuests(formattedGuestState);
-
-      // Ant Design Form values အတွက် Guest details အားလုံး ပြင်ဆင်ခြင်း
-      const formattedGuestsFormValue = bookingGuests.map((g) => {
-        const nrcParsed = parseNrcString(g?.nrc_number);
-        return {
+        // 2. Form Values အတွက် Formatted Data
+        formattedGuestsFormValue.push({
           name: g?.name || "",
           phone: g?.phone || booking?.contact?.phone || "",
           email: g?.email || booking?.contact?.email || "",
-          guestType: guestMarket,
-          nrcCode: nrcParsed.nrcCode,
-          nrcTownship: nrcParsed.nrcTownship,
-          nrcType: nrcParsed.nrcType,
-          nrcNumber: nrcParsed.nrcNumber,
-          passport: g?.passport_number || "",
-          identityPhoto: g?.identity_photo_url
+          guestType: guestType,
+          nrcCode: nrcParsed.nrcCode || "",
+          nrcTownship: nrcParsed.nrcTownship || "",
+          nrcType: nrcParsed.nrcType || "",
+          nrcNumber: nrcParsed.nrcNumber || "",
+          passport: g?.passport_number || g?.identity_number || "",
+          identityPhoto: g?.documents
             ? [
                 {
-                  uid: "-1",
+                  uid: `-guest-${index}`,
                   name: "identity.png",
                   status: "done",
-                  url: g?.identity_photo_url,
+                  url: g.documents?.[0]?.file_url,
                 },
               ]
             : [],
-        };
+        });
       });
 
-      // Existing booking data ရှိပါက Form သို့ initial fields မ်ား set လုပ်ပေးခြင်း
+      // State Updates
+      setGuests(formattedGuestState);
+
+      // Form Initial Values
       form.setFieldsValue({
         check_in: booking?.check_in ? dayjs(booking.check_in) : dayjs(),
         check_out: booking?.check_out
@@ -139,7 +150,7 @@ const CheckInForm = ({ data }) => {
           : dayjs().add(1, "day"),
         adults: booking?.guest_count?.adults ?? 2,
         children: booking?.guest_count?.children ?? 0,
-        guest_market: guestMarket,
+        guest_market: defaultMarket,
         specialRequest: booking?.special_request || "",
         paymentMethod: booking?.payments?.[0]?.provider || "cash",
         paymentStatus: booking?.payment_status || "paid",
@@ -243,24 +254,31 @@ const CheckInForm = ({ data }) => {
     }
 
     values?.guests?.forEach((guest, index) => {
-      formData.append(`guests[${index}][is_primary]`, index === 0 ? "1" : "0");
+      const isPrimary = index === 0;
+
+      const isLocal = isPrimary
+        ? values?.guest_market === "local"
+        : guest?.guestType === "local";
+
+      formData.append(`guests[${index}][is_primary]`, isPrimary ? "1" : "0");
       formData.append(`guests[${index}][name]`, guest?.name || "");
       formData.append(`guests[${index}][phone]`, guest?.phone || "");
       formData.append(`guests[${index}][email]`, guest?.email || "");
 
-      if (guest?.guestType === "local") {
-        const nrcNumber = `${guest?.nrcCode}/${guest?.nrcTownship}(${guest?.nrcType})/${guest?.nrcNumber || ""}`;
+      if (isLocal) {
+        const nrcNumber = `${guest?.nrcCode || ""}/${guest?.nrcTownship || ""}(${guest?.nrcType || ""})/${guest?.nrcNumber || ""}`;
+        formData.append(`guests[${index}][identity_type]`, "nrc");
         formData.append(`guests[${index}][nrc_number]`, nrcNumber);
       } else {
+        formData.append(`guests[${index}][identity_type]`, "passport");
         formData.append(
           `guests[${index}][identity_number]`,
           guest?.passport || "",
         );
       }
 
-      const fileList = guest?.identityPhoto;
-      const fileObj = fileList?.[0]?.originFileObj;
-
+      // Identity Photo
+      const fileObj = guest?.identityPhoto?.[0]?.originFileObj;
       if (fileObj) {
         formData.append(`guests[${index}][photo]`, fileObj, fileObj.name);
       }
