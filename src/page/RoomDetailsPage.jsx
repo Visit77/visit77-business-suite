@@ -90,11 +90,14 @@ const RoomDetailsPage = () => {
               </span>
               {roomData?.next_reservations?.length > 0 && (
                 <>
-                  <span
-                    className={`${getDotColor("reserved")} capitalize text-white text-xs font-semibold px-3 py-1 rounded-full`}
-                  >
-                    reserved
-                  </span>
+                  {roomData?.display_status != "reserved" && (
+                    <span
+                      className={`${getDotColor("reserved")} capitalize text-white text-xs font-semibold px-3 py-1 rounded-full`}
+                    >
+                      reserved
+                    </span>
+                  )}
+
                   <span
                     className={`${getDotColor("reserved")} capitalize text-white text-xs font-semibold px-3 py-1 rounded-full`}
                   >
@@ -144,89 +147,93 @@ const RoomDetailsPage = () => {
           </div>
         </div>
         <div>
-          {roomData?.current_booking && (
-            <div className="bg-white rounded-2xl p-5 border border-neutral-200/80 shadow-xs space-y-4">
-              <div className=" flex items-center justify-around ">
-                <Avatar
-                  src={
-                    roomData?.current_booking?.primary_guest?.documents?.[0]
-                      ?.file_url
-                  }
-                  size={60}
-                />
-                <div>
-                  <div className=" text-xl font-heavy">
-                    {roomData?.current_booking?.primary_guest?.name}
+          {roomData?.display_status != "blocked" && (
+            <>
+              {roomData?.current_booking && (
+                <div className="bg-white rounded-2xl p-5 border border-neutral-200/80 shadow-xs space-y-4">
+                  <div className=" flex items-center justify-around ">
+                    <Avatar
+                      src={
+                        roomData?.current_booking?.primary_guest?.documents?.[0]
+                          ?.file_url
+                      }
+                      size={60}
+                    />
+                    <div>
+                      <div className=" text-xl font-heavy">
+                        {roomData?.current_booking?.primary_guest?.name}
+                      </div>
+                      <br />
+                      <div className=" font-medium">
+                        {roomData?.current_booking?.reference}
+                      </div>
+                    </div>
+                    <Tag
+                      color={
+                        roomData?.current_booking?.payment_status == "paid"
+                          ? "success"
+                          : "warning"
+                      }
+                      variant="solid"
+                      className=" text-lg! capitalize!"
+                    >
+                      {roomData?.current_booking?.payment_status}
+                    </Tag>
                   </div>
-                  <br />
-                  <div className=" font-medium">
-                    {roomData?.current_booking?.reference}
+                  <Divider />
+                  <div className=" flex justify-between items-center">
+                    <div className=" flex items-center">
+                      <HugeiconsIcon
+                        icon={Calendar03Icon}
+                        className=" text-success-600"
+                        size={30}
+                      />
+                      <div className=" ml-2">
+                        <div className=" font-medium">Check In</div>
+                        <div className=" font-heavy text-xl">
+                          {roomData?.current_booking?.check_in}
+                        </div>
+                      </div>
+                    </div>
+                    <div className=" flex items-center">
+                      <HugeiconsIcon
+                        icon={Calendar03Icon}
+                        className=" text-error-600"
+                        size={30}
+                      />
+                      <div className=" ml-2">
+                        <div className=" font-medium">Check Out</div>
+                        <div className=" font-heavy text-xl">
+                          {roomData?.current_booking?.check_out}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <Tag
-                  color={
-                    roomData?.current_booking?.payment_status == "paid"
-                      ? "success"
-                      : "warning"
-                  }
-                  variant="solid"
-                  className=" text-lg! capitalize!"
-                >
-                  {roomData?.current_booking?.payment_status}
-                </Tag>
-              </div>
-              <Divider />
-              <div className=" flex justify-between items-center">
-                <div className=" flex items-center">
-                  <HugeiconsIcon
-                    icon={Calendar03Icon}
-                    className=" text-success-600"
-                    size={30}
-                  />
-                  <div className=" ml-2">
-                    <div className=" font-medium">Check In</div>
-                    <div className=" font-heavy text-xl">
-                      {roomData?.current_booking?.check_in}
+                  <div className=" flex justify-between items-center">
+                    <div className=" flex items-center">
+                      <HugeiconsIcon icon={Moon02Icon} size={30} />
+                      <div className=" ml-2">
+                        <div className=" font-medium">Stay</div>
+                        <div className=" font-heavy text-xl">
+                          {roomData?.current_booking?.nights} Nights
+                        </div>
+                      </div>
+                    </div>
+                    <div className=" flex items-center">
+                      <HugeiconsIcon icon={User02Icon} size={30} />
+                      <div className=" ml-2">
+                        <div className=" font-medium">Guest</div>
+                        <div className=" font-heavy text-xl">
+                          {`${roomData?.current_booking?.guest_count?.adults} Adult`}
+                          &nbsp;&nbsp;
+                          {`${roomData?.current_booking?.guest_count?.children} Child`}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div className=" flex items-center">
-                  <HugeiconsIcon
-                    icon={Calendar03Icon}
-                    className=" text-error-600"
-                    size={30}
-                  />
-                  <div className=" ml-2">
-                    <div className=" font-medium">Check Out</div>
-                    <div className=" font-heavy text-xl">
-                      {roomData?.current_booking?.check_out}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className=" flex justify-between items-center">
-                <div className=" flex items-center">
-                  <HugeiconsIcon icon={Moon02Icon} size={30} />
-                  <div className=" ml-2">
-                    <div className=" font-medium">Stay</div>
-                    <div className=" font-heavy text-xl">
-                      {roomData?.current_booking?.nights} Nights
-                    </div>
-                  </div>
-                </div>
-                <div className=" flex items-center">
-                  <HugeiconsIcon icon={User02Icon} size={30} />
-                  <div className=" ml-2">
-                    <div className=" font-medium">Guest</div>
-                    <div className=" font-heavy text-xl">
-                      {`${roomData?.current_booking?.guest_count?.adults} Adult`}
-                      &nbsp;&nbsp;
-                      {`${roomData?.current_booking?.guest_count?.children} Child`}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+              )}
+            </>
           )}
         </div>
         <div className="grid grid-cols-1 gap-5">
