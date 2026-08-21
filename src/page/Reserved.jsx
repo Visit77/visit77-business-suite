@@ -196,7 +196,6 @@ const Reserved = () => {
 
     const formData = new FormData();
 
-    console.log("value", values);
     const formattedCheckIn = values?.check_in
       ? dayjs(values.check_in).format("YYYY-MM-DD")
       : "";

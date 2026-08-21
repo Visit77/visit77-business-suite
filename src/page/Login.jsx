@@ -27,8 +27,7 @@ const Login = () => {
   const [loginMethod, setLoginMethod] = useState("email");
 
   const onFinish = async (values) => {
-    setLoading(false);
-
+    setLoading(true);
     let device_id = localStorage.getItem(UNIQUE_DEVICE_ID);
     let device_model = localStorage.getItem(UNIQUE_DEVICE_MODEL);
     if (!device_id) {
@@ -61,15 +60,11 @@ const Login = () => {
           : `+95${values.phone?.replace(/\s/g, "").replace(/^0/, "")}`,
     };
 
-    setLoading(true);
-
     setTimeout(() => {
-      setLoading(false);
       dispatch(login({ ...loginData }))
         .then((res) => {
           if (res.type.endsWith("fulfilled")) {
             const { payload } = res;
-
             if (payload?.data?.otp_required == true) {
               navigate("/confirm-otp", {
                 state: {
@@ -83,7 +78,7 @@ const Login = () => {
           }
         })
         .finally(() => {
-          // setIsSubmit(false);
+          setLoading(false);
         });
     }, 1500);
   };
