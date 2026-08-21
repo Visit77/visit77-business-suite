@@ -31,21 +31,21 @@ const AdminLayout = () => {
   const details = useSelector(selectBusinessDetails);
 
   const menuItems = [
-    {
-      key: "dashboard",
-      icon: <HugeiconsIcon icon={DashboardSquare01Icon} />,
-      label: <Link to="/dashboard">Dashboard</Link>,
-    },
+    // {
+    //   key: "dashboard",
+    //   icon: <HugeiconsIcon icon={DashboardSquare01Icon} />,
+    //   label: <Link to="/dashboard">Dashboard</Link>,
+    // },
     {
       key: "rooms-board",
       icon: <HugeiconsIcon icon={MeetingRoomIcon} />,
       label: <Link to="/rooms-board">Room</Link>,
     },
-    {
-      key: "rooms",
-      icon: <HugeiconsIcon icon={BedSingle02Icon} />,
-      label: <Link to="/rooms">Room Type</Link>,
-    },
+    // {
+    //   key: "rooms",
+    //   icon: <HugeiconsIcon icon={BedSingle02Icon} />,
+    //   label: <Link to="/rooms">Room Type</Link>,
+    // },
   ];
 
   const getCurrentKey = () => {

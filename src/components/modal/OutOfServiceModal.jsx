@@ -45,7 +45,7 @@ const OutOfServiceModal = ({ isModalOpen, setIsModalOpen, id }) => {
           form.resetFields();
           setIsModalOpen(false);
         } catch (error) {
-          message.error("တစ်ခုခု မှားယွင်းနေပါသည်။");
+          // message.error("တစ်ခုခု မှားယွင်းနေပါသည်။");
         } finally {
           setLoading(false);
         }

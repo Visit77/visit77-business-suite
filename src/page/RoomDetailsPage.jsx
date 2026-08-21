@@ -42,6 +42,7 @@ import RoomBlockModal from "../components/modal/RoomBlockModal";
 import { finalVerifiedCheckIn, roomUnblock } from "../service/actionSlice";
 import CheckOutModal from "../components/modal/CheckOutModal";
 import CleanRoomModal from "../components/modal/CleanRoomModal";
+import FinishRepairModal from "../components/modal/FinishRepairModal";
 
 const RoomDetailsPage = () => {
   const { id } = useParams();
@@ -55,6 +56,7 @@ const RoomDetailsPage = () => {
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
   const [isCheckOutModalOpen, setIsCheckOutModalOpen] = useState(false);
   const [isCleanModalOpen, setIsCleanModalOpen] = useState(false);
+  const [isRepairModalOpen, setIsRepairModalOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -72,6 +74,28 @@ const RoomDetailsPage = () => {
     return <PageLoading message="Loading room data..." />;
   }
 
+  const renderRoomDetailsBtn = () => (
+    <button
+      onClick={() => {
+        navigate(`/rooms/${id}`);
+      }}
+      className="flex flex-col items-center justify-center p-3 rounded-xl hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer"
+    >
+      <HugeiconsIcon
+        icon={InformationCircleIcon}
+        className="text-primary-400"
+      />
+      <span>Room Details</span>
+    </button>
+  );
+
+  const renderRoomHistoryBtn = () => (
+    <button className="flex flex-col items-center justify-center p-3 rounded-xl hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer">
+      <HugeiconsIcon icon={FileClockIcon} className="text-primary-400" />
+      <span>Room History</span>
+    </button>
+  );
+
   return (
     <div className="min-h-screen bg-[#F5F7FB] p-8">
       <div className="space-y-5">
@@ -84,7 +108,11 @@ const RoomDetailsPage = () => {
               </h1>
 
               <span
-                className={`${getDotColor(roomData?.display_status)} capitalize ${roomData?.display_status == "blocked" ? "text-black" : "text-white"} text-xs font-semibold px-3 py-1 rounded-full`}
+                className={`${getDotColor(roomData?.display_status)} capitalize ${
+                  roomData?.display_status == "blocked"
+                    ? "text-black"
+                    : "text-white"
+                } text-xs font-semibold px-3 py-1 rounded-full`}
               >
                 {roomData?.display_status}
               </span>
@@ -126,7 +154,7 @@ const RoomDetailsPage = () => {
           <div className="bg-[#F4F7FC] rounded-xl p-3.5 flex items-center justify-between ">
             {_.map(roomData?.room_type?.rate_plans, (plan) => {
               return (
-                <div className="pr-5">
+                <div key={plan?.id || plan?.guest_market} className="pr-5">
                   <div className="text-md font-semibold text-neutral-500">
                     {plan?.guest_market == "local"
                       ? "Local Guest"
@@ -146,6 +174,7 @@ const RoomDetailsPage = () => {
             })}
           </div>
         </div>
+
         <div>
           {roomData?.display_status != "blocked" && (
             <>
@@ -236,6 +265,7 @@ const RoomDetailsPage = () => {
             </>
           )}
         </div>
+
         <div className="grid grid-cols-1 gap-5">
           <>
             {roomData?.current_block && (
@@ -269,9 +299,12 @@ const RoomDetailsPage = () => {
             )}
             {roomData?.upcoming_blocks?.length > 0 && (
               <>
-                {roomData?.upcoming_blocks?.map((block) => {
+                {roomData?.upcoming_blocks?.map((block, index) => {
                   return (
-                    <div className="flex  bg-red-400/20 rounded-2xl p-5 border border-l-4 border-l-red-400 border-neutral-200/80 shadow-xs space-y-4">
+                    <div
+                      key={index}
+                      className="flex  bg-red-400/20 rounded-2xl p-5 border border-l-4 border-l-red-400 border-neutral-200/80 shadow-xs space-y-4"
+                    >
                       <HugeiconsIcon
                         icon={CalendarBlock01Icon}
                         className=" text-red-600"
@@ -329,174 +362,184 @@ const RoomDetailsPage = () => {
 
             {/* Guest Services */}
             <div className="space-y-2 font-medium!">
-              {roomData?.display_status == "available" ||
-              roomData?.display_status == "reserved" ? (
-                <div className="grid grid-cols-2 gap-2">
+              {/* out_of_service ဖြစ်နေပါက ပြသမည့် UI */}
+              {roomData?.display_status === "out_of_service" ? (
+                <div className="grid grid-cols-3 gap-3">
+                  {renderRoomDetailsBtn()}
+                  {renderRoomHistoryBtn()}
                   <button
                     onClick={() => {
-                      navigate(`/room/${id}/check-in/`);
+                      setIsRepairModalOpen(true);
                     }}
-                    className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-info-600  cursor-pointer "
+                    className="flex flex-col items-center justify-center p-3 rounded-xl hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer"
                   >
                     <HugeiconsIcon
-                      icon={CalendarCheckIn01Icon}
-                      className=" text-primary-400"
+                      icon={Settings01Icon}
+                      className="text-primary-400"
                     />
-                    <span>Check In</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      navigate(`/room/${id}/reserve/`);
-                    }}
-                    className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-orange-400 cursor-pointer"
-                  >
-                    <HugeiconsIcon
-                      icon={CardExchange01Icon}
-                      className=" text-primary-400"
-                    />
-                    <span>Reserve</span>
+                    <span>Finish Repair</span>
                   </button>
                 </div>
               ) : (
-                <></>
-              )}
-              {roomData?.display_status == "occupied" && (
-                <div className="grid grid-cols-3 gap-3">
-                  <button
-                    onClick={() => {
-                      setIsCheckOutModalOpen(true);
-                    }}
-                    className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-info-600  cursor-pointer "
-                  >
-                    <HugeiconsIcon
-                      icon={CalendarCheckOut01Icon}
-                      className=" text-primary-400"
-                    />
-                    <span>Check Out</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      navigate(`/room/${id}/reserve/`);
-                    }}
-                    disabled={true}
-                    className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-info-600  cursor-pointer "
-                  >
-                    <HugeiconsIcon
-                      icon={CardExchange01Icon}
-                      className=" text-primary-400"
-                    />
-                    <span>Change Room</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      navigate(`/room/${id}/reserve/`);
-                    }}
-                    className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-orange-400 cursor-pointer"
-                  >
-                    <HugeiconsIcon
-                      icon={CardExchange01Icon}
-                      className=" text-primary-400"
-                    />
-                    <span>Reserve</span>
-                  </button>
-                </div>
-              )}
+                <>
+                  {(roomData?.display_status == "available" ||
+                    roomData?.display_status == "reserved") && (
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => {
+                          navigate(`/room/${id}/check-in/`);
+                        }}
+                        className="flex flex-col items-center justify-center p-3 rounded-xl hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-info-600 cursor-pointer"
+                      >
+                        <HugeiconsIcon
+                          icon={CalendarCheckIn01Icon}
+                          className="text-primary-400"
+                        />
+                        <span>Check In</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          navigate(`/room/${id}/reserve/`);
+                        }}
+                        className="flex flex-col items-center justify-center p-3 rounded-xl hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-orange-400 cursor-pointer"
+                      >
+                        <HugeiconsIcon
+                          icon={CardExchange01Icon}
+                          className="text-primary-400"
+                        />
+                        <span>Reserve</span>
+                      </button>
+                    </div>
+                  )}
 
-              {roomData?.display_status == "cleaning" && (
-                <button
-                  onClick={() => {
-                    setIsCleanModalOpen(true);
-                  }}
-                  className="w-full  items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-success-600  cursor-pointer "
-                >
-                  <div className=" flex justify-center">
-                    <HugeiconsIcon
-                      icon={CardExchange01Icon}
-                      className=" text-primary-400"
-                    />
-                  </div>
-                  <span>Clean Room</span>
-                </button>
-              )}
+                  {roomData?.display_status == "occupied" && (
+                    <div className="grid grid-cols-3 gap-3">
+                      <button
+                        onClick={() => {
+                          setIsCheckOutModalOpen(true);
+                        }}
+                        className="flex flex-col items-center justify-center p-3 rounded-xl hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-info-600 cursor-pointer"
+                      >
+                        <HugeiconsIcon
+                          icon={CalendarCheckOut01Icon}
+                          className="text-primary-400"
+                        />
+                        <span>Check Out</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          navigate(`/room/${id}/reserve/`);
+                        }}
+                        disabled={true}
+                        className="flex flex-col items-center justify-center p-3 rounded-xl hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-info-600 cursor-pointer"
+                      >
+                        <HugeiconsIcon
+                          icon={CardExchange01Icon}
+                          className="text-primary-400"
+                        />
+                        <span>Change Room</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          navigate(`/room/${id}/reserve/`);
+                        }}
+                        className="flex flex-col items-center justify-center p-3 rounded-xl hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-orange-400 cursor-pointer"
+                      >
+                        <HugeiconsIcon
+                          icon={CardExchange01Icon}
+                          className="text-primary-400"
+                        />
+                        <span>Reserve</span>
+                      </button>
+                    </div>
+                  )}
 
-              <div className=" grid grid-cols-4 gap-3 ">
-                {roomData?.display_status == "blocked" ? (
-                  <button
-                    onClick={() => {
-                      dispatch(
-                        roomUnblock({
-                          business_id: businessId,
-                          id: roomData?.block?.id,
-                        }),
-                      ).then((res) => {
-                        if (_.endsWith(res.type, "fulfilled")) {
-                          message.success("Room Unblock Successful.");
+                  {roomData?.display_status == "cleaning" && (
+                    <button
+                      onClick={() => {
+                        setIsCleanModalOpen(true);
+                      }}
+                      className="w-full items-center justify-center p-3 rounded-xl hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-success-600 cursor-pointer"
+                    >
+                      <div className="flex justify-center">
+                        <HugeiconsIcon
+                          icon={CardExchange01Icon}
+                          className="text-primary-400"
+                        />
+                      </div>
+                      <span>Clean Room</span>
+                    </button>
+                  )}
+
+                  <div className="grid grid-cols-4 gap-3">
+                    {roomData?.display_status == "blocked" ? (
+                      <button
+                        onClick={() => {
                           dispatch(
-                            getOneRoom({
+                            roomUnblock({
                               business_id: businessId,
-                              date: moment().format("YYYY-MM-DD"),
-                              id: id,
+                              id: roomData?.block?.id,
                             }),
-                          );
-                        }
-                      });
-                    }}
-                    className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer"
-                  >
-                    <HugeiconsIcon
-                      icon={SquareLockRemove01Icon}
-                      className=" text-primary-400"
-                    />
-                    <span>Unblock</span>
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => {
-                      setIsBlockModalOpen(true);
-                    }}
-                    className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer"
-                  >
-                    <HugeiconsIcon
-                      icon={SquareLockRemove01Icon}
-                      className=" text-primary-400"
-                    />
-                    <span>Block</span>
-                  </button>
-                )}
+                          ).then((res) => {
+                            if (_.endsWith(res.type, "fulfilled")) {
+                              message.success("Room Unblock Successful.");
+                              dispatch(
+                                getOneRoom({
+                                  business_id: businessId,
+                                  date: moment().format("YYYY-MM-DD"),
+                                  id: id,
+                                }),
+                              );
+                            }
+                          });
+                        }}
+                        className="flex flex-col items-center justify-center p-3 rounded-xl hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer"
+                      >
+                        <HugeiconsIcon
+                          icon={SquareLockRemove01Icon}
+                          className="text-primary-400"
+                        />
+                        <span>Unblock</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setIsBlockModalOpen(true);
+                        }}
+                        className="flex flex-col items-center justify-center p-3 rounded-xl hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer"
+                      >
+                        <HugeiconsIcon
+                          icon={SquareLockRemove01Icon}
+                          className="text-primary-400"
+                        />
+                        <span>Block</span>
+                      </button>
+                    )}
 
-                <button
-                  onClick={() => {
-                    navigate(`/rooms/${id}`);
-                  }}
-                  className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer"
-                >
-                  <HugeiconsIcon
-                    icon={InformationCircleIcon}
-                    className=" text-primary-400"
-                  />
-                  <span>Room Details</span>
-                </button>
-                <button className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer">
-                  <HugeiconsIcon
-                    icon={FileClockIcon}
-                    className=" text-primary-400"
-                  />{" "}
-                  <span>Room History</span>
-                </button>
+                    {renderRoomDetailsBtn()}
+                    {renderRoomHistoryBtn()}
 
-                <button
-                  onClick={() => {
-                    setIsModalOpen(true);
-                  }}
-                  className="flex flex-col items-center justify-center p-3 rounded-xl  hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer"
-                >
-                  <HugeiconsIcon
-                    icon={Settings01Icon}
-                    className=" text-primary-400"
-                  />
-                  <span>OOS</span>
-                </button>
-              </div>
+                    {!roomData?.upcoming_blocks?.length &&
+                      !roomData?.next_reservations?.length &&
+                      !["blocked", "occupied", "reserved"].includes(
+                        roomData?.display_status,
+                      ) && (
+                        <button
+                          onClick={() => {
+                            setIsModalOpen(true);
+                          }}
+                          className="flex flex-col items-center justify-center p-3 rounded-xl hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer"
+                        >
+                          <HugeiconsIcon
+                            icon={Settings01Icon}
+                            className="text-primary-400"
+                          />
+                          <span>OOS</span>
+                        </button>
+                      )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -520,6 +563,12 @@ const RoomDetailsPage = () => {
       <CleanRoomModal
         isCleanModalOpen={isCleanModalOpen}
         setIsCleanModalOpen={setIsCleanModalOpen}
+        data={roomData}
+      />
+
+      <FinishRepairModal
+        isRepairModalOpen={isRepairModalOpen}
+        setIsRepairModalOpen={setIsRepairModalOpen}
         data={roomData}
       />
     </div>
