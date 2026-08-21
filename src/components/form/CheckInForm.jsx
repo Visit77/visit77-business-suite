@@ -513,13 +513,12 @@ const CheckInForm = ({ data }) => {
                   <Form.Item
                     label={
                       <span className="text-xs font-semibold text-neutral-600">
-                        Email <span className="text-red-500">*</span>
+                        Email
                       </span>
                     }
                     name={["guests", index, "email"]}
                     rules={[
                       {
-                        required: true,
                         type: "email",
                         message: "Please enter valid email",
                       },

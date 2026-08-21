@@ -79,7 +79,6 @@ const OutOfServiceModal = ({ isModalOpen, setIsModalOpen, id }) => {
             label="Description"
             rules={[
               {
-                required: true,
                 message: "Please write description",
               },
             ]}

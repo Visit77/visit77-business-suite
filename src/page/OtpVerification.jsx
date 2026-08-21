@@ -12,6 +12,7 @@ import { useDispatch } from "react-redux";
 
 const OtpVerification = () => {
   const navigate = useNavigate();
+
   const [otpValue, setOtpValue] = useState("");
   const [loading, setLoading] = useState(false);
   const location = useLocation();
@@ -28,14 +29,14 @@ const OtpVerification = () => {
     }
 
     setLoading(true);
-    console.log("otp", otpValue, values);
+
     if (otpValue?.length === 6) {
       dispatch(
         verifyRequestOtp({
           ...values,
           account_id: values?.account_id,
           otp: otpValue,
-          is_grace_window_verify: false,
+          is_grace_window_verify: true,
         }),
       )
         .then((res) => {

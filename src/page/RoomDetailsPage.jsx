@@ -472,13 +472,16 @@ const RoomDetailsPage = () => {
                   )}
 
                   <div className="grid grid-cols-4 gap-3">
-                    {roomData?.display_status == "blocked" ? (
+                    {roomData?.current_block ||
+                    roomData?.upcoming_blocks?.length > 0 ? (
                       <button
                         onClick={() => {
                           dispatch(
                             roomUnblock({
                               business_id: businessId,
-                              id: roomData?.block?.id,
+                              id:
+                                roomData?.block?.id ||
+                                roomData?.upcoming_blocks?.[0]?.id,
                             }),
                           ).then((res) => {
                             if (_.endsWith(res.type, "fulfilled")) {
