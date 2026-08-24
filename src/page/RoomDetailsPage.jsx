@@ -1,19 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Avatar, Divider, message, Modal, Tag } from "antd";
-import {
-  CloseOutlined,
-  CalendarOutlined,
-  ClockCircleOutlined,
-  UserOutlined,
-  CheckCircleFilled,
-  SwapOutlined,
-  FileTextOutlined,
-  ToolOutlined,
-  HistoryOutlined,
-  LockOutlined,
-  MoonOutlined,
-  AppstoreOutlined,
-} from "@ant-design/icons";
 import { getDotColor } from "../utils/utils";
 import { useDispatch, useSelector } from "react-redux";
 import { getOneRoom, roomBoardSelector } from "../service/roomBoardSlice";
@@ -77,7 +63,7 @@ const RoomDetailsPage = () => {
   const renderRoomDetailsBtn = () => (
     <button
       onClick={() => {
-        navigate(`/rooms/${id}`);
+        navigate(`/rooms/${roomData?.core_physical_room_id}`);
       }}
       className="flex flex-col items-center justify-center p-3 rounded-xl hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer"
     >

@@ -178,31 +178,26 @@ const RoomBoard = () => {
                         room.display_status,
                       )}`}
                     >
-                      {room.checked && (
-                        <CheckCircleFilled className="absolute top-2 left-2 text-[#10B981] text-xs" />
-                      )}
-
                       {room?.next_reservations?.length > 0 ? (
                         <span
                           className={`absolute -top-1 right-0 w-4 h-4 rounded-full ${getDotColor("reserved")}`}
                         />
                       ) : (
-                        <>
-                          {room?.display_status == "blocked" ? (
-                            <span
-                              className={`absolute -top-3 right-0 bg-white`}
-                            >
-                              <HugeiconsIcon
-                                icon={SquareLock02Icon}
-                                className=" "
-                              />
-                            </span>
-                          ) : (
-                            <span
-                              className={`absolute -top-1 right-0 w-4 h-4 rounded-full ${getDotColor(room.display_status)}`}
-                            />
-                          )}
-                        </>
+                        <></>
+                      )}
+
+                      {room?.display_status == "blocked" ||
+                      room?.upcoming_blocks?.length > 0 ? (
+                        <span className={`absolute -bottom-2 right-0 bg-white`}>
+                          <HugeiconsIcon
+                            icon={SquareLock02Icon}
+                            className=" "
+                          />
+                        </span>
+                      ) : (
+                        <span
+                          className={`absolute -top-1 right-0 w-4 h-4 rounded-full ${getDotColor(room.display_status)}`}
+                        />
                       )}
 
                       <span className="tracking-wide text-lg">
