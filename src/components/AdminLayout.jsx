@@ -16,12 +16,45 @@ import LogoutModal from "./modal/LogoutModal";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   BedSingle02Icon,
+  ConciergeBellIcon,
   DashboardSquare01Icon,
   MeetingRoomIcon,
 } from "@hugeicons/core-free-icons";
 import LanguageSelect from "./LanguageSelect";
 
 const { Sider, Content, Header } = Layout;
+
+// Route Configurations (Menu Item နဲ့ Dynamic Breadcrumb Title များကို တစ်နေရာတည်းတွင် စီမံရန်)
+const ROUTE_CONFIG = [
+  {
+    path: "/dashboard",
+    key: "dashboard",
+    label: "Dashboard",
+    breadcrumb: "Dashboard",
+    icon: <HugeiconsIcon icon={DashboardSquare01Icon} />,
+  },
+  {
+    path: "/rooms-board",
+    key: "rooms-board",
+    label: "Room",
+    breadcrumb: "Room Management",
+    icon: <HugeiconsIcon icon={MeetingRoomIcon} />,
+  },
+  {
+    path: "/rooms",
+    key: "rooms",
+    label: "Room Type",
+    breadcrumb: "Room Type Management",
+    icon: <HugeiconsIcon icon={BedSingle02Icon} />,
+  },
+  {
+    path: "/hotel-facility",
+    key: "hotel-facility",
+    label: "Hotel Facility",
+    breadcrumb: "Facility Management",
+    icon: <HugeiconsIcon icon={ConciergeBellIcon} />,
+  },
+];
 
 const AdminLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -30,33 +63,21 @@ const AdminLayout = () => {
   const navigate = useNavigate();
   const details = useSelector(selectBusinessDetails);
 
-  const menuItems = [
-    // {
-    //   key: "dashboard",
-    //   icon: <HugeiconsIcon icon={DashboardSquare01Icon} />,
-    //   label: <Link to="/dashboard">Dashboard</Link>,
-    // },
-    {
-      key: "rooms-board",
-      icon: <HugeiconsIcon icon={MeetingRoomIcon} />,
-      label: <Link to="/rooms-board">Room</Link>,
-    },
-    // {
-    //   key: "rooms",
-    //   icon: <HugeiconsIcon icon={BedSingle02Icon} />,
-    //   label: <Link to="/rooms">Room Type</Link>,
-    // },
-  ];
+  const currentRoute = ROUTE_CONFIG.find(
+    (route) =>
+      location.pathname === route.path ||
+      location.pathname.startsWith(`${route.path}/`),
+  );
 
-  const getCurrentKey = () => {
-    const path = location.pathname;
+  const activeKey = currentRoute?.key || "";
 
-    if (path.includes("/rooms-board")) return "rooms-board";
-    if (path.includes("/rooms")) return "rooms";
-    if (path.includes("/dashboard")) return "dashboard";
+  const currentBreadcrumb = currentRoute?.breadcrumb || "Dashboard";
 
-    // return "dashboard";
-  };
+  const menuItems = ROUTE_CONFIG.map((item) => ({
+    key: item.key,
+    icon: item.icon,
+    label: <Link to={item.path}>{item.label}</Link>,
+  }));
 
   const handleLogout = () => {
     localStorage.removeItem(TOKEN_LABEL);
@@ -87,7 +108,7 @@ const AdminLayout = () => {
 
         <Menu
           mode="inline"
-          selectedKeys={[getCurrentKey()]}
+          selectedKeys={[activeKey]}
           items={menuItems}
           className="border-none pt-4 px-3 space-y-1 text-on-surface-variant font-medium!"
           style={{ backgroundColor: "transparent" }}
@@ -145,8 +166,9 @@ const AdminLayout = () => {
               onClick={() => setMobileMenuOpen(true)}
               className="lg:hidden! flex items-center justify-center"
             />
+            {/* Dynamic Breadcrumb / Title */}
             <h3 className="font-title text-base md:text-lg font-bold text-on-surface">
-              Room Management
+              {currentBreadcrumb}
             </h3>
           </div>
 

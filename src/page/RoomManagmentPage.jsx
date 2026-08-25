@@ -339,16 +339,13 @@ const RoomDetailsPage = () => {
             )}
           </>
 
-          {/* Right Column: Quick Actions Panel (5 cols) */}
           <div className=" bg-white rounded-2xl p-5 border border-neutral-200/80 shadow-xs space-y-4">
             <div className="flex items-center space-x-2 font-medium text-neutral-800 font-bold text-xs uppercase tracking-wider">
               <HugeiconsIcon icon={DashboardSquare01Icon} />
               <span>Room Actions</span>
             </div>
 
-            {/* Guest Services */}
             <div className="space-y-2 font-medium!">
-              {/* out_of_service ဖြစ်နေပါက ပြသမည့် UI */}
               {roomData?.display_status === "out_of_service" ? (
                 <div className="grid grid-cols-3 gap-3">
                   {renderRoomDetailsBtn()}

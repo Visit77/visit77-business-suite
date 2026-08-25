@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { CheckCircleFilled } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { selectBusinessId } from "../service/businessSlice";
 import { getRoomBoard, roomBoardSelector } from "../service/roomBoardSlice";
 import moment from "moment";
 import { buildingSelector, getHotelBuilding } from "../service/buildingSlice";
 import PageLoading from "../components/PageLoading";
-import { Divider } from "antd";
 import {
   getDotColor,
   getRoomBorderStyle,
@@ -180,8 +178,10 @@ const RoomBoard = () => {
                     >
                       {room?.next_reservations?.length > 0 ? (
                         <span
-                          className={`absolute -top-1 right-0 w-4 h-4 rounded-full ${getDotColor("reserved")}`}
-                        />
+                          className={`absolute -top-1 right-0 w-4 h-4 rounded-full ${getDotColor("reserved")} text-center text-white`}
+                        >
+                          {room?.next_reservations?.length}
+                        </span>
                       ) : (
                         <></>
                       )}
@@ -220,7 +220,7 @@ const RoomBoard = () => {
                         ` ${room?.timeline?.vacant_days}`}
                       <br />
                       {room?.timeline?.checkout &&
-                        `${room?.timeline?.checkout?.label} - ${room?.timeline?.checkout?.date} `}
+                        `${room?.timeline?.checkout?.label} - ${moment(room?.timeline?.checkout?.date).format("L")} `}
                       <br />
                       {/* {room?.timeline?.next_reserved &&
                         ` ${room?.timeline?.next_reserved}`} */}

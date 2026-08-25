@@ -8,7 +8,7 @@ import AdminLayout from "./components/AdminLayout";
 import OtpVerification from "./page/OtpVerification";
 import SelectBusiness from "./page/SelectBusiness";
 import RoomBoard from "./page/RoomBoard";
-import RoomDetailsPage from "./page/RoomDetailsPage";
+import RoomManagmentPage from "./page/RoomManagmentPage";
 import CheckIn from "./page/CheckIn";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -19,6 +19,7 @@ import { useLanguage } from "./context/LanguageContext";
 import { getLanguage } from "./service/languageSlice";
 import ScrollToTop from "./components/ScrollToTop";
 import Reserved from "./page/Reserved";
+import HotelFacility from "./page/HotelFacility";
 
 const Dashboard = lazy(() => import("./page/Dashboard"));
 const Room = lazy(() => import("./page/Room"));
@@ -60,6 +61,7 @@ function App() {
             <Route element={<BusinessGate />}>
               <Route element={<AdminLayout />}>
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/hotel-facility" element={<HotelFacility />} />
                 <Route path="/rooms" element={<Room />} />
                 <Route path="/rooms/add" element={<AddRoom />} />
                 <Route path="/rooms/edit/:id" element={<EditRoom />} />
@@ -69,7 +71,10 @@ function App() {
                   element={<RoomBookingList />}
                 />
                 <Route path="/rooms-board" element={<RoomBoard />} />
-                <Route path="/room-details/:id" element={<RoomDetailsPage />} />
+                <Route
+                  path="/room-details/:id"
+                  element={<RoomManagmentPage />}
+                />
                 <Route path="/room/:id/check-in/" element={<CheckIn />} />
                 <Route path="/room/:id/reserve/" element={<Reserved />} />
               </Route>

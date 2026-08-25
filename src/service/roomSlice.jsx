@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../api/axiosInstance";
+import { BOOKING_ADMIN_KEY, BOOKING_URL } from "../variables/constants";
 
 export const getRoomDetails = createAsyncThunk(
   "room/getRoomDetails",
@@ -15,6 +16,30 @@ export const getRoomDetails = createAsyncThunk(
   },
 );
 
+export const getRoomHistory = createAsyncThunk(
+  "room/getRoomHistory",
+  async (params = {}, { rejectWithValue }) => {
+    const { business_id, ...queryParams } = params;
+
+    try {
+      const response = await api.get(
+        `/admin/physical-rooms/${queryParams?.id}/history/`,
+        {
+          baseURL: BOOKING_URL,
+          params: queryParams,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Something went wrong");
+    }
+  },
+);
+
 const roomSlice = createSlice({
   name: "data",
   initialState: {
@@ -22,6 +47,7 @@ const roomSlice = createSlice({
     total: 0,
     isPending: false,
     details: {},
+    history: [],
     error: null,
   },
   reducers: {},
@@ -36,6 +62,17 @@ const roomSlice = createSlice({
         state.details = action.payload.data;
       })
       .addCase(getRoomDetails.rejected, (state, action) => {
+        state.isPending = false;
+        state.error = action.payload;
+      })
+      .addCase(getRoomHistory.pending, (state) => {
+        state.isPending = true;
+      })
+      .addCase(getRoomHistory.fulfilled, (state, action) => {
+        state.isPending = false;
+        state.history = action.payload.data;
+      })
+      .addCase(getRoomHistory.rejected, (state, action) => {
         state.isPending = false;
         state.error = action.payload;
       });
