@@ -234,3 +234,38 @@ export const nrcTownships = {
     { label: "ဇလန", value: "ZaLaNa" },
   ],
 };
+
+export const ratingOption = [
+  {
+    label: "Hotal",
+    value: "zero",
+  },
+  {
+    label: "1 Star",
+    value: "one",
+  },
+  {
+    label: "2 Stars",
+    value: "two",
+  },
+  {
+    label: "3 Stars",
+    value: "three",
+  },
+  {
+    label: "4 Stars",
+    value: "four",
+  },
+  {
+    label: "5 Stars",
+    value: "five",
+  },
+  {
+    label: "6 Stars",
+    value: "six",
+  },
+  {
+    label: "7 Stars",
+    value: "seven",
+  },
+];

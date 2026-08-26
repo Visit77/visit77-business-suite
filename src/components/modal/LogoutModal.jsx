@@ -21,7 +21,6 @@ const LogoutModal = ({
       centered
       width={400}
       className="rounded-2xl overflow-hidden"
-      destroyOnClose
     >
       <div className="p-4 text-center space-y-5">
         {/* Warning Icon Header */}

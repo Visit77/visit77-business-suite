@@ -24,15 +24,14 @@ import LanguageSelect from "./LanguageSelect";
 
 const { Sider, Content, Header } = Layout;
 
-// Route Configurations (Menu Item နဲ့ Dynamic Breadcrumb Title များကို တစ်နေရာတည်းတွင် စီမံရန်)
 const ROUTE_CONFIG = [
-  {
-    path: "/dashboard",
-    key: "dashboard",
-    label: "Dashboard",
-    breadcrumb: "Dashboard",
-    icon: <HugeiconsIcon icon={DashboardSquare01Icon} />,
-  },
+  // {
+  //   path: "/dashboard",
+  //   key: "dashboard",
+  //   label: "Dashboard",
+  //   breadcrumb: "Dashboard",
+  //   icon: <HugeiconsIcon icon={DashboardSquare01Icon} />,
+  // },
   {
     path: "/rooms-board",
     key: "rooms-board",
@@ -50,7 +49,7 @@ const ROUTE_CONFIG = [
   {
     path: "/hotel-facility",
     key: "hotel-facility",
-    label: "Hotel Facility",
+    label: "Hotel Facility & Rating",
     breadcrumb: "Facility Management",
     icon: <HugeiconsIcon icon={ConciergeBellIcon} />,
   },
@@ -198,7 +197,7 @@ const AdminLayout = () => {
           </div>
         </Header>
 
-        <Content className="p-4 md:p-8 max-w-7xl w-full mx-auto bg-gray-50">
+        <Content className="p-4 md:p-8 max-w-7xl w-full mx-auto bg-white">
           <Outlet />
         </Content>
       </Layout>
