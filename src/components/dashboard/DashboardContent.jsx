@@ -183,7 +183,7 @@ const DashboardContent = () => {
             type="primary"
             icon={<PlusOutlined />}
             className="flex-1! sm:flex-none! h-9! md:h-10! rounded-xl! bg-primary! hover:bg-primary-container! font-semibold! border-none! text-xs! md:text-sm!"
-            onClick={() => navigate("/rooms/add")}
+            onClick={() => navigate("/room-create/")}
           >
             Add New Room
           </Button>

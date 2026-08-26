@@ -1,12 +1,6 @@
 import React, { useState } from "react";
-import { Layout, Menu, Input, Badge, Avatar, Drawer, Button } from "antd";
-import {
-  AppstoreOutlined,
-  HomeOutlined,
-  UserOutlined,
-  BellOutlined,
-  MenuOutlined,
-} from "@ant-design/icons";
+import { Layout, Menu, Avatar, Drawer, Button } from "antd";
+import { UserOutlined, MenuOutlined } from "@ant-design/icons";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { API_URL, BUSINESS_LABEL, TOKEN_LABEL } from "../variables/constants";
@@ -25,13 +19,13 @@ import LanguageSelect from "./LanguageSelect";
 const { Sider, Content, Header } = Layout;
 
 const ROUTE_CONFIG = [
-  // {
-  //   path: "/dashboard",
-  //   key: "dashboard",
-  //   label: "Dashboard",
-  //   breadcrumb: "Dashboard",
-  //   icon: <HugeiconsIcon icon={DashboardSquare01Icon} />,
-  // },
+  {
+    path: "/dashboard",
+    key: "dashboard",
+    label: "Dashboard",
+    breadcrumb: "Dashboard",
+    icon: <HugeiconsIcon icon={DashboardSquare01Icon} />,
+  },
   {
     path: "/rooms-board",
     key: "rooms-board",
