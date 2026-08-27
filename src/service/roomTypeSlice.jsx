@@ -15,6 +15,34 @@ export const getRoomType = createAsyncThunk(
   },
 );
 
+export const createRoomType = createAsyncThunk(
+  "room_types/createRoomType",
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`/room_types/`, { ...data });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
+export const uploadRoomTypeImage = createAsyncThunk(
+  "room_types/uploadRoomTypeImage",
+  async ({ id, formData }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`/room_types/${id}/images/`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
 export const deleteRoomType = createAsyncThunk(
   "room_types/deleteRoomType",
   async (id, { rejectWithValue, dispatch }) => {

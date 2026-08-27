@@ -1,14 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { Steps, Form, Input, Select, Button, Upload, message } from "antd";
-import { PlusOutlined, ArrowRightOutlined } from "@ant-design/icons";
+import { Steps, Form, Button, message } from "antd";
+import { ArrowRightOutlined } from "@ant-design/icons";
 import { selectBusinessId } from "../service/businessSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { getRoomStandard } from "../service/roomStandardSlice";
+import { getRoomBuildTypes } from "../service/roomBuildTypesSlice";
 import RoomStep1Form from "../components/room/RoomStep1Form";
 import RoomStep2Form from "../components/room/RoomStep2Form";
 import RoomStep3Form from "../components/room/RoomStep3Form";
-
-const { TextArea } = Input;
+import { getRoomView } from "../service/roomViewSlice";
+import { getBedTypes } from "../service/bedTypeSlice";
+import { getBathTypes } from "../service/bathTypeSlice";
+import { getRoomAmenity } from "../service/roomAmenitySlice";
+import { getRoomPolicies } from "../service/roomPoliciesSlice";
+import { createRoomType, uploadRoomTypeImage } from "../service/roomTypeSlice";
+import _ from "lodash";
+import { useNavigate } from "react-router-dom";
 
 const CreateRoomType = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -18,10 +25,17 @@ const CreateRoomType = () => {
 
   const businessId = useSelector(selectBusinessId);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    dispatch(getRoomStandard());
-  }, [businessId, dispatch]);
+    dispatch(getRoomStandard({ is_active: true }));
+    dispatch(getRoomBuildTypes({ is_active: true }));
+    dispatch(getRoomView({ is_active: true }));
+    dispatch(getBedTypes({ is_active: true }));
+    dispatch(getBathTypes({ is_active: true }));
+    dispatch(getRoomAmenity({ is_active: true }));
+    dispatch(getRoomPolicies({ is_active: true }));
+  }, [dispatch]);
 
   const stepItems = [
     { title: "Basic Informations" },
@@ -46,13 +60,82 @@ const CreateRoomType = () => {
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
+
+      const beds = values?.beds?.map((bed) => {
+        return {
+          bed_type_id: bed,
+          quantity: 1,
+          is_guest_selectable: true,
+          rank: 1,
+        };
+      });
+
+      const baths = values?.bath_options?.map((bath) => {
+        return {
+          bath_type_id: bath,
+          is_guest_selectable: true,
+          rank: 1,
+        };
+      });
+
+      const views = values?.view_options?.map((view) => {
+        return {
+          room_view_id: view,
+          is_guest_selectable: true,
+          rank: 1,
+        };
+      });
+
       const finalPayload = {
         ...formData,
         ...values,
-        images: fileList.map((file) => file.originFileObj || file),
+        bath_options: baths,
+        view_options: views,
+
+        is_active: true,
+        rank: 1,
+        business_id: businessId,
+        beds,
+        base_occupancy: 2,
+        max_occupancy: formData?.max_adults + formData?.max_children,
+        allow_guest_bed_preference: true,
+        allow_guest_view_preference: true,
+        allow_guest_bath_preference: true,
+        allow_guest_smoking_preference: true,
+        supports_smoking: true,
+        supports_non_smoking: true,
+        breakfast_plan_type:
+          values?.breakfast_plan_type == "breakfast_price"
+            ? values?.breakfast_pricing_type
+            : values?.breakfast_plan_type,
       };
 
-      console.log("Final Submitted Data:", finalPayload);
+      dispatch(createRoomType({ data: finalPayload })).then((res) => {
+        if (_.endsWith(res.type, "fulfilled")) {
+          message.success("Room Type Create Successful.");
+          const { payload } = res;
+
+          const submitData = new FormData();
+
+          fileList?.forEach((img, index) => {
+            if (img) {
+              submitData.append(`images`, img?.originFileObj);
+            }
+          });
+          dispatch(
+            uploadRoomTypeImage({
+              id: payload?.data?.id,
+              formData: submitData,
+            }),
+          ).then((res) => {
+            if (_.endsWith(res.type, "fulfilled")) {
+              message.success("Room Type Image Successful.");
+              navigate(-1);
+            }
+          });
+        }
+      });
+
       message.success("Room Type created successfully!");
     } catch (error) {
       console.log("Validation Failed:", error);
@@ -79,15 +162,15 @@ const CreateRoomType = () => {
         form={form}
         layout="vertical"
         initialValues={{
-          room_type_name: "Dulex Room",
-          room_standard: "Standard Room",
-          room_build_type: "Cottage",
-          description: "Description",
+          name: "",
+          room_standard_id: null,
+          room_build_type_id: null,
+          description: "",
           max_adults: "2",
-          max_children: "10",
-          size_from: "200",
-          size_to: "300",
-          area_unit: "sqft",
+          max_children: "0",
+          room_area_from: "",
+          room_area_to: "",
+          area_unit: null,
         }}
         className="space-y-4"
       >
@@ -100,7 +183,9 @@ const CreateRoomType = () => {
         {currentStep === 1 && <RoomStep2Form />}
 
         {/* STEP 3: PRICING */}
-        {currentStep === 2 && <RoomStep3Form />}
+        {currentStep === 2 && (
+          <RoomStep3Form form={form} businessId={businessId} />
+        )}
 
         {/* NAVIGATION BUTTONS (Previous, Next, Submit) */}
         <div className="flex items-center justify-between pt-4">

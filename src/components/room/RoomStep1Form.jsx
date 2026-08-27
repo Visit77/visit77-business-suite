@@ -1,10 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { Form, Input, Select, Button, Upload } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
+import { useSelector } from "react-redux";
+import { roomBuildTypesSelector } from "../../service/roomBuildTypesSlice";
+import { roomStandardSelector } from "../../service/roomStandardSlice";
 
 const { TextArea } = Input;
 
 const RoomStep1Form = ({ fileList, setFileList }) => {
+  const { data: buildTypes, isPending } = useSelector(roomBuildTypesSelector);
+  const { data: standards, isPending: isStandardPending } =
+    useSelector(roomStandardSelector);
+
+  const buildTypesOption = buildTypes?.map((type) => {
+    return {
+      label: type?.name,
+      value: type?.id,
+    };
+  });
+
+  const standardOption = standards?.map((standard) => {
+    return {
+      label: standard?.name,
+      value: standard?.id,
+    };
+  });
+
   return (
     <>
       <div className="bg-white rounded-2xl p-4 shadow-xs border border-slate-100 space-y-3">
@@ -18,11 +39,14 @@ const RoomStep1Form = ({ fileList, setFileList }) => {
               Room Type Name *
             </span>
           }
-          name="room_type_name"
+          name="name"
           rules={[{ required: true, message: "Required" }]}
           className="mb-3"
         >
-          <Input className="rounded-lg h-10 text-xs bg-slate-50/50" />
+          <Input
+            className="rounded-lg h-10 text-xs bg-slate-50/50"
+            placeholder=" Room Type Name"
+          />
         </Form.Item>
 
         <Form.Item
@@ -31,15 +55,15 @@ const RoomStep1Form = ({ fileList, setFileList }) => {
               Room Standard *
             </span>
           }
-          name="room_standard"
+          name="room_standard_id"
           rules={[{ required: true, message: "Required" }]}
           className="mb-3"
         >
-          <Select className="h-10 text-xs">
-            <Select.Option value="Standard Room">Standard Room</Select.Option>
-            <Select.Option value="Deluxe Room">Deluxe Room</Select.Option>
-            <Select.Option value="Suite">Suite</Select.Option>
-          </Select>
+          <Select
+            className="h-10 text-xs"
+            options={standardOption}
+            placeholder="Select Room Standard"
+          />
         </Form.Item>
 
         <Form.Item
@@ -48,15 +72,15 @@ const RoomStep1Form = ({ fileList, setFileList }) => {
               Room Build Type *
             </span>
           }
-          name="room_build_type"
+          name="room_build_type_id"
           rules={[{ required: true, message: "Required" }]}
           className="mb-3"
         >
-          <Select className="h-10 text-xs">
-            <Select.Option value="Cottage">Cottage</Select.Option>
-            <Select.Option value="Villa">Villa</Select.Option>
-            <Select.Option value="Building">Building</Select.Option>
-          </Select>
+          <Select
+            className="h-10 text-xs"
+            options={buildTypesOption}
+            placeholder="Select Room Build Type"
+          />
         </Form.Item>
 
         <Form.Item
@@ -68,7 +92,11 @@ const RoomStep1Form = ({ fileList, setFileList }) => {
           name="description"
           className="mb-0"
         >
-          <TextArea rows={3} className="rounded-lg text-xs bg-slate-50/50" />
+          <TextArea
+            rows={3}
+            className="rounded-lg text-xs bg-slate-50/50"
+            placeholder="Description"
+          />
         </Form.Item>
       </div>
 
@@ -126,20 +154,26 @@ const RoomStep1Form = ({ fileList, setFileList }) => {
             label={
               <span className="text-xs text-slate-600 font-medium">From</span>
             }
-            name="size_from"
+            name="room_area_from"
             className="mb-0"
           >
-            <Input className="rounded-lg h-10 text-xs bg-slate-50/50" />
+            <Input
+              className="rounded-lg h-10 text-xs bg-slate-50/50"
+              placeholder="from"
+            />
           </Form.Item>
 
           <Form.Item
             label={
               <span className="text-xs text-slate-600 font-medium">To</span>
             }
-            name="size_to"
+            name="room_area_to"
             className="mb-0"
           >
-            <Input className="rounded-lg h-10 text-xs bg-slate-50/50" />
+            <Input
+              className="rounded-lg h-10 text-xs bg-slate-50/50"
+              placeholder="to"
+            />
           </Form.Item>
 
           <Form.Item
@@ -152,8 +186,8 @@ const RoomStep1Form = ({ fileList, setFileList }) => {
             className="mb-0"
           >
             <Select className="h-10 text-xs">
-              <Select.Option value="sqft">sqft</Select.Option>
-              <Select.Option value="sqm">sqm</Select.Option>
+              <Option value="sqft">sqft</Option>
+              <Option value="sqm">sqm</Option>
             </Select>
           </Form.Item>
         </div>

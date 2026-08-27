@@ -6,50 +6,12 @@ import {
   SearchOutlined,
   CloseOutlined,
 } from "@ant-design/icons";
-
-// Mock Options Data
-const BED_TYPES_OPTIONS = [
-  { label: "Sofa Bed", value: "sofa_bed" },
-  { label: "Single Bed", value: "single_bed" },
-  { label: "Twin / Single Bed", value: "twin_bed" },
-  { label: "Double Bed", value: "double_bed" },
-  { label: "King Bed", value: "king_bed" },
-];
-
-const VIEWS_OPTIONS = [
-  { label: "Swimming Pool View", value: "swimming_pool_view" },
-  { label: "Pool View", value: "pool_view" },
-  { label: "Garden View", value: "garden_view" },
-  { label: "City View", value: "city_view" },
-  { label: "A Swimming Pool View", value: "a_swimming_pool_view" },
-  { label: "Sea View", value: "sea_view" },
-];
-
-const BATH_TYPES_OPTIONS = [
-  { label: "Rain Shower", value: "rain_shower" },
-  { label: "Shower Only", value: "shower_only" },
-  { label: "Private Pool", value: "private_pool" },
-  { label: "Bathtub", value: "bathtub" },
-];
-
-const AMENITIES_LIST = [
-  { label: "Refrigerator", value: "refrigerator" },
-  { label: "Desk & Chair", value: "desk_chair" },
-  { label: "Balcony", value: "balcony" },
-  { label: "Coffee Maker", value: "coffee_maker" },
-  { label: "Safe Box", value: "safe_box" },
-  { label: "Mini-Bar", value: "mini_bar" },
-  { label: "TV", value: "tv" },
-  { label: "WiFi", value: "wifi" },
-  { label: "Air Conditioning", value: "air_conditioning" },
-];
-
-const POLICIES_LIST = [
-  { label: "ID Required at Check-in", value: "id_required" },
-  { label: "No Smoking", value: "no_smoking" },
-  { label: "No Parties / Events", value: "no_parties" },
-  { label: "Pets Not Allowed", value: "no_pets" },
-];
+import { useSelector } from "react-redux";
+import { bathTypesSelector } from "../../service/bathTypeSlice";
+import { bedTypesSelector } from "../../service/bedTypeSlice";
+import { roomViewSelector } from "../../service/roomViewSlice";
+import { roomAmenitySelector } from "../../service/roomAmenitySlice";
+import { roomPoliciesSelector } from "../../service/roomPoliciesSlice";
 
 const RoomStep2Form = () => {
   // Collapsible / See More States
@@ -58,14 +20,8 @@ const RoomStep2Form = () => {
   const [showAllBaths, setShowAllBaths] = useState(false);
 
   // Selected Items States
-  const [selectedAmenities, setSelectedAmenities] = useState([
-    "refrigerator",
-    "desk_chair",
-  ]);
-  const [selectedPolicies, setSelectedPolicies] = useState([
-    "id_required",
-    "no_smoking",
-  ]);
+  const [selectedAmenities, setSelectedAmenities] = useState([]);
+  const [selectedPolicies, setSelectedPolicies] = useState([]);
 
   // Modal States
   const [isAmenitiesModalOpen, setIsAmenitiesModalOpen] = useState(false);
@@ -75,6 +31,56 @@ const RoomStep2Form = () => {
   const [isPoliciesModalOpen, setIsPoliciesModalOpen] = useState(false);
   const [tempPolicies, setTempPolicies] = useState([]);
   const [policiesSearch, setPoliciesSearch] = useState("");
+
+  const { data: bathTypes, isPending: isBathTypePending } =
+    useSelector(bathTypesSelector);
+
+  const { data: bedTypes, isPending: isBedTypePending } =
+    useSelector(bedTypesSelector);
+
+  const { data: roomViews, isPending: isRoomViewPending } =
+    useSelector(roomViewSelector);
+
+  const { data: roomAmenity, isPending: isRoomAmenityPending } =
+    useSelector(roomAmenitySelector);
+
+  const { data: roomPolicies, isPending: isRoomPoliciesPending } =
+    useSelector(roomPoliciesSelector);
+
+  const bathTypesOption = bathTypes?.map((bath) => {
+    return {
+      label: bath?.name,
+      value: bath?.id,
+    };
+  });
+
+  const bedTypesOption = bedTypes?.map((bed) => {
+    return {
+      label: bed?.name,
+      value: bed?.id,
+    };
+  });
+
+  const roomViewsOption = roomViews?.map((view) => {
+    return {
+      label: view?.name,
+      value: view?.id,
+    };
+  });
+
+  const roomAmenityOption = roomAmenity?.map((amenity) => {
+    return {
+      label: amenity?.name,
+      value: amenity?.id,
+    };
+  });
+
+  const roomPoliciesOption = roomPolicies?.map((policy) => {
+    return {
+      label: policy?.name,
+      value: policy?.id,
+    };
+  });
 
   // Amenities Modal Handlers
   const handleOpenAmenitiesModal = () => {
@@ -107,11 +113,11 @@ const RoomStep2Form = () => {
   };
 
   // Filtered List for Search in Modal
-  const filteredAmenities = AMENITIES_LIST.filter((item) =>
+  const filteredAmenities = roomAmenityOption?.filter((item) =>
     item.label.toLowerCase().includes(amenitiesSearch.toLowerCase()),
   );
 
-  const filteredPolicies = POLICIES_LIST.filter((item) =>
+  const filteredPolicies = roomPoliciesOption?.filter((item) =>
     item.label.toLowerCase().includes(policiesSearch.toLowerCase()),
   );
 
@@ -125,24 +131,23 @@ const RoomStep2Form = () => {
 
         {/* Bed Types */}
         <div className="space-y-2">
-          <span className="text-xs font-bold text-slate-800">Bed Types</span>
-          <Form.Item name="bed_types" className="mb-0">
+          <span className="text-xs font-bold text-slate-800 ">Bed Types</span>
+          <Form.Item name="beds" className="mb-0! mt-3!">
             <Checkbox.Group className="w-full flex flex-col space-y-2">
-              {(showAllBeds
-                ? BED_TYPES_OPTIONS
-                : BED_TYPES_OPTIONS.slice(0, 3)
-              ).map((bed) => (
-                <Checkbox
-                  key={bed.value}
-                  value={bed.value}
-                  className="text-xs text-slate-700"
-                >
-                  {bed.label}
-                </Checkbox>
-              ))}
+              {(showAllBeds ? bedTypesOption : bedTypesOption?.slice(0, 3)).map(
+                (bed) => (
+                  <Checkbox
+                    key={bed.value}
+                    value={bed.value}
+                    className="text-xs text-slate-700 mb-1!"
+                  >
+                    {bed.label}
+                  </Checkbox>
+                ),
+              )}
             </Checkbox.Group>
           </Form.Item>
-          {BED_TYPES_OPTIONS.length > 3 && (
+          {bedTypesOption?.length > 3 && (
             <button
               type="button"
               onClick={() => setShowAllBeds(!showAllBeds)}
@@ -157,23 +162,24 @@ const RoomStep2Form = () => {
 
         {/* Views */}
         <div className="space-y-2">
-          <span className="text-xs font-bold text-slate-800">Views</span>
-          <Form.Item name="views" className="mb-0">
+          <span className="text-xs font-bold text-slate-800 ">Views</span>
+          <Form.Item name="view_options" className="mb-0! mt-3! ">
             <Checkbox.Group className="w-full flex flex-col space-y-2">
-              {(showAllViews ? VIEWS_OPTIONS : VIEWS_OPTIONS.slice(0, 3)).map(
-                (view) => (
-                  <Checkbox
-                    key={view.value}
-                    value={view.value}
-                    className="text-xs text-slate-700"
-                  >
-                    {view.label}
-                  </Checkbox>
-                ),
-              )}
+              {(showAllViews
+                ? roomViewsOption
+                : roomViewsOption?.slice(0, 3)
+              ).map((view) => (
+                <Checkbox
+                  key={view.value}
+                  value={view.value}
+                  className="text-xs text-slate-700 mb-1!"
+                >
+                  {view.label}
+                </Checkbox>
+              ))}
             </Checkbox.Group>
           </Form.Item>
-          {VIEWS_OPTIONS.length > 3 && (
+          {roomViewsOption?.length > 3 && (
             <button
               type="button"
               onClick={() => setShowAllViews(!showAllViews)}
@@ -189,23 +195,23 @@ const RoomStep2Form = () => {
         {/* Bath Types */}
         <div className="space-y-2">
           <span className="text-xs font-bold text-slate-800">Bath Types</span>
-          <Form.Item name="bath_types" className="mb-0">
+          <Form.Item name="bath_options" className="mb-0! mt-3!">
             <Checkbox.Group className="w-full flex flex-col space-y-2">
               {(showAllBaths
-                ? BATH_TYPES_OPTIONS
-                : BATH_TYPES_OPTIONS.slice(0, 3)
+                ? bathTypesOption
+                : bathTypesOption?.slice(0, 3)
               ).map((bath) => (
                 <Checkbox
                   key={bath.value}
                   value={bath.value}
-                  className="text-xs text-slate-700"
+                  className="text-xs text-slate-700 mb-1!"
                 >
                   {bath.label}
                 </Checkbox>
               ))}
             </Checkbox.Group>
           </Form.Item>
-          {BATH_TYPES_OPTIONS.length > 3 && (
+          {bathTypesOption?.length > 3 && (
             <button
               type="button"
               onClick={() => setShowAllBaths(!showAllBaths)}
@@ -235,7 +241,7 @@ const RoomStep2Form = () => {
         {/* Selected Amenities Chips */}
         <div className="flex flex-wrap gap-2 pt-2">
           {selectedAmenities.map((val) => {
-            const item = AMENITIES_LIST.find((a) => a.value === val);
+            const item = roomAmenityOption?.find((a) => a.value === val);
             return (
               <span
                 key={val}
@@ -273,7 +279,7 @@ const RoomStep2Form = () => {
         {/* Selected Policies Chips */}
         <div className="flex flex-wrap gap-2 pt-2">
           {selectedPolicies.map((val) => {
-            const item = POLICIES_LIST.find((p) => p.value === val);
+            const item = roomPoliciesOption?.find((p) => p.value === val);
             return (
               <span
                 key={val}

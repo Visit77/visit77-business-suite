@@ -22,7 +22,6 @@ const RoomBoard = () => {
     useSelector(buildingSelector);
   const { data: roomBoard, isPending } = useSelector(roomBoardSelector);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedRoom, setSelectedRoom] = useState();
   const navigate = useNavigate();
 
   useEffect(() => {

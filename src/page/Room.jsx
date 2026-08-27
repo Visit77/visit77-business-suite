@@ -4,6 +4,8 @@ import RoomCard from "../components/card/RoomCard";
 import { selectBusinessId } from "../service/businessSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { getRoomType, roomTypeSelector } from "../service/roomTypeSlice";
+import { PlusOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 
 const Room = () => {
   // Mock Data for Rooms
@@ -15,11 +17,12 @@ const Room = () => {
   }, [businessId, dispatch]);
 
   const { data: roomType, isPending } = useSelector(roomTypeSelector);
+  const navigate = useNavigate();
 
   return (
     <div className="space-y-6 md:space-y-8 animate-fade-in">
       {/* 1. Top Filter Control Panel */}
-      <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+      {/* <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
           <div className="space-y-1.5">
             <span className="text-[11px] font-bold text-on-surface-variant/70 tracking-wide block">
@@ -69,8 +72,17 @@ const Room = () => {
             </button>
           </div>
         </div>
+      </div> */}
+      <div className=" flex justify-end">
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          className="flex-1! sm:flex-none! h-9! md:h-10! rounded-xl! bg-primary! hover:bg-primary-container! font-semibold! border-none! text-xs! md:text-sm!"
+          onClick={() => navigate("/room-create/")}
+        >
+          Add New Room
+        </Button>
       </div>
-
       {/* 2. Responsive Room Grid Layout */}
       {!isPending && (
         <>

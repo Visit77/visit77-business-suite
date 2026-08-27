@@ -25,7 +25,7 @@ const RoomCard = ({ room }) => {
   const isAvailable = room?.available_rooms > 0;
   const statusText = isAvailable
     ? `${room?.available_rooms} AVAILABLE`
-    : "BOOKED OUT";
+    : "No Room";
   const statusClass = isAvailable
     ? "bg-emerald-500/90 text-white"
     : "bg-rose-500/90 text-white";
@@ -124,7 +124,7 @@ const RoomCard = ({ room }) => {
 
         {/* 3. Action Buttons Section */}
         <div className="flex items-center space-x-2 pt-2 border-t border-slate-100">
-          <Button
+          {/* <Button
             type="primary"
             className="flex-1! h-10! bg-blue-600! hover:bg-blue-700! text-xs! font-semibold! rounded-xl! border-none! transition-all!"
             onClick={() => {
@@ -132,7 +132,7 @@ const RoomCard = ({ room }) => {
             }}
           >
             View Details
-          </Button>
+          </Button> */}
 
           <Tooltip title="Edit">
             <Button

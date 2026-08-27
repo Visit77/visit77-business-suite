@@ -15,6 +15,11 @@ import languageReducer from "../service/languageSlice.jsx";
 import actionReducer from "../service/actionSlice.jsx";
 import roomReducer from "../service/roomSlice.jsx";
 import facilityReducer from "../service/facilitySlice.jsx";
+import roomBuildTypesReducer from "../service/roomBuildTypesSlice.jsx";
+import bathTypeReducer from "../service/bathTypeSlice.jsx";
+import bedTypeReducer from "../service/bedTypeSlice.jsx";
+import roomPoliciesReducer from "../service/roomPoliciesSlice.jsx";
+import mealPlanReducer from "../service/mealPlanSlice.jsx";
 
 const appReducer = combineReducers({
   auth: authReducer,
@@ -33,6 +38,11 @@ const appReducer = combineReducers({
   action: actionReducer,
   room: roomReducer,
   facility: facilityReducer,
+  roomBuildTypes: roomBuildTypesReducer,
+  bathTypes: bathTypeReducer,
+  bedTypes: bedTypeReducer,
+  roomPolicies: roomPoliciesReducer,
+  mealPlan: mealPlanReducer,
 });
 
 const rootReducer = (state, action) => {
