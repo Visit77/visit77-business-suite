@@ -20,12 +20,12 @@ import { getLanguage } from "./service/languageSlice";
 import ScrollToTop from "./components/ScrollToTop";
 import Reserved from "./page/Reserved";
 import HotelFacility from "./page/HotelFacility";
+import EditRoomType from "./page/EditRoomType";
 
 const Dashboard = lazy(() => import("./page/Dashboard"));
 const Room = lazy(() => import("./page/Room"));
 const RoomDetail = lazy(() => import("./page/RoomDetail"));
 const CreateRoomType = lazy(() => import("./page/CreateRoomType"));
-const EditRoom = lazy(() => import("./page/EditRoom"));
 const RoomBookingList = lazy(() => import("./page/RoomBookingList"));
 
 function App() {
@@ -64,7 +64,7 @@ function App() {
                 <Route path="/hotel-facility" element={<HotelFacility />} />
                 <Route path="/rooms" element={<Room />} />
                 <Route path="/room-create/" element={<CreateRoomType />} />
-                <Route path="/rooms/edit/:id" element={<EditRoom />} />
+                <Route path="/rooms/edit/:id" element={<EditRoomType />} />
                 <Route path="/rooms/:id" element={<RoomDetail />} />
                 <Route
                   path="/rooms/:id/history"

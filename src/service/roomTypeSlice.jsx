@@ -27,6 +27,18 @@ export const createRoomType = createAsyncThunk(
   },
 );
 
+export const updateRoomType = createAsyncThunk(
+  "room_types/updateRoomType",
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`/room_types/${id}`, { ...data });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
 export const uploadRoomTypeImage = createAsyncThunk(
   "room_types/uploadRoomTypeImage",
   async ({ id, formData }, { rejectWithValue }) => {
@@ -55,6 +67,18 @@ export const deleteRoomType = createAsyncThunk(
   },
 );
 
+export const getOneRoomType = createAsyncThunk(
+  "room_types/getOneRoomType",
+  async (id, { rejectWithValue }) => {
+    try {
+      const { data, headers } = await api.get(`/room_types/${id}`);
+      return { data, headers };
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
 const roomTypeSlice = createSlice({
   name: "data",
   initialState: {
@@ -62,6 +86,7 @@ const roomTypeSlice = createSlice({
     total: 0,
     loading: false,
     error: null,
+    details: {},
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -81,6 +106,18 @@ const roomTypeSlice = createSlice({
       .addCase(deleteRoomType.fulfilled, (state, action) => {
         state.data = state.data.filter((item) => item.id !== action.payload);
         state.total -= 1;
+      })
+      .addCase(getOneRoomType.pending, (state) => {
+        state.isPending = true;
+        state.hasError = false;
+      })
+      .addCase(getOneRoomType.fulfilled, (state, { payload }) => {
+        state.isPending = false;
+        state.details = payload.data?.data;
+      })
+      .addCase(getOneRoomType.rejected, (state) => {
+        state.isPending = false;
+        state.hasError = true;
       });
   },
 });

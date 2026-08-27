@@ -4,7 +4,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { getMealPlan, mealPlanSelector } from "../../service/mealPlanSlice";
 
 const RoomStep3Form = ({ form, businessId }) => {
-  const [extraBedAvailable, setExtraBedAvailable] = useState(false);
+  const extra_bed_available = Form.useWatch("extra_bed_available", form);
+  const breakfast_plan_type = Form.useWatch("breakfast_plan_type", form);
+  const breakfast_pricing_type = Form.useWatch("breakfast_pricing_type", form);
+
+  const [extraBedAvailable, setExtraBedAvailable] = useState(
+    extra_bed_available || false,
+  );
   const [selectedMealPlan, setSelectedMealPlan] = useState(
     "included_in_room_price",
   );
@@ -12,6 +18,23 @@ const RoomStep3Form = ({ form, businessId }) => {
     "hotel_default_price",
   );
 
+  useEffect(() => {
+    if (extra_bed_available) {
+      setExtraBedAvailable(extra_bed_available);
+    }
+  }, [extra_bed_available]);
+
+  useEffect(() => {
+    if (breakfast_plan_type) {
+      setSelectedMealPlan(breakfast_plan_type);
+    }
+  }, [breakfast_plan_type]);
+
+  useEffect(() => {
+    if (breakfast_pricing_type) {
+      setBreakfastPricingType(breakfast_pricing_type);
+    }
+  }, [breakfast_pricing_type]);
   const dispatch = useDispatch();
 
   const breakfastPlanType = Form.useWatch("breakfast_plan_type", form);
@@ -44,7 +67,7 @@ const RoomStep3Form = ({ form, businessId }) => {
             For Local <span className="text-red-500">*</span>
           </span>
           <div className="space-y-2">
-            <Form.Item name="local_mmk" className="mb-0">
+            <Form.Item name="local_base_price" className="mb-0">
               <Input
                 placeholder="Type ..."
                 addonBefore={
@@ -55,7 +78,7 @@ const RoomStep3Form = ({ form, businessId }) => {
                 className="rounded-xl h-10 text-xs bg-slate-50/50"
               />
             </Form.Item>
-            <Form.Item name="local_usd" className="mb-0">
+            <Form.Item name="local_usd_display_price" className="mb-0">
               <Input
                 placeholder="Type ..."
                 addonBefore={
@@ -77,7 +100,7 @@ const RoomStep3Form = ({ form, businessId }) => {
             For Foreigner <span className="text-red-500">*</span>
           </span>
           <div className="space-y-2">
-            <Form.Item name="foreigner_mmk" className="mb-0">
+            <Form.Item name="foreign_base_price" className="mb-0">
               <Input
                 placeholder="Type ..."
                 addonBefore={
@@ -88,7 +111,7 @@ const RoomStep3Form = ({ form, businessId }) => {
                 className="rounded-xl h-10 text-xs bg-slate-50/50"
               />
             </Form.Item>
-            <Form.Item name="foreigner_usd" className="mb-0">
+            <Form.Item name="foreign_usd_display_price" className="mb-0">
               <Input
                 placeholder="Type ..."
                 addonBefore={
