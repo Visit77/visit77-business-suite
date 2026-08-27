@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Tooltip, Carousel, Image } from "antd";
+import { Button, Tooltip, Carousel, Image, message } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -9,12 +9,31 @@ import {
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../../variables/constants";
+import DeleteConfirmModal from "../modal/DeleteConfirmModal";
+import { useDispatch } from "react-redux";
+import _ from "lodash";
+import { deleteRoomType } from "../../service/roomTypeSlice";
 
 const RoomCard = ({ room }) => {
   const navigate = useNavigate();
   const [previewVisible, setPreviewVisible] = useState(false);
   const [previewIndex, setPreviewIndex] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const dispatch = useDispatch();
 
+  const handleDelete = async (id) => {
+    setIsDeleting(true);
+    dispatch(deleteRoomType(id)).then((response) => {
+      if (_.endsWith(response.type, "fulfilled")) {
+        message.success("Success");
+      } else {
+        message.error("Error");
+      }
+    });
+    setIsDeleting(false);
+    setIsModalOpen(false);
+  };
   const images =
     room?.photos && room.photos.length > 0
       ? room.photos.map((p) =>
@@ -147,12 +166,22 @@ const RoomCard = ({ room }) => {
           <Tooltip title="Delete">
             <Button
               danger
+              onClick={() => setIsModalOpen(true)}
               className="w-10! h-10! rounded-xl! border-rose-100! hover:bg-rose-50/50! flex! items-center! justify-center! shadow-none! shrink-0!"
               icon={<DeleteOutlined className="text-lg!" />}
             />
           </Tooltip>
         </div>
       </div>
+      <DeleteConfirmModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={() => {
+          handleDelete(room?.id);
+        }}
+        loading={isDeleting}
+        title="Delete Room Plan?"
+      />
     </div>
   );
 };

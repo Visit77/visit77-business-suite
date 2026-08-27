@@ -45,7 +45,7 @@ export const uploadRoomTypeImage = createAsyncThunk(
 
 export const deleteRoomType = createAsyncThunk(
   "room_types/deleteRoomType",
-  async (id, { rejectWithValue, dispatch }) => {
+  async (id, { rejectWithValue }) => {
     try {
       await api.delete(`/room_types/${id}`);
       return id;
