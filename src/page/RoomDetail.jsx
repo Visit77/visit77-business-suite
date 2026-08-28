@@ -86,8 +86,8 @@ const RoomDetail = () => {
   const roomType = room?.room_type || {};
 
   const carouselSettings = {
-    nextArrow: <SampleNextArrow />,
-    prevArrow: <SamplePrevArrow />,
+    // nextArrow: <SampleNextArrow />,
+    // prevArrow: <SamplePrevArrow />,
     arrows: true,
     dots: true,
     infinite: true,
@@ -173,7 +173,7 @@ const RoomDetail = () => {
             </Carousel>
           </Image.PreviewGroup>
         ) : (
-          <div className="flex aspect-16/10 items-center justify-center bg-slate-100 rounded-xl">
+          <div className="flex aspect-auto items-center justify-center bg-slate-100 rounded-xl">
             <Empty description="No images available" />
           </div>
         )}
