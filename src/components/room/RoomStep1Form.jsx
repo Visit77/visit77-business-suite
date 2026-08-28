@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Select, Button, Upload } from "antd";
+import { Form, Input, Select, Button, Upload, message } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { roomBuildTypesSelector } from "../../service/roomBuildTypesSlice";
 import { roomStandardSelector } from "../../service/roomStandardSlice";
+import { useParams } from "react-router-dom";
+import { bulkDeleteImage } from "../../service/roomTypeSlice";
+import _ from "lodash";
 
 const { TextArea } = Input;
 
-const RoomStep1Form = ({ fileList, setFileList }) => {
+const RoomStep1Form = ({ fileList, setFileList, isEdit }) => {
+  const { id } = useParams();
   const { data: buildTypes, isPending } = useSelector(roomBuildTypesSelector);
   const { data: standards, isPending: isStandardPending } =
     useSelector(roomStandardSelector);
@@ -25,6 +29,25 @@ const RoomStep1Form = ({ fileList, setFileList }) => {
       value: standard?.id,
     };
   });
+  const dispatch = useDispatch();
+
+  const handleRemove = (file) => {
+    if (isEdit || file.id || file.url) {
+      const submitData = new FormData();
+      submitData.append(`image_ids[]`, file.uid);
+      dispatch(
+        bulkDeleteImage({
+          id,
+          formData: submitData,
+        }),
+      ).then((res) => {
+        if (_.endsWith(res.type, "fulfilled")) {
+          message.success("Image remove Successful.");
+        }
+      });
+    }
+    return true;
+  };
 
   return (
     <>
@@ -201,6 +224,7 @@ const RoomStep1Form = ({ fileList, setFileList }) => {
         onChange={({ fileList }) => setFileList(fileList)}
         accept="image/*"
         className="w-full block"
+        onRemove={handleRemove} // <= Image delete လုပ်ရင် console ထုတ်ပေးရန် ထည့်သွင်းထားသည်
       >
         <Button
           type="primary"

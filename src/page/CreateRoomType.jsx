@@ -61,7 +61,7 @@ const CreateRoomType = () => {
     try {
       const values = await form.validateFields();
 
-      const beds = values?.beds?.map((bed) => {
+      const beds = formData?.beds?.map((bed) => {
         return {
           bed_type_id: bed,
           quantity: 1,
@@ -70,7 +70,7 @@ const CreateRoomType = () => {
         };
       });
 
-      const baths = values?.bath_options?.map((bath) => {
+      const baths = formData?.bath_options?.map((bath) => {
         return {
           bath_type_id: bath,
           is_guest_selectable: true,
@@ -78,7 +78,7 @@ const CreateRoomType = () => {
         };
       });
 
-      const views = values?.view_options?.map((view) => {
+      const views = formData?.view_options?.map((view) => {
         return {
           room_view_id: view,
           is_guest_selectable: true,
@@ -110,6 +110,8 @@ const CreateRoomType = () => {
             : values?.breakfast_plan_type,
       };
 
+      console.log("finalPayload", finalPayload);
+
       dispatch(createRoomType({ data: finalPayload })).then((res) => {
         if (_.endsWith(res.type, "fulfilled")) {
           message.success("Room Type Create Successful.");
@@ -122,17 +124,19 @@ const CreateRoomType = () => {
               submitData.append(`images`, img?.originFileObj);
             }
           });
-          dispatch(
-            uploadRoomTypeImage({
-              id: payload?.data?.id,
-              formData: submitData,
-            }),
-          ).then((res) => {
-            if (_.endsWith(res.type, "fulfilled")) {
-              message.success("Room Type Image Successful.");
-              navigate(-1);
-            }
-          });
+          if (fileList?.length > 0) {
+            dispatch(
+              uploadRoomTypeImage({
+                id: payload?.data?.id,
+                formData: submitData,
+              }),
+            ).then((res) => {
+              if (_.endsWith(res.type, "fulfilled")) {
+                message.success("Room Type Image Successful.");
+                navigate(-1);
+              }
+            });
+          }
         }
       });
 
@@ -180,7 +184,7 @@ const CreateRoomType = () => {
         )}
 
         {/* STEP 2: GUEST SET UP */}
-        {currentStep === 1 && <RoomStep2Form />}
+        {currentStep === 1 && <RoomStep2Form form={form} />}
 
         {/* STEP 3: PRICING */}
         {currentStep === 2 && (

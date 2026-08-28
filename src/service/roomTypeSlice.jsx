@@ -31,7 +31,7 @@ export const updateRoomType = createAsyncThunk(
   "room_types/updateRoomType",
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      const response = await api.post(`/room_types/${id}`, { ...data });
+      const response = await api.put(`/room_types/${id}/`, { ...data });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || "failed");
@@ -75,6 +75,26 @@ export const getOneRoomType = createAsyncThunk(
       return { data, headers };
     } catch (error) {
       return rejectWithValue(error);
+    }
+  },
+);
+
+export const bulkDeleteImage = createAsyncThunk(
+  "room_types/bulk-delete",
+  async ({ id, formData }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(
+        `/room_types/${id}/images/bulk-delete/`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Delete failed");
     }
   },
 );

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Form, Checkbox, Button, Modal, Input, Tag } from "antd";
+import React, { useEffect, useState, useMemo } from "react";
+import { Form, Checkbox, Button, Modal, Input } from "antd";
 import {
   PlusOutlined,
   CloseCircleOutlined,
@@ -13,15 +13,15 @@ import { roomViewSelector } from "../../service/roomViewSlice";
 import { roomAmenitySelector } from "../../service/roomAmenitySlice";
 import { roomPoliciesSelector } from "../../service/roomPoliciesSlice";
 
-const RoomStep2Form = () => {
+const RoomStep2Form = ({ form }) => {
+  // Form Values Watchers
+  const selectedAmenity_ids = Form.useWatch("amenity_ids", form) || [];
+  const selectedPolicy_ids = Form.useWatch("policy_ids", form) || [];
+
   // Collapsible / See More States
   const [showAllBeds, setShowAllBeds] = useState(false);
   const [showAllViews, setShowAllViews] = useState(false);
   const [showAllBaths, setShowAllBaths] = useState(false);
-
-  // Selected Items States
-  const [selectedAmenities, setSelectedAmenities] = useState([]);
-  const [selectedPolicies, setSelectedPolicies] = useState([]);
 
   // Modal States
   const [isAmenitiesModalOpen, setIsAmenitiesModalOpen] = useState(false);
@@ -32,93 +32,98 @@ const RoomStep2Form = () => {
   const [tempPolicies, setTempPolicies] = useState([]);
   const [policiesSearch, setPoliciesSearch] = useState("");
 
-  const { data: bathTypes, isPending: isBathTypePending } =
-    useSelector(bathTypesSelector);
+  // Redux Selectors
+  const { data: bathTypes } = useSelector(bathTypesSelector);
+  const { data: bedTypes } = useSelector(bedTypesSelector);
+  const { data: roomViews } = useSelector(roomViewSelector);
+  const { data: roomAmenity } = useSelector(roomAmenitySelector);
+  const { data: roomPolicies } = useSelector(roomPoliciesSelector);
 
-  const { data: bedTypes, isPending: isBedTypePending } =
-    useSelector(bedTypesSelector);
+  // Options Handlers (Memoized)
+  const bathTypesOption = useMemo(
+    () =>
+      bathTypes?.map((bath) => ({ label: bath?.name, value: bath?.id })) || [],
+    [bathTypes],
+  );
 
-  const { data: roomViews, isPending: isRoomViewPending } =
-    useSelector(roomViewSelector);
+  const bedTypesOption = useMemo(
+    () => bedTypes?.map((bed) => ({ label: bed?.name, value: bed?.id })) || [],
+    [bedTypes],
+  );
 
-  const { data: roomAmenity, isPending: isRoomAmenityPending } =
-    useSelector(roomAmenitySelector);
+  const roomViewsOption = useMemo(
+    () =>
+      roomViews?.map((view) => ({ label: view?.name, value: view?.id })) || [],
+    [roomViews],
+  );
 
-  const { data: roomPolicies, isPending: isRoomPoliciesPending } =
-    useSelector(roomPoliciesSelector);
+  const roomAmenityOption = useMemo(
+    () =>
+      roomAmenity?.map((amenity) => ({
+        label: amenity?.name,
+        value: amenity?.id,
+      })) || [],
+    [roomAmenity],
+  );
 
-  const bathTypesOption = bathTypes?.map((bath) => {
-    return {
-      label: bath?.name,
-      value: bath?.id,
-    };
-  });
-
-  const bedTypesOption = bedTypes?.map((bed) => {
-    return {
-      label: bed?.name,
-      value: bed?.id,
-    };
-  });
-
-  const roomViewsOption = roomViews?.map((view) => {
-    return {
-      label: view?.name,
-      value: view?.id,
-    };
-  });
-
-  const roomAmenityOption = roomAmenity?.map((amenity) => {
-    return {
-      label: amenity?.name,
-      value: amenity?.id,
-    };
-  });
-
-  const roomPoliciesOption = roomPolicies?.map((policy) => {
-    return {
-      label: policy?.name,
-      value: policy?.id,
-    };
-  });
+  const roomPoliciesOption = useMemo(
+    () =>
+      roomPolicies?.map((policy) => ({
+        label: policy?.name,
+        value: policy?.id,
+      })) || [],
+    [roomPolicies],
+  );
 
   // Amenities Modal Handlers
   const handleOpenAmenitiesModal = () => {
-    setTempAmenities(selectedAmenities);
+    setTempAmenities(selectedAmenity_ids);
+    setAmenitiesSearch("");
     setIsAmenitiesModalOpen(true);
   };
 
   const handleSaveAmenities = () => {
-    setSelectedAmenities(tempAmenities);
+    form?.setFieldsValue({ amenity_ids: tempAmenities });
     setIsAmenitiesModalOpen(false);
   };
 
   const handleRemoveAmenity = (val) => {
-    setSelectedAmenities(selectedAmenities.filter((item) => item !== val));
+    const updated = selectedAmenity_ids.filter((item) => item !== val);
+    form?.setFieldsValue({ amenity_ids: updated });
   };
 
   // Policies Modal Handlers
   const handleOpenPoliciesModal = () => {
-    setTempPolicies(selectedPolicies);
+    setTempPolicies(selectedPolicy_ids);
+    setPoliciesSearch("");
     setIsPoliciesModalOpen(true);
   };
 
   const handleSavePolicies = () => {
-    setSelectedPolicies(tempPolicies);
+    form?.setFieldsValue({ policy_ids: tempPolicies });
     setIsPoliciesModalOpen(false);
   };
 
   const handleRemovePolicy = (val) => {
-    setSelectedPolicies(selectedPolicies.filter((item) => item !== val));
+    const updated = selectedPolicy_ids.filter((item) => item !== val);
+    form?.setFieldsValue({ policy_ids: updated });
   };
 
-  // Filtered List for Search in Modal
-  const filteredAmenities = roomAmenityOption?.filter((item) =>
-    item.label.toLowerCase().includes(amenitiesSearch.toLowerCase()),
+  // Filtered Lists for Search in Modal
+  const filteredAmenities = useMemo(
+    () =>
+      roomAmenityOption.filter((item) =>
+        item.label?.toLowerCase().includes(amenitiesSearch.toLowerCase()),
+      ),
+    [roomAmenityOption, amenitiesSearch],
   );
 
-  const filteredPolicies = roomPoliciesOption?.filter((item) =>
-    item.label.toLowerCase().includes(policiesSearch.toLowerCase()),
+  const filteredPolicies = useMemo(
+    () =>
+      roomPoliciesOption.filter((item) =>
+        item.label?.toLowerCase().includes(policiesSearch.toLowerCase()),
+      ),
+    [roomPoliciesOption, policiesSearch],
   );
 
   return (
@@ -131,10 +136,10 @@ const RoomStep2Form = () => {
 
         {/* Bed Types */}
         <div className="space-y-2">
-          <span className="text-xs font-bold text-slate-800 ">Bed Types</span>
+          <span className="text-xs font-bold text-slate-800">Bed Types</span>
           <Form.Item name="beds" className="mb-0! mt-3!">
             <Checkbox.Group className="w-full flex flex-col space-y-2">
-              {(showAllBeds ? bedTypesOption : bedTypesOption?.slice(0, 3)).map(
+              {(showAllBeds ? bedTypesOption : bedTypesOption.slice(0, 3)).map(
                 (bed) => (
                   <Checkbox
                     key={bed.value}
@@ -147,11 +152,11 @@ const RoomStep2Form = () => {
               )}
             </Checkbox.Group>
           </Form.Item>
-          {bedTypesOption?.length > 3 && (
+          {bedTypesOption.length > 3 && (
             <button
               type="button"
               onClick={() => setShowAllBeds(!showAllBeds)}
-              className="text-xs font-semibold text-blue-600 hover:underline pt-1 block"
+              className="text-xs font-semibold text-blue-600 hover:underline pt-1 block cursor-pointer"
             >
               {showAllBeds ? "See Less" : "See More..."}
             </button>
@@ -162,12 +167,12 @@ const RoomStep2Form = () => {
 
         {/* Views */}
         <div className="space-y-2">
-          <span className="text-xs font-bold text-slate-800 ">Views</span>
-          <Form.Item name="view_options" className="mb-0! mt-3! ">
+          <span className="text-xs font-bold text-slate-800">Views</span>
+          <Form.Item name="view_options" className="mb-0! mt-3!">
             <Checkbox.Group className="w-full flex flex-col space-y-2">
               {(showAllViews
                 ? roomViewsOption
-                : roomViewsOption?.slice(0, 3)
+                : roomViewsOption.slice(0, 3)
               ).map((view) => (
                 <Checkbox
                   key={view.value}
@@ -179,11 +184,11 @@ const RoomStep2Form = () => {
               ))}
             </Checkbox.Group>
           </Form.Item>
-          {roomViewsOption?.length > 3 && (
+          {roomViewsOption.length > 3 && (
             <button
               type="button"
               onClick={() => setShowAllViews(!showAllViews)}
-              className="text-xs font-semibold text-blue-600 hover:underline pt-1 block"
+              className="text-xs font-semibold text-blue-600 hover:underline pt-1 block cursor-pointer"
             >
               {showAllViews ? "See Less" : "See More..."}
             </button>
@@ -199,7 +204,7 @@ const RoomStep2Form = () => {
             <Checkbox.Group className="w-full flex flex-col space-y-2">
               {(showAllBaths
                 ? bathTypesOption
-                : bathTypesOption?.slice(0, 3)
+                : bathTypesOption.slice(0, 3)
               ).map((bath) => (
                 <Checkbox
                   key={bath.value}
@@ -211,11 +216,11 @@ const RoomStep2Form = () => {
               ))}
             </Checkbox.Group>
           </Form.Item>
-          {bathTypesOption?.length > 3 && (
+          {bathTypesOption.length > 3 && (
             <button
               type="button"
               onClick={() => setShowAllBaths(!showAllBaths)}
-              className="text-xs font-semibold text-blue-600 hover:underline pt-1 block"
+              className="text-xs font-semibold text-blue-600 hover:underline pt-1 block cursor-pointer"
             >
               {showAllBaths ? "See Less" : "See More..."}
             </button>
@@ -229,6 +234,11 @@ const RoomStep2Form = () => {
           AMENITIES
         </h2>
 
+        {/* Hidden Form Item to maintain form registration */}
+        <Form.Item name="amenity_ids" hidden>
+          <Input />
+        </Form.Item>
+
         <Button
           type="primary"
           onClick={handleOpenAmenitiesModal}
@@ -240,8 +250,8 @@ const RoomStep2Form = () => {
 
         {/* Selected Amenities Chips */}
         <div className="flex flex-wrap gap-2 pt-2">
-          {selectedAmenities.map((val) => {
-            const item = roomAmenityOption?.find((a) => a.value === val);
+          {selectedAmenity_ids.map((val) => {
+            const item = roomAmenityOption.find((a) => a.value === val);
             return (
               <span
                 key={val}
@@ -251,7 +261,7 @@ const RoomStep2Form = () => {
                 <button
                   type="button"
                   onClick={() => handleRemoveAmenity(val)}
-                  className="text-red-400 hover:text-red-600 ml-1 flex items-center"
+                  className="text-red-400 hover:text-red-600 ml-1 flex items-center cursor-pointer"
                 >
                   <CloseCircleOutlined className="text-sm" />
                 </button>
@@ -267,6 +277,11 @@ const RoomStep2Form = () => {
           ROOM POLICIES
         </h2>
 
+        {/* Hidden Form Item to maintain form registration */}
+        <Form.Item name="policy_ids" hidden>
+          <Input />
+        </Form.Item>
+
         <Button
           type="primary"
           onClick={handleOpenPoliciesModal}
@@ -278,8 +293,8 @@ const RoomStep2Form = () => {
 
         {/* Selected Policies Chips */}
         <div className="flex flex-wrap gap-2 pt-2">
-          {selectedPolicies.map((val) => {
-            const item = roomPoliciesOption?.find((p) => p.value === val);
+          {selectedPolicy_ids.map((val) => {
+            const item = roomPoliciesOption.find((p) => p.value === val);
             return (
               <span
                 key={val}
@@ -289,7 +304,7 @@ const RoomStep2Form = () => {
                 <button
                   type="button"
                   onClick={() => handleRemovePolicy(val)}
-                  className="text-red-400 hover:text-red-600 ml-1 flex items-center"
+                  className="text-red-400 hover:text-red-600 ml-1 flex items-center cursor-pointer"
                 >
                   <CloseCircleOutlined className="text-sm" />
                 </button>
@@ -316,7 +331,7 @@ const RoomStep2Form = () => {
             </span>
             <button
               onClick={() => setIsAmenitiesModalOpen(false)}
-              className="text-slate-400 hover:text-slate-600 absolute right-4"
+              className="text-slate-400 hover:text-slate-600 absolute right-4 cursor-pointer"
             >
               <CloseOutlined className="text-base" />
             </button>
@@ -351,7 +366,7 @@ const RoomStep2Form = () => {
           <div className="grid grid-cols-2 gap-3 pt-2">
             <Button
               onClick={() => setIsAmenitiesModalOpen(false)}
-              className="h-10 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs border-none"
+              className="h-10 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs border-none"
             >
               Cancel
             </Button>
@@ -383,7 +398,7 @@ const RoomStep2Form = () => {
             </span>
             <button
               onClick={() => setIsPoliciesModalOpen(false)}
-              className="text-slate-400 hover:text-slate-600 absolute right-4"
+              className="text-slate-400 hover:text-slate-600 absolute right-4 cursor-pointer"
             >
               <CloseOutlined className="text-base" />
             </button>
@@ -417,8 +432,8 @@ const RoomStep2Form = () => {
 
           <div className="grid grid-cols-2 gap-3 pt-2">
             <Button
-              onClick={() => setIsPoliciesModalOpen(false)}
-              className="h-10 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs border-none"
+              onClick={() => setIsAmenitiesModalOpen(false)}
+              className="h-10 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs border-none"
             >
               Cancel
             </Button>

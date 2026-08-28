@@ -58,6 +58,10 @@ const EditRoomType = () => {
   useEffect(() => {
     if (roomTypeData) {
       // Map Arrays to ID lists
+      const selectedAmenities =
+        roomTypeData?.amenities?.map((a) => a.room_amenity?.id || a.id) || [];
+      const selectedPolicies =
+        roomTypeData?.policies?.map((p) => p.room_policy?.id || p.id) || [];
       const selectedBeds = roomTypeData?.beds?.map((b) => b.bed_type?.id) || [];
       const selectedViews =
         roomTypeData?.view_options?.map((v) => v.room_view?.id) || [];
@@ -68,7 +72,6 @@ const EditRoomType = () => {
       let breakfastPlanType =
         roomTypeData?.breakfast_plan_type || "no_breakfast";
       let breakfastPricingType = "hotel_default_price";
-      console.log("breakfastPlanType", breakfastPlanType);
       if (
         breakfastPlanType === "hotel_default_price" ||
         breakfastPlanType === "custom_price"
@@ -99,6 +102,9 @@ const EditRoomType = () => {
         beds: selectedBeds,
         view_options: selectedViews,
         bath_options: selectedBaths,
+
+        amenity_ids: selectedAmenities,
+        policy_ids: selectedPolicies,
 
         // Step 3: Prices (Matched with JSON keys)
         local_base_price: roomTypeData?.local_base_price || 0,
@@ -172,20 +178,20 @@ const EditRoomType = () => {
     try {
       const values = await form.validateFields();
 
-      const beds = values?.beds?.map((bed) => ({
+      const beds = formData?.beds?.map((bed) => ({
         bed_type_id: bed,
         quantity: 1,
         is_guest_selectable: true,
         rank: 1,
       }));
 
-      const baths = values?.bath_options?.map((bath) => ({
+      const baths = formData?.bath_options?.map((bath) => ({
         bath_type_id: bath,
         is_guest_selectable: true,
         rank: 1,
       }));
 
-      const views = values?.view_options?.map((view) => ({
+      const views = formData?.view_options?.map((view) => ({
         room_view_id: view,
         is_guest_selectable: true,
         rank: 1,
@@ -274,10 +280,14 @@ const EditRoomType = () => {
 
       <Form form={form} layout="vertical" className="space-y-4">
         {currentStep === 0 && (
-          <RoomStep1Form fileList={fileList} setFileList={setFileList} />
+          <RoomStep1Form
+            fileList={fileList}
+            setFileList={setFileList}
+            isEdit={true}
+          />
         )}
 
-        {currentStep === 1 && <RoomStep2Form />}
+        {currentStep === 1 && <RoomStep2Form form={form} />}
 
         {currentStep === 2 && (
           <RoomStep3Form form={form} businessId={businessId} />
