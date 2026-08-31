@@ -82,7 +82,6 @@ const CheckInForm = ({ data }) => {
     const booking = data?.current_booking;
 
     if (booking) {
-      // Booking Guests မရှိရင် Primary Guest သို့မဟုတ် Array အလွတ် [ {} ] ယူမည်
       const bookingGuests =
         booking?.guests?.length > 0
           ? booking.guests
@@ -96,18 +95,14 @@ const CheckInForm = ({ data }) => {
       const formattedGuestsFormValue = [];
 
       bookingGuests.forEach((g, index) => {
-        // Guest တစ်ယောက်ချင်းစီမှာ identity_type ပါရင် ယူမည်၊ မပါရင် booking level market ကို သုံးမည်
-
         const guestType = g?.identity_type
           ? g.identity_type === "nrc"
             ? "local"
             : "foreigner"
           : defaultMarket;
 
-        // NRC Number ပါမှ parse လုပ်မည် (မပါရင် empty object)
         const nrcParsed = g?.nrc_number ? parseNrcString(g.nrc_number) : {};
 
-        // 1. Guests State အတွက် Formatted Data
         formattedGuestState.push({
           id: g?.id || Date.now() + index,
           guestType,
@@ -115,7 +110,6 @@ const CheckInForm = ({ data }) => {
           is_primary: index === 0,
         });
 
-        // 2. Form Values အတွက် Formatted Data
         formattedGuestsFormValue.push({
           name: g?.name || "",
           phone: g?.phone || booking?.contact?.phone || "",
@@ -157,7 +151,6 @@ const CheckInForm = ({ data }) => {
         guests: formattedGuestsFormValue,
       });
     } else {
-      // 2. Walk-in / Booking မရှိသေးပါက Default values ဝင်စေရန်
       setGuests([
         {
           id: Date.now(),
@@ -337,16 +330,17 @@ const CheckInForm = ({ data }) => {
           </span>
         </div>
         <p className="text-xs font-medium text-neutral-500 mt-1.5">
-          {data?.room_type?.name} &nbsp;
+          {data?.core_snapshot?.room_type?.name} &nbsp; .&nbsp;
+          {data?.room_standard?.name} &nbsp;
           {_.map(data?.core_snapshot?.beds, (bed, index) => (
             <span key={index}>.&nbsp;{bed?.bed_type?.name}&nbsp;</span>
           ))}
-          {data?.core_snapshot?.room_view?.name && (
-            <span>.&nbsp;{data?.core_snapshot?.room_view?.name}</span>
+          {_.map(data?.core_snapshot?.room_views, (view, index) => (
+            <span key={index}>.&nbsp;{view?.name}&nbsp;</span>
+          ))}
+          {data?.core_snapshot?.room_area && (
+            <span>.&nbsp; {data?.core_snapshot?.area_unit}</span>
           )}
-          {data?.core_snapshot?.room_area && <span>.&nbsp;</span>}
-          {data?.core_snapshot?.room_area}
-          {data?.core_snapshot?.area_unit}
         </p>
       </div>
 
@@ -419,6 +413,34 @@ const CheckInForm = ({ data }) => {
             </Form.Item>
           </div>
         </div>
+        {data?.room_type?.breakfast && (
+          <div className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-2xs space-y-3">
+            <div>
+              <h2 className="text-base font-extrabold text-neutral-900">
+                #{data?.room_number} .{data?.floor} Floor, {data?.building}
+              </h2>
+            </div>
+            <p className="text-xs font-medium text-neutral-500 mt-1.5">
+              {data?.core_snapshot?.room_type?.name} &nbsp; .&nbsp;
+              {data?.room_standard?.name} &nbsp;
+              {_.map(data?.core_snapshot?.beds, (bed, index) => (
+                <span key={index}>.&nbsp;{bed?.bed_type?.name}&nbsp;</span>
+              ))}
+              {_.map(data?.core_snapshot?.room_views, (view, index) => (
+                <span key={index}>.&nbsp;{view?.name}&nbsp;</span>
+              ))}
+              {data?.core_snapshot?.room_area && (
+                <span>.&nbsp; {data?.core_snapshot?.area_unit}</span>
+              )}
+            </p>
+            {data?.extra_bed_available == true && (
+              <div className="flex justify-between items-center">
+                <div>Extra Bed</div>
+                
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Guest Information Section */}
         {guests.map((guest, index) => {
@@ -630,7 +652,6 @@ const CheckInForm = ({ data }) => {
             </div>
           );
         })}
-
         {/* Add Guest Button */}
         <button
           type="button"
@@ -640,7 +661,6 @@ const CheckInForm = ({ data }) => {
           <PlusOutlined className="text-xs" />
           <span>Add Another Guest Information</span>
         </button>
-
         {/* Special Request */}
         <div className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-2xs space-y-2">
           <label className="text-xs font-semibold text-neutral-600 block">
@@ -654,7 +674,6 @@ const CheckInForm = ({ data }) => {
             />
           </Form.Item>
         </div>
-
         {/* Payment Section */}
         <div className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-2xs space-y-3">
           <div className="text-xs font-bold text-teal-500 tracking-wider uppercase">
@@ -695,7 +714,6 @@ const CheckInForm = ({ data }) => {
             </Select>
           </Form.Item>
         </div>
-
         {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-3 pt-2">
           <Button

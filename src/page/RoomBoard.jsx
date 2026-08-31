@@ -182,7 +182,9 @@ const RoomBoard = () => {
                           {room?.next_reservations?.length}
                         </span>
                       ) : (
-                        <></>
+                        <span
+                          className={`absolute -top-1 right-0 w-4 h-4 rounded-full ${getDotColor(room.display_status)}`}
+                        />
                       )}
 
                       {room?.display_status == "blocked" ||
@@ -194,9 +196,7 @@ const RoomBoard = () => {
                           />
                         </span>
                       ) : (
-                        <span
-                          className={`absolute -top-1 right-0 w-4 h-4 rounded-full ${getDotColor(room.display_status)}`}
-                        />
+                        <></>
                       )}
 
                       <span className="tracking-wide text-lg">

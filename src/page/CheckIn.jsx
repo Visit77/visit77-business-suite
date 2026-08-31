@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import CheckInForm from "../components/form/CheckInForm";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { selectBusinessId } from "../service/businessSlice";
 import { getOneRoom, roomBoardSelector } from "../service/roomBoardSlice";
@@ -9,8 +9,6 @@ import PageLoading from "../components/PageLoading";
 
 const CheckIn = () => {
   const { id } = useParams();
-  const location = useLocation();
-  const navigate = useNavigate();
 
   const dispatch = useDispatch();
   const businessId = useSelector(selectBusinessId);

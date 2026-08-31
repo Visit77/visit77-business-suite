@@ -268,7 +268,7 @@ const RoomDetailsPage = () => {
                         moment(roomData?.current_block?.start_date),
                         "days",
                       )}{" "}
-                      nights
+                      nightsက
                     </div>
                     <div>
                       {roomData?.current_block?.start_date} -{" "}
