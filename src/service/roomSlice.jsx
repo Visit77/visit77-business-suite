@@ -40,6 +40,27 @@ export const getRoomHistory = createAsyncThunk(
   },
 );
 
+export const getAvailableRoom = createAsyncThunk(
+  "room/getAvailableRoom",
+  async (params = {}, { rejectWithValue }) => {
+    const { business_id, ...queryParams } = params;
+
+    try {
+      const response = await api.get(`/admin/available-rooms/search/`, {
+        baseURL: BOOKING_URL,
+        params: queryParams,
+        headers: {
+          "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+          "X-Booking-Business-ID": business_id,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Something went wrong");
+    }
+  },
+);
+
 const roomSlice = createSlice({
   name: "data",
   initialState: {
@@ -73,6 +94,17 @@ const roomSlice = createSlice({
         state.history = action.payload.data;
       })
       .addCase(getRoomHistory.rejected, (state, action) => {
+        state.isPending = false;
+        state.error = action.payload;
+      })
+      .addCase(getAvailableRoom.pending, (state) => {
+        state.isPending = true;
+      })
+      .addCase(getAvailableRoom.fulfilled, (state, action) => {
+        state.isPending = false;
+        state.data = action.payload.data;
+      })
+      .addCase(getAvailableRoom.rejected, (state, action) => {
         state.isPending = false;
         state.error = action.payload;
       });
