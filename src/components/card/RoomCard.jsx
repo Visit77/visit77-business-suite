@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Tooltip, message } from "antd";
+import { Button, Tooltip, message, Dropdown } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
@@ -12,11 +12,16 @@ import DeleteConfirmModal from "../modal/DeleteConfirmModal";
 import { useDispatch } from "react-redux";
 import _ from "lodash";
 import { deleteRoomType } from "../../service/roomTypeSlice";
+import { deletePhysicalRoom } from "../../service/physicalRoomSlice";
 
 const RoomCard = ({ room }) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [isRoomDeleteModalOpen, setIsRoomDeleteModalOpen] = useState(false);
+
   const dispatch = useDispatch();
 
   const handleDelete = async (id) => {
@@ -30,6 +35,23 @@ const RoomCard = ({ room }) => {
     });
     setIsDeleting(false);
     setIsModalOpen(false);
+  };
+
+  const handleRoomUnitDelete = (innerRoom) => {
+    setSelectedRoom(innerRoom);
+    setIsRoomDeleteModalOpen(true);
+  };
+
+  const confirmRoomUnitDelete = () => {
+    dispatch(deletePhysicalRoom(selectedRoom?.id)).then((response) => {
+      if (_.endsWith(response.type, "fulfilled")) {
+        message.success(`Room ${selectedRoom?.room_no} deleted successfully`);
+      } else {
+        message.error("Error");
+      }
+    });
+    setIsRoomDeleteModalOpen(false);
+    setSelectedRoom(null);
   };
 
   const mainImage =
@@ -109,7 +131,7 @@ const RoomCard = ({ room }) => {
           <Button
             type="default"
             icon={<PlusOutlined />}
-            onClick={() => navigate(`/rooms/${room?.id}/add-numbers`)}
+            onClick={() => navigate(`/rooms/${room?.id}/add-room-numbers`)}
             className="h-9 px-3 sm:px-4 rounded-xl text-blue-600 border-blue-100 bg-blue-50/50 hover:bg-blue-100! hover:text-blue-700! font-semibold text-xs flex items-center gap-1 shadow-none"
           >
             Add Room Numbers
@@ -147,31 +169,68 @@ const RoomCard = ({ room }) => {
         {/* Responsive Grid Layout */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
           {room?.physical_room_groups?.flatMap((room_group, groupIdx) =>
-            room_group?.rooms?.map((innerRoom, roomIdx) => (
-              <div
-                key={innerRoom?.id || `${groupIdx}-${roomIdx}`}
-                className="flex items-center justify-between px-3 py-2 rounded-xl border border-neutral-200/80 transition-all"
-              >
-                <div className="flex items-center gap-2 truncate">
-                  <span className="text-xs font-bold text-neutral-800 truncate">
-                    {innerRoom?.room_no}
-                  </span>
+            room_group?.rooms?.map((innerRoom, roomIdx) => {
+              const menuItems = [
+                {
+                  key: "edit",
+                  label: "Edit",
+                  icon: <EditOutlined />,
+                  onClick: () =>
+                    navigate(
+                      `/rooms/${room?.id}/edit-room-number/${innerRoom?.id}`,
+                    ),
+                },
+                {
+                  key: "delete",
+                  label: "Delete",
+                  icon: <DeleteOutlined />,
+                  danger: true,
+                  onClick: () => handleRoomUnitDelete(innerRoom),
+                },
+              ];
+
+              return (
+                <div
+                  key={innerRoom?.id || `${groupIdx}-${roomIdx}`}
+                  className="flex items-center justify-between px-3 py-2 rounded-xl border border-neutral-200/80 transition-all hover:border-neutral-300"
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    <span className="text-xs font-bold text-neutral-800 truncate">
+                      {innerRoom?.room_no}
+                    </span>
+                  </div>
+
+                  <Dropdown
+                    menu={{ items: menuItems }}
+                    trigger={["click"]}
+                    placement="bottomRight"
+                  >
+                    <button className="text-neutral-500 hover:text-neutral-800 transition-colors ml-1 shrink-0 cursor-pointer p-1 rounded-md hover:bg-neutral-100">
+                      <EllipsisOutlined className="text-lg!" />
+                    </button>
+                  </Dropdown>
                 </div>
-                <button className="text-neutral-500 hover:text-neutral-800 transition-colors ml-1 shrink-0">
-                  <EllipsisOutlined className="text-lg! " />
-                </button>
-              </div>
-            )),
+              );
+            }),
           )}
         </div>
       </div>
 
+      {/* Main Room Type Delete Modal */}
       <DeleteConfirmModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={() => handleDelete(room?.id)}
         loading={isDeleting}
         title="Delete Room Plan?"
+      />
+
+      {/* Individual Room Unit Delete Modal */}
+      <DeleteConfirmModal
+        open={isRoomDeleteModalOpen}
+        onClose={() => setIsRoomDeleteModalOpen(false)}
+        onConfirm={confirmRoomUnitDelete}
+        title={`Delete Room Unit (${selectedRoom?.room_no})?`}
       />
     </div>
   );

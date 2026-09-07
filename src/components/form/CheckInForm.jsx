@@ -76,7 +76,6 @@ const CheckInForm = ({ data }) => {
   const { data: availableRoomsList } = useSelector(roomSelector);
   const [loading, setLoading] = useState(false);
 
-  // Room Modal States
   const [isRoomModalOpen, setIsRoomModalOpen] = useState(false);
   const [tempSelectedRoomIds, setTempSelectedRoomIds] = useState([]);
   const [selectedRooms, setSelectedRooms] = useState([]);
@@ -84,10 +83,8 @@ const CheckInForm = ({ data }) => {
     { id: 1, guestType: "local", selectedCode: "12", is_primary: true },
   ]);
 
-  // Form Value Watchers for API Trigger
   const formValues = Form.useWatch([], form);
 
-  // Set Initial Primary Room Data
   useEffect(() => {
     if (data) {
       setSelectedRooms([
@@ -99,7 +96,10 @@ const CheckInForm = ({ data }) => {
           room_type: data.room_type,
           room_standard: data.room_standard,
           core_snapshot: data.core_snapshot,
-          breakfast_price: data.room_type?.breakfast?.price || "",
+          breakfast_price:
+            data?.current_booking?.guest_market == "local"
+              ? data.room_type?.breakfast?.price?.local_base_price
+              : data?.room_type?.breakfast_price?.foreign_base_price,
           has_breakfast: false,
           extra_bed: 0,
           is_primary: true,
@@ -109,7 +109,6 @@ const CheckInForm = ({ data }) => {
     }
   }, [data]);
 
-  // Set Initial Form Data
   useEffect(() => {
     const booking = data?.current_booking;
 

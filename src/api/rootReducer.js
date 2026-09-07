@@ -20,6 +20,7 @@ import bathTypeReducer from "../service/bathTypeSlice.jsx";
 import bedTypeReducer from "../service/bedTypeSlice.jsx";
 import roomPoliciesReducer from "../service/roomPoliciesSlice.jsx";
 import mealPlanReducer from "../service/mealPlanSlice.jsx";
+import physicalRoomReducer from "../service/physicalRoomSlice.jsx";
 
 const appReducer = combineReducers({
   auth: authReducer,
@@ -43,6 +44,7 @@ const appReducer = combineReducers({
   bedTypes: bedTypeReducer,
   roomPolicies: roomPoliciesReducer,
   mealPlan: mealPlanReducer,
+  physicalRoom: physicalRoomReducer,
 });
 
 const rootReducer = (state, action) => {

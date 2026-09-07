@@ -119,7 +119,10 @@ const Reserved = () => {
           room_type: data.room_type,
           room_standard: data.room_standard,
           core_snapshot: data.core_snapshot,
-          breakfast_price: data.room_type?.breakfast?.price || "",
+          breakfast_price:
+            data?.current_booking?.guest_market == "local"
+              ? data.room_type?.breakfast?.price?.local_base_price
+              : data?.room_type?.breakfast_price?.foreign_base_price,
           has_breakfast: false,
           extra_bed: 0,
           is_primary: true,
