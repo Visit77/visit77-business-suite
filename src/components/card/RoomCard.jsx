@@ -9,15 +9,17 @@ import {
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../../variables/constants";
 import DeleteConfirmModal from "../modal/DeleteConfirmModal";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import _ from "lodash";
-import { deleteRoomType } from "../../service/roomTypeSlice";
+import { deleteRoomType, getRoomType } from "../../service/roomTypeSlice";
 import { deletePhysicalRoom } from "../../service/physicalRoomSlice";
+import { selectBusinessId } from "../../service/businessSlice";
 
 const RoomCard = ({ room }) => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const businessId = useSelector(selectBusinessId);
 
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [isRoomDeleteModalOpen, setIsRoomDeleteModalOpen] = useState(false);
@@ -46,6 +48,7 @@ const RoomCard = ({ room }) => {
     dispatch(deletePhysicalRoom(selectedRoom?.id)).then((response) => {
       if (_.endsWith(response.type, "fulfilled")) {
         message.success(`Room ${selectedRoom?.room_no} deleted successfully`);
+        dispatch(getRoomType({ business_id: businessId }));
       } else {
         message.error("Error");
       }
