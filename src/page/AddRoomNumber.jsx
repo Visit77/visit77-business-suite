@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import AddRoomNumberForm from "../components/form/AddRoomNumberForm";
 import { useDispatch, useSelector } from "react-redux";
 import { getOneRoomType, roomTypeSelector } from "../service/roomTypeSlice";
@@ -15,6 +15,8 @@ export default function AddRoomNumber() {
   const businessId = useSelector(selectBusinessId);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     if (id) {
       dispatch(getOneRoomType(id));
@@ -34,6 +36,7 @@ export default function AddRoomNumber() {
   }
 
   const handleSubmit = async (values) => {
+    setLoading(true);
     dispatch(
       createPhysicalRoom({
         data: {
@@ -55,11 +58,16 @@ export default function AddRoomNumber() {
       } else {
       }
     });
+    setLoading(false);
   };
 
   return (
     <div>
-      <AddRoomNumberForm roomType={roomTypeData} onSubmit={handleSubmit} />
+      <AddRoomNumberForm
+        roomType={roomTypeData}
+        onSubmit={handleSubmit}
+        loading={loading}
+      />
     </div>
   );
 }

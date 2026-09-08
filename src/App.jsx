@@ -28,6 +28,7 @@ const RoomDetail = lazy(() => import("./page/RoomDetail"));
 const CreateRoomType = lazy(() => import("./page/CreateRoomType"));
 const RoomBookingList = lazy(() => import("./page/RoomBookingList"));
 const AddRoomNumber = lazy(() => import("./page/AddRoomNumber"));
+const EditRoomNumber = lazy(() => import("./page/EditRoomNumber"));
 
 function App() {
   const dispatch = useDispatch();
@@ -70,6 +71,11 @@ function App() {
                 <Route
                   path="/rooms/:id/add-room-numbers/"
                   element={<AddRoomNumber />}
+                />
+
+                <Route
+                  path="/rooms/:roomTypeId/edit-room-number/:id"
+                  element={<EditRoomNumber />}
                 />
                 <Route
                   path="/rooms/:id/history"

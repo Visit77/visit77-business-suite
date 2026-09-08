@@ -12,11 +12,13 @@ const AddRoomNumberForm = ({
   onSubmit,
   isUpdate = false,
   roomType,
+  loading,
 }) => {
   const [form] = Form.useForm();
 
   const isExtraBedAvailable = Form.useWatch("extra_bed_available", form);
   const navigate = useNavigate();
+
   useEffect(() => {
     if (initialValues) {
       form.setFieldsValue(initialValues);
@@ -30,12 +32,37 @@ const AddRoomNumberForm = ({
   }, [isExtraBedAvailable, form]);
 
   const handleFinish = (values) => {
-    onSubmit({
-      ...values,
-      custom_option_value_ids: [],
-      status: "vacant",
-      smoking_type: "non_smoking",
-    });
+    if (isUpdate) {
+      const formattedPayload = {
+        building_id: values.building,
+        floor_id: values.floor,
+        room_no: values.room_no,
+        room_view_ids: values.room_view_ids,
+        bath_type_ids: values.bath_type_ids,
+        room_area: values.room_area,
+        area_unit: values.area_unit,
+        beds: values.beds
+          ? [
+              {
+                bed_type_id: values.beds,
+                quantity: Number(values.bed_quantity || 1),
+              },
+            ]
+          : [],
+        extra_bed_available: values.extra_bed_available || false,
+        extra_bed_quantity: Number(values.extra_bed_quantity || 0),
+        amenity_ids: values.amenities || [],
+        policy_ids: values.room_policies || [],
+      };
+      onSubmit(formattedPayload);
+    } else {
+      onSubmit({
+        ...values,
+        custom_option_value_ids: [],
+        status: "vacant",
+        smoking_type: "non_smoking",
+      });
+    }
   };
 
   const areaOptions = Array.from(
@@ -115,28 +142,7 @@ const AddRoomNumberForm = ({
           policies: [],
         }}
       >
-        <Form.List name="groups">
-          {(fields, { add, remove }) => (
-            <>
-              {fields.map((field) => (
-                <AddRoomNumberInput
-                  key={field.key}
-                  field={field}
-                  remove={remove}
-                  form={form}
-                />
-              ))}
-              <Button
-                type="text"
-                onClick={() => add()}
-                icon={<PlusOutlined />}
-                className="text-indigo-600 font-semibold p-0 mb-6 hover:bg-transparent"
-              >
-                Add
-              </Button>
-            </>
-          )}
-        </Form.List>
+        <AddRoomNumberInput isUpdate={isUpdate} form={form} />
 
         <div className="bg-white p-4 rounded-2xl border border-gray-200 mb-4 shadow-sm">
           <h4 className="text-teal-500 font-bold text-xs tracking-wider uppercase mb-3">
@@ -315,6 +321,7 @@ const AddRoomNumberForm = ({
             htmlType="submit"
             size="large"
             className="rounded-xl font-semibold bg-indigo-600"
+            loading={loading}
           >
             {isUpdate ? "Update" : "Create"}
           </Button>
