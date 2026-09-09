@@ -86,7 +86,7 @@ const Room = () => {
       {/* 2. Responsive Room Grid Layout */}
       {!isPending && (
         <>
-          {roomType?.length > 1 ? (
+          {roomType?.length > 0 ? (
             <div className="grid grid-cols-1  gap-6">
               {roomType?.map((room) => (
                 <RoomCard key={room.id} room={room} />
