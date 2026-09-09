@@ -110,8 +110,6 @@ const CreateRoomType = () => {
             : values?.breakfast_plan_type,
       };
 
-      console.log("finalPayload", finalPayload);
-
       dispatch(createRoomType({ data: finalPayload })).then((res) => {
         if (_.endsWith(res.type, "fulfilled")) {
           message.success("Room Type Create Successful.");
@@ -136,11 +134,11 @@ const CreateRoomType = () => {
                 navigate(-1);
               }
             });
+          } else {
+            navigate(-1);
           }
         }
       });
-
-      message.success("Room Type created successfully!");
     } catch (error) {
       console.log("Validation Failed:", error);
     }
@@ -172,9 +170,6 @@ const CreateRoomType = () => {
           description: "",
           max_adults: "2",
           max_children: "0",
-          room_area_from: "",
-          room_area_to: "",
-          area_unit: null,
         }}
         className="space-y-4"
       >
