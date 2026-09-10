@@ -86,6 +86,36 @@ const Reserved = () => {
   // Form Value Watcher for API Triggering
   const formValues = Form.useWatch([], form);
 
+  // Date Validation Logics
+  // ၁။ Check-in date ကို Today (ယနေ့) မှ စတင်ရွေးချယ်နိုင်မည် (ယနေ့မတိုင်မီ အတိတ်ရက်များ disable ပေးထားမည်)
+  const disabledCheckInDate = (current) => {
+    return current && current < dayjs().startOf("day");
+  };
+
+  // ၂။ Check-out date ကို Check-in date ထက် ပိုကြီးသော ရက်များကိုသာ ရွေးချယ်နိုင်မည်
+  const disabledCheckOutDate = (current) => {
+    const checkInDate = form.getFieldValue("check_in");
+    if (!checkInDate) {
+      return current && current < dayjs().startOf("day");
+    }
+    return current && current <= dayjs(checkInDate).startOf("day");
+  };
+
+  // Check-in date ပြောင်းလဲပါက Check-out date ကို စစ်ဆေးပြီး လိုအပ်ပါက ၁ ရက် တိုးပေးခြင်း
+  const handleCheckInChange = (date) => {
+    const checkOutDate = form.getFieldValue("check_out");
+    if (
+      date &&
+      checkOutDate &&
+      (dayjs(date).isAfter(checkOutDate) ||
+        dayjs(date).isSame(checkOutDate, "day"))
+    ) {
+      form.setFieldsValue({
+        check_out: dayjs(date).add(1, "day"),
+      });
+    }
+  };
+
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
   }, []);
@@ -434,14 +464,38 @@ const Reserved = () => {
             <Form.Item label="Check-in" name="check_in" className="mb-0">
               <DatePicker
                 format="YYYY-MM-DD"
+                disabledDate={disabledCheckInDate}
+                onChange={handleCheckInChange}
                 className="w-full h-10 rounded-xl bg-neutral-50 border-neutral-200"
                 suffixIcon={<CalendarOutlined className="text-blue-500" />}
               />
             </Form.Item>
 
-            <Form.Item label="Check-out" name="check_out" className="mb-0">
+            <Form.Item
+              label="Check-out"
+              name="check_out"
+              className="mb-0"
+              rules={[
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const checkIn = getFieldValue("check_in");
+                    if (
+                      !value ||
+                      !checkIn ||
+                      dayjs(value).isAfter(dayjs(checkIn), "day")
+                    ) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error("Check-out date must be after Check-in date!"),
+                    );
+                  },
+                }),
+              ]}
+            >
               <DatePicker
                 format="YYYY-MM-DD"
+                disabledDate={disabledCheckOutDate}
                 className="w-full h-10 rounded-xl bg-neutral-50 border-neutral-200"
                 suffixIcon={<CalendarOutlined className="text-blue-500" />}
               />

@@ -85,6 +85,32 @@ const CheckInForm = ({ data }) => {
 
   const formValues = Form.useWatch([], form);
 
+  const disabledCheckInDate = (current) => {
+    return current && current < dayjs().startOf("day");
+  };
+
+  const disabledCheckOutDate = (current) => {
+    const checkInDate = form.getFieldValue("check_in");
+    if (!checkInDate) {
+      return current && current < dayjs().startOf("day");
+    }
+    return current && current <= dayjs(checkInDate).startOf("day");
+  };
+
+  const handleCheckInChange = (date) => {
+    const checkOutDate = form.getFieldValue("check_out");
+    if (
+      date &&
+      checkOutDate &&
+      (dayjs(date).isAfter(checkOutDate) ||
+        dayjs(date).isSame(checkOutDate, "day"))
+    ) {
+      form.setFieldsValue({
+        check_out: dayjs(date).add(1, "day"),
+      });
+    }
+  };
+
   useEffect(() => {
     if (data) {
       setSelectedRooms([
@@ -448,6 +474,7 @@ const CheckInForm = ({ data }) => {
         setLoading(false);
       });
   };
+
   return (
     <div className="px-3 pb-10">
       {/* Header Room Title */}
@@ -491,14 +518,38 @@ const CheckInForm = ({ data }) => {
             <Form.Item label="Check-in" name="check_in" className="mb-0">
               <DatePicker
                 format="YYYY-MM-DD"
+                disabledDate={disabledCheckInDate}
+                onChange={handleCheckInChange}
                 className="w-full h-10 rounded-xl bg-neutral-50 border-neutral-200"
                 suffixIcon={<CalendarOutlined className="text-blue-500" />}
               />
             </Form.Item>
 
-            <Form.Item label="Check-out" name="check_out" className="mb-0">
+            <Form.Item
+              label="Check-out"
+              name="check_out"
+              className="mb-0"
+              rules={[
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const checkIn = getFieldValue("check_in");
+                    if (
+                      !value ||
+                      !checkIn ||
+                      dayjs(value).isAfter(dayjs(checkIn), "day")
+                    ) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error("Check-out date must be after Check-in date!"),
+                    );
+                  },
+                }),
+              ]}
+            >
               <DatePicker
                 format="YYYY-MM-DD"
+                disabledDate={disabledCheckOutDate}
                 className="w-full h-10 rounded-xl bg-neutral-50 border-neutral-200"
                 suffixIcon={<CalendarOutlined className="text-blue-500" />}
               />
@@ -626,7 +677,6 @@ const CheckInForm = ({ data }) => {
                   Extra Bed
                 </span>
                 <Select
-                  // value={rm.extra_bed}
                   onChange={(val) => handleRoomExtraBedChange(rm.id, val)}
                   className="w-24 h-9 [&_.ant-select-selector]:rounded-xl!"
                 >
