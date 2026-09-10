@@ -21,6 +21,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import Reserved from "./page/Reserved";
 import HotelFacility from "./page/HotelFacility";
 import EditRoomType from "./page/EditRoomType";
+import { CreateBuildingAndArea } from "./page/CreateBuildingAndArea";
 
 const Dashboard = lazy(() => import("./page/Dashboard"));
 const Room = lazy(() => import("./page/Room"));
@@ -88,6 +89,10 @@ function App() {
                 />
                 <Route path="/room/:id/check-in/" element={<CheckIn />} />
                 <Route path="/room/:id/reserve/" element={<Reserved />} />
+                <Route
+                  path="/building-and-area"
+                  element={<CreateBuildingAndArea />}
+                />
               </Route>
             </Route>
           </Route>
