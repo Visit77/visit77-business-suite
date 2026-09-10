@@ -147,7 +147,8 @@ const RoomDetailsPage = () => {
                       : " Foreigner Guest"}
                   </div>
                   <div className="text-lg font-bold text-primary-400">
-                    {plan?.currency}{" "}
+                    {plan?.guest_market == "local" ? plan?.currency : "USD"}
+                    &nbsp;
                     {plan?.guest_market == "local"
                       ? plan?.default_price
                       : plan?.usd_display_price}
@@ -318,18 +319,45 @@ const RoomDetailsPage = () => {
               <>
                 {roomData?.next_reservations?.map((reserve) => {
                   return (
-                    <div
-                      key={reserve?.id}
-                      className="flex  bg-amber-400/20 rounded-2xl p-5 border border-l-4 border-l-amber-400 border-neutral-200/80 shadow-xs space-y-4"
-                    >
-                      <HugeiconsIcon
-                        icon={Calendar03Icon}
-                        className=" text-amber-600"
-                      />
-                      <div className="ml-5 text-amber-600 font-blod">
-                        <div>Reserve &nbsp;{reserve?.nights} nights</div>
-                        <div>
-                          {reserve?.check_in} - {reserve?.check_out}
+                    <div className="  bg-amber-400/20 rounded-2xl p-5 border border-l-4 border-l-amber-400 border-neutral-200/80 shadow-xs space-y-4">
+                      <div
+                        key={reserve?.id}
+                        className=" flex items-center w-full"
+                      >
+                        <div className=" text-amber-600 font-blod flex justify-between w-full ">
+                          <div>
+                            <div>Dates &nbsp;</div>
+                            <div className=" font-semibold">
+                              {reserve?.check_in} - {reserve?.check_out}
+                            </div>
+                          </div>
+                          <div>
+                            <div>Night</div>
+                            <div className=" font-semibold">
+                              {reserve?.nights}{" "}
+                            </div>
+                          </div>
+                          <div>
+                            <div>Guests</div>
+                            <div className=" font-semibold">
+                              {reserve?.adults} Adults, {reserve?.children}{" "}
+                              children
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <Divider className=" my-2!" />
+                      <div className=" flex justify-between">
+                        <div className="  text-amber-600">
+                          <div className="font-semibold">
+                            {reserve?.primary_guest?.name}
+                          </div>
+                          <div className="">
+                            {reserve?.primary_guest?.phone}
+                          </div>
+                        </div>
+                        <div className="  text-amber-600 font-semibold">
+                          {reserve?.formatted_grand_total}
                         </div>
                       </div>
                     </div>

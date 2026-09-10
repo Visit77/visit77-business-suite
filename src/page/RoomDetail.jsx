@@ -9,9 +9,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { Carousel, Image, Empty } from "antd";
 import { selectBusinessId } from "../service/businessSlice";
 import { getRoomDetails, roomSelector } from "../service/roomSlice";
-import { API_URL } from "../variables/constants"; // API_URL ကို constants ဖိုင်မှ import လုပ်ပါ
+import { API_URL } from "../variables/constants";
 
-// Carousel အတွက် Custom Arrow Components
 const SampleNextArrow = (props) => {
   const { className, style, onClick } = props;
   return (
