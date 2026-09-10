@@ -8,7 +8,6 @@ import { buildingSelector } from "../../service/buildingSlice";
 export default function AddRoomNumberInput({ isUpdate, form }) {
   const { data: buildingList } = useSelector(buildingSelector);
 
-  // Form Value ပြောင်းတိုင်း Re-render ဖြစ်အောင် Form.useWatch သုံးပေးရပါမည်
   const selectedBuilding = Form.useWatch("building", form);
   const groupsValue = Form.useWatch("groups", form);
 
@@ -44,7 +43,7 @@ export default function AddRoomNumberInput({ isUpdate, form }) {
           <Form.Item
             name="floor"
             label="Floor"
-            rules={[{ required: true, message: "Floor is required" }]}
+            // rules={[{ required: true, message: "Floor is required" }]}
           >
             <Select
               placeholder="Select Floor"
@@ -110,7 +109,7 @@ export default function AddRoomNumberInput({ isUpdate, form }) {
                     {...restField}
                     name={[name, "floor"]}
                     label="Floor"
-                    rules={[{ required: true, message: "Select floor" }]}
+                    // rules={[{ required: true, message: "Select floor" }]}
                   >
                     <Select
                       placeholder="Select Floor"

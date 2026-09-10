@@ -21,11 +21,7 @@ import { getDotColor, nrcCodes, nrcTownships, nrcTypes } from "../utils/utils";
 import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  finalVerifiedCheckIn,
-  updateCheckInInfo,
-  walkInBooking,
-} from "../service/actionSlice";
+import { walkInBooking } from "../service/actionSlice";
 import { selectBusinessId } from "../service/businessSlice";
 import PageLoading from "../components/PageLoading";
 import { getOneRoom, roomBoardSelector } from "../service/roomBoardSlice";
@@ -134,107 +130,37 @@ const Reserved = () => {
 
   // Set Initial Form & Guest Values
   useEffect(() => {
-    const booking = data?.current_booking;
-
-    if (booking) {
-      const bookingGuests =
-        booking?.guests?.length > 0
-          ? booking.guests
-          : booking?.primary_guest
-            ? [booking.primary_guest]
-            : [{}];
-
-      const defaultMarket = booking.guest_market || "local";
-      const formattedGuestState = [];
-      const formattedGuestsFormValue = [];
-
-      bookingGuests.forEach((g, index) => {
-        const guestType = g?.identity_type
-          ? g.identity_type === "nrc"
-            ? "local"
-            : "foreigner"
-          : defaultMarket;
-
-        const nrcParsed = g?.nrc_number ? parseNrcString(g.nrc_number) : {};
-
-        formattedGuestState.push({
-          id: g?.id || Date.now() + index,
-          guestType,
-          selectedCode: nrcParsed.nrcCode || "12",
-          is_primary: index === 0,
-        });
-
-        formattedGuestsFormValue.push({
-          name: g?.name || "",
-          phone: g?.phone || booking?.contact?.phone || "",
-          email: g?.email || booking?.contact?.email || "",
-          guestType: guestType,
-          nrcCode: nrcParsed.nrcCode || "12",
-          nrcTownship: nrcParsed.nrcTownship || "MaYaKa",
-          nrcType: nrcParsed.nrcType || "Naing",
-          nrcNumber: nrcParsed.nrcNumber || "",
-          passport: g?.passport_number || g?.identity_number || "",
-          identityPhoto:
-            g?.identity_photo_url || g?.documents
-              ? [
-                  {
-                    uid: `-guest-${index}`,
-                    name: "identity.png",
-                    status: "done",
-                    url: g?.identity_photo_url || g.documents?.[0]?.file_url,
-                  },
-                ]
-              : [],
-        });
-      });
-
-      setGuests(formattedGuestState);
-      form.setFieldsValue({
-        check_in: booking?.check_in ? dayjs(booking.check_in) : dayjs(),
-        check_out: booking?.check_out
-          ? dayjs(booking.check_out)
-          : dayjs().add(1, "day"),
-        adults: booking?.guest_count?.adults ?? 2,
-        children: booking?.guest_count?.children ?? 0,
-        guest_market: defaultMarket,
-        specialRequest: booking?.special_request || "",
-        paymentMethod: booking?.payments?.[0]?.provider || "cash",
-        paymentStatus: booking?.payment_status || "paid",
-        guests: formattedGuestsFormValue,
-      });
-    } else {
-      setGuests([
+    setGuests([
+      {
+        id: Date.now(),
+        guestType: "local",
+        selectedCode: "12",
+        is_primary: true,
+      },
+    ]);
+    form.setFieldsValue({
+      check_in: dayjs(),
+      check_out: dayjs().add(1, "day"),
+      adults: 2,
+      children: 0,
+      guest_market: "local",
+      paymentMethod: "cash",
+      paymentStatus: "paid",
+      guests: [
         {
-          id: Date.now(),
+          name: "",
+          phone: "",
+          email: "",
           guestType: "local",
-          selectedCode: "12",
-          is_primary: true,
+          nrcCode: "12",
+          nrcTownship: "MaYaKa",
+          nrcType: "Naing",
+          nrcNumber: "",
+          passport: "",
+          identityPhoto: [],
         },
-      ]);
-      form.setFieldsValue({
-        check_in: dayjs(),
-        check_out: dayjs().add(1, "day"),
-        adults: 2,
-        children: 0,
-        guest_market: "local",
-        paymentMethod: "cash",
-        paymentStatus: "paid",
-        guests: [
-          {
-            name: "",
-            phone: "",
-            email: "",
-            guestType: "local",
-            nrcCode: "12",
-            nrcTownship: "MaYaKa",
-            nrcType: "Naing",
-            nrcNumber: "",
-            passport: "",
-            identityPhoto: [],
-          },
-        ],
-      });
-    }
+      ],
+    });
   }, [data, form]);
 
   // Fetch Available Rooms Callback
