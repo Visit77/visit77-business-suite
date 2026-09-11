@@ -21,6 +21,7 @@ import bedTypeReducer from "../service/bedTypeSlice.jsx";
 import roomPoliciesReducer from "../service/roomPoliciesSlice.jsx";
 import mealPlanReducer from "../service/mealPlanSlice.jsx";
 import physicalRoomReducer from "../service/physicalRoomSlice.jsx";
+import otaRevenueReducer from "../service/otaRevenueSlice.jsx";
 
 const appReducer = combineReducers({
   auth: authReducer,
@@ -45,6 +46,7 @@ const appReducer = combineReducers({
   roomPolicies: roomPoliciesReducer,
   mealPlan: mealPlanReducer,
   physicalRoom: physicalRoomReducer,
+  otaRevenue: otaRevenueReducer,
 });
 
 const rootReducer = (state, action) => {

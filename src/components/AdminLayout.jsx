@@ -11,6 +11,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import {
   BedSingle02Icon,
   Building01Icon,
+  CoinsDollarIcon,
   ConciergeBellIcon,
   DashboardSquare01Icon,
   MeetingRoomIcon,
@@ -54,6 +55,13 @@ const ROUTE_CONFIG = [
     label: "Hotel Facility & Rating",
     breadcrumb: "Facility Management",
     icon: <HugeiconsIcon icon={ConciergeBellIcon} />,
+  },
+  {
+    path: "/ota-revenue",
+    key: "/ota-revenue",
+    label: "OTA Revenue Table",
+    breadcrumb: "OTA Revenue",
+    icon: <HugeiconsIcon icon={CoinsDollarIcon} />,
   },
 ];
 

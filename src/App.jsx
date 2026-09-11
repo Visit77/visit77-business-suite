@@ -24,6 +24,7 @@ import EditRoomType from "./page/EditRoomType";
 import { CreateBuildingAndArea } from "./page/CreateBuildingAndArea";
 import BuildingAndArea from "./page/BuildingAndArea";
 import { EditBuildingAndArea } from "./page/EditBuildingAndArea";
+import OtaRevenueTable from "./page/OTARevenueTable";
 
 const Dashboard = lazy(() => import("./page/Dashboard"));
 const Room = lazy(() => import("./page/Room"));
@@ -103,6 +104,8 @@ function App() {
                   path="/building-and-area/:id/edit"
                   element={<EditBuildingAndArea />}
                 />
+
+                <Route path="/ota-revenue" element={<OtaRevenueTable />} />
               </Route>
             </Route>
           </Route>
