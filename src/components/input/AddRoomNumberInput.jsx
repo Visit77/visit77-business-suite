@@ -3,10 +3,10 @@ import React from "react";
 import { Form, Select, Input, Button } from "antd";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
-import { buildingSelector } from "../../service/buildingSlice";
+import { hotelBuildingSelector } from "../../service/buildingSlice";
 
 export default function AddRoomNumberInput({ isUpdate, form }) {
-  const { data: buildingList } = useSelector(buildingSelector);
+  const { data: buildingList } = useSelector(hotelBuildingSelector);
 
   const selectedBuilding = Form.useWatch("building", form);
   const groupsValue = Form.useWatch("groups", form);

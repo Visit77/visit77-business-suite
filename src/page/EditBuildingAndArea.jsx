@@ -1,20 +1,40 @@
-import React from "react";
+import React, { useEffect } from "react";
 import BuildingAndAreaForm from "../components/form/BuildingAndAreaForm";
 import { useDispatch, useSelector } from "react-redux";
 import { selectBusinessId } from "../service/businessSlice";
 import _ from "lodash";
 import { message } from "antd";
-import { useNavigate } from "react-router-dom";
-import { createHotelBuilding } from "../service/buildingSlice";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  getOneBuilding,
+  hotelBuildingSelector,
+  updateHotelBuilding,
+} from "../service/buildingSlice";
 
-export const CreateBuildingAndArea = () => {
+export const EditBuildingAndArea = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const businessId = useSelector(selectBusinessId);
+  const { id } = useParams();
+
+  useEffect(() => {
+    dispatch(getOneBuilding({ id: id }));
+  }, [businessId, dispatch]);
+
+  const { details: building, isPending } = useSelector(hotelBuildingSelector);
+
+  const initialData = {
+    name: building?.name,
+    floor_type: building?.floor_type,
+    floor_from: building?.floors?.[0]?.name,
+    floor_to: building?.floors?.length.toString(),
+    image: building.image,
+  };
 
   return (
     <div>
       <BuildingAndAreaForm
+        initialData={initialData}
         onSubmit={(values) => {
           const formData = new FormData();
           formData.append("business_id", businessId);
@@ -26,7 +46,8 @@ export const CreateBuildingAndArea = () => {
             formData.append("image", values?.image);
           }
           dispatch(
-            createHotelBuilding({
+            updateHotelBuilding({
+              id: id,
               data: formData,
             }),
           ).then((res) => {

@@ -10,6 +10,7 @@ import LogoutModal from "./modal/LogoutModal";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   BedSingle02Icon,
+  Building01Icon,
   ConciergeBellIcon,
   DashboardSquare01Icon,
   MeetingRoomIcon,
@@ -21,28 +22,35 @@ const { Sider, Content, Header } = Layout;
 const ROUTE_CONFIG = [
   {
     path: "/dashboard",
-    key: "dashboard",
+    key: "/dashboard",
     label: "Dashboard",
     breadcrumb: "Dashboard",
     icon: <HugeiconsIcon icon={DashboardSquare01Icon} />,
   },
   {
+    path: "/building-and-area",
+    key: "/building-and-area",
+    label: "Buildings & Areas",
+    breadcrumb: "Building Management",
+    icon: <HugeiconsIcon icon={Building01Icon} />,
+  },
+  {
     path: "/rooms-board",
-    key: "rooms-board",
+    key: "/rooms-board",
     label: "Room",
     breadcrumb: "Room Management",
     icon: <HugeiconsIcon icon={MeetingRoomIcon} />,
   },
   {
     path: "/rooms",
-    key: "rooms",
+    key: "/rooms",
     label: "Room Type",
     breadcrumb: "Room Type Management",
     icon: <HugeiconsIcon icon={BedSingle02Icon} />,
   },
   {
     path: "/hotel-facility",
-    key: "hotel-facility",
+    key: "/hotel-facility",
     label: "Hotel Facility & Rating",
     breadcrumb: "Facility Management",
     icon: <HugeiconsIcon icon={ConciergeBellIcon} />,
@@ -56,14 +64,15 @@ const AdminLayout = () => {
   const navigate = useNavigate();
   const details = useSelector(selectBusinessDetails);
 
-  const currentRoute = ROUTE_CONFIG.find(
-    (route) =>
-      location.pathname === route.path ||
-      location.pathname.startsWith(`${route.path}/`),
-  );
+  const currentRoute = [...ROUTE_CONFIG]
+    .sort((a, b) => b.path.length - a.path.length)
+    .find(
+      (route) =>
+        location.pathname === route.path ||
+        location.pathname.startsWith(`${route.path}/`),
+    );
 
-  const activeKey = currentRoute?.key || "";
-
+  const activeKey = currentRoute?.key || "/dashboard";
   const currentBreadcrumb = currentRoute?.breadcrumb || "Dashboard";
 
   const menuItems = ROUTE_CONFIG.map((item) => ({
@@ -167,12 +176,6 @@ const AdminLayout = () => {
 
           <div className="flex! items-center! space-x-3! md:space-x-6!">
             <LanguageSelect />
-
-            {/* <Badge count={3} size="small" offset={[-2, 2]}>
-              <button className="text-outline! hover:text-primary! transition-colors! flex items-center">
-                <BellOutlined className="text-lg! md:text-xl!" />
-              </button>
-            </Badge> */}
 
             {details?.profile ? (
               <img

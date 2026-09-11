@@ -101,6 +101,11 @@ const RoomDetailsPage = () => {
                 } text-xs font-semibold px-3 py-1 rounded-full`}
               >
                 {roomData?.display_status}
+                {roomData?.current_booking?.source && (
+                  <span className="uppercase">
+                    - {roomData?.current_booking?.source}
+                  </span>
+                )}
               </span>
               {roomData?.next_reservations?.length > 0 && (
                 <>
@@ -326,7 +331,7 @@ const RoomDetailsPage = () => {
                       >
                         <div className=" text-amber-600 font-blod flex justify-between w-full ">
                           <div>
-                            <div>Dates &nbsp;</div>
+                            <div>Dates &nbsp; </div>
                             <div className=" font-semibold">
                               {reserve?.check_in} - {reserve?.check_out}
                             </div>
@@ -354,6 +359,12 @@ const RoomDetailsPage = () => {
                           </div>
                           <div className="">
                             {reserve?.primary_guest?.phone}
+                          </div>
+                        </div>
+                        <div className=" text-amber-600 font-semibold">
+                          <div>Source</div>
+                          <div className=" uppercase text-primary-600">
+                            {reserve?.source}
                           </div>
                         </div>
                         <div className="  text-amber-600 font-semibold">

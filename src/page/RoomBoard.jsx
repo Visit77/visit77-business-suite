@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectBusinessId } from "../service/businessSlice";
 import { getRoomBoard, roomBoardSelector } from "../service/roomBoardSlice";
 import moment from "moment";
-import { buildingSelector, getHotelBuilding } from "../service/buildingSlice";
 import PageLoading from "../components/PageLoading";
 import {
   getDotColor,
@@ -13,13 +12,18 @@ import {
 import { useNavigate } from "react-router-dom";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { SquareLock02Icon } from "@hugeicons/core-free-icons";
+import {
+  getHotelBuilding,
+  hotelBuildingSelector,
+} from "../service/buildingSlice";
 
 const RoomBoard = () => {
   const [activeTab, setActiveTab] = useState();
   const businessId = useSelector(selectBusinessId);
   const dispatch = useDispatch();
-  const { data: building, isPending: isBuildingPending } =
-    useSelector(buildingSelector);
+  const { data: building, isPending: isBuildingPending } = useSelector(
+    hotelBuildingSelector,
+  );
   const { data: roomBoard, isPending } = useSelector(roomBoardSelector);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();

@@ -22,6 +22,8 @@ import Reserved from "./page/Reserved";
 import HotelFacility from "./page/HotelFacility";
 import EditRoomType from "./page/EditRoomType";
 import { CreateBuildingAndArea } from "./page/CreateBuildingAndArea";
+import BuildingAndArea from "./page/BuildingAndArea";
+import { EditBuildingAndArea } from "./page/EditBuildingAndArea";
 
 const Dashboard = lazy(() => import("./page/Dashboard"));
 const Room = lazy(() => import("./page/Room"));
@@ -91,7 +93,15 @@ function App() {
                 <Route path="/room/:id/reserve/" element={<Reserved />} />
                 <Route
                   path="/building-and-area"
+                  element={<BuildingAndArea />}
+                />
+                <Route
+                  path="/building-and-area/create"
                   element={<CreateBuildingAndArea />}
+                />
+                <Route
+                  path="/building-and-area/:id/edit"
+                  element={<EditBuildingAndArea />}
                 />
               </Route>
             </Route>

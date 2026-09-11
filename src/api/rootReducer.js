@@ -9,7 +9,7 @@ import roomAmenityReducer from "../service/roomAmenitySlice.jsx";
 import userReducer from "../service/userSlice.jsx";
 import businessReducer from "../service/businessSlice.jsx";
 import roomBoardReducer from "../service/roomBoardSlice.jsx";
-import buildingReducer from "../service/buildingSlice.jsx";
+import hotelBuildingReducer from "../service/buildingSlice.jsx";
 import languageSettingReducer from "../service/languageSettingSlice.jsx";
 import languageReducer from "../service/languageSlice.jsx";
 import actionReducer from "../service/actionSlice.jsx";
@@ -21,7 +21,6 @@ import bedTypeReducer from "../service/bedTypeSlice.jsx";
 import roomPoliciesReducer from "../service/roomPoliciesSlice.jsx";
 import mealPlanReducer from "../service/mealPlanSlice.jsx";
 import physicalRoomReducer from "../service/physicalRoomSlice.jsx";
-import hotelBuildingReducer from "../service/hotelBuildingSlice.jsx";
 
 const appReducer = combineReducers({
   auth: authReducer,
@@ -34,7 +33,7 @@ const appReducer = combineReducers({
   roomFacility: roomFacilityReducer,
   roomAmenity: roomAmenityReducer,
   roomBoard: roomBoardReducer,
-  building: buildingReducer,
+  hotelBuilding: hotelBuildingReducer,
   languageSetting: languageSettingReducer,
   language: languageReducer,
   action: actionReducer,
@@ -46,7 +45,6 @@ const appReducer = combineReducers({
   roomPolicies: roomPoliciesReducer,
   mealPlan: mealPlanReducer,
   physicalRoom: physicalRoomReducer,
-  hotelBuilding: hotelBuildingReducer,
 });
 
 const rootReducer = (state, action) => {

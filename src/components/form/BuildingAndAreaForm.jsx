@@ -22,7 +22,7 @@ const BuildingAndAreaForm = ({
   const isEditMode = Boolean(initialData);
 
   const [floorType, setFloorType] = useState("single_floor");
-
+  console.log("inin", initialData);
   useEffect(() => {
     if (initialData) {
       setFloorType(initialData.floor_type || "single_floor");
@@ -129,7 +129,7 @@ const BuildingAndAreaForm = ({
           <div
             onClick={() => {
               setFloorType("single_floor");
-              form.setFieldsValue({ floorType: "single_floor" });
+              form.setFieldsValue({ floor_type: "single_floor" });
             }}
             className={`p-4 rounded-2xl border text-left cursor-pointer transition-all flex items-start space-x-3 bg-white ${
               floorType === "single_floor"
@@ -152,7 +152,7 @@ const BuildingAndAreaForm = ({
           <div
             onClick={() => {
               setFloorType("multi_floor");
-              form.setFieldsValue({ floorType: "multi_floor" });
+              form.setFieldsValue({ floor_type: "multi_floor" });
             }}
             className={`p-4 rounded-2xl border text-left cursor-pointer transition-all flex items-start space-x-3 bg-white ${
               floorType === "multi_floor"
@@ -180,7 +180,7 @@ const BuildingAndAreaForm = ({
             Total Floor
           </span>
           <div className="grid grid-cols-2 gap-3">
-            <Form.Item name="from_floor" label="From" className="mb-0 text-xs">
+            <Form.Item name="floor_from" label="From" className="mb-0 text-xs">
               <Select className="w-full h-11 [&_.ant-select-selector]:rounded-xl! [&_.ant-select-selector]:border-slate-200!">
                 <Option value="G">G</Option>
                 {Array.from({ length: 100 }, (_, i) => i + 1).map((num) => (
@@ -191,7 +191,7 @@ const BuildingAndAreaForm = ({
               </Select>
             </Form.Item>
 
-            <Form.Item name="total_to" label="To" className="mb-0 text-xs">
+            <Form.Item name="floor_to" label="To" className="mb-0 text-xs">
               <Select className="w-full h-11 [&_.ant-select-selector]:rounded-xl! [&_.ant-select-selector]:border-slate-200!">
                 {Array.from({ length: 100 }, (_, i) => i + 1).map((num) => (
                   <Option key={num} value={num.toString()}>

@@ -16,9 +16,9 @@ const Room = () => {
     dispatch(getRoomType({ business_id: businessId }));
   }, [businessId, dispatch]);
 
-  const { data: roomType, isPending } = useSelector(roomTypeSelector);
   const navigate = useNavigate();
-
+  const { data: roomType, isPending } = useSelector(roomTypeSelector);
+  
   return (
     <div className="space-y-6 md:space-y-8 animate-fade-in">
       {/* 1. Top Filter Control Panel */}
