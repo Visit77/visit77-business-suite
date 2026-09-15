@@ -42,11 +42,7 @@ const BuildingAndArea = () => {
       </div>
       <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {buildings?.map((building) => (
-          <BuildingCard
-            key={building.id}
-            building={building}
-            onEdit={() => {}}
-          />
+          <BuildingCard key={building.id} building={building} />
         ))}
       </div>
     </>

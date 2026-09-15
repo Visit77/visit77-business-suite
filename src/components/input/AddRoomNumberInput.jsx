@@ -146,7 +146,7 @@ export default function AddRoomNumberInput({ isUpdate, form }) {
           })}
 
           <Button type="dashed" onClick={() => add()} icon={<PlusOutlined />}>
-            Add More Group
+            Add More Room
           </Button>
         </div>
       )}
