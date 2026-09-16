@@ -76,7 +76,12 @@ const RoomDetailsPage = () => {
   );
 
   const renderRoomHistoryBtn = () => (
-    <button className="flex flex-col items-center justify-center p-3 rounded-xl hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer">
+    <button
+      onClick={() => {
+        navigate(`/room/${roomData?.core_physical_room_id}/history/`);
+      }}
+      className="flex flex-col items-center justify-center p-3 rounded-xl hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border border-neutral-100 cursor-pointer"
+    >
       <HugeiconsIcon icon={FileClockIcon} className="text-primary-400" />
       <span>Room History</span>
     </button>

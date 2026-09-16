@@ -25,6 +25,7 @@ import { CreateBuildingAndArea } from "./page/CreateBuildingAndArea";
 import BuildingAndArea from "./page/BuildingAndArea";
 import { EditBuildingAndArea } from "./page/EditBuildingAndArea";
 import OtaRevenueTable from "./page/OTARevenueTable";
+import RoomHistory from "./page/RoomHistory";
 
 const Dashboard = lazy(() => import("./page/Dashboard"));
 const Room = lazy(() => import("./page/Room"));
@@ -90,6 +91,7 @@ function App() {
                   path="/room-details/:id"
                   element={<RoomManagmentPage />}
                 />
+                <Route path="/room/:id/history/" element={<RoomHistory />} />
                 <Route path="/room/:id/check-in/" element={<CheckIn />} />
                 <Route path="/room/:id/reserve/" element={<Reserved />} />
                 <Route
