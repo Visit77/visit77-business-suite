@@ -14,7 +14,7 @@ export const getOtaRevenue = createAsyncThunk(
   async (params, { rejectWithValue }) => {
     const { business_id, ...queryParams } = params;
     try {
-      const { data, headers } = await api.get("admin/ota-revenue/", {
+      const { data, headers } = await api.get("/api/v1/admin/ota-revenue/", {
         baseURL: BOOKING_URL,
         params: queryParams,
         headers: {

@@ -23,7 +23,7 @@ export const getRoomHistory = createAsyncThunk(
 
     try {
       const response = await api.get(
-        `/admin/physical-rooms/${queryParams?.id}/history/`,
+        `/api/v1/admin/physical-rooms/${queryParams?.id}/history/`,
         {
           baseURL: BOOKING_URL,
           params: queryParams,
@@ -46,7 +46,7 @@ export const getAvailableRoom = createAsyncThunk(
     const { business_id, ...queryParams } = params;
 
     try {
-      const response = await api.get(`/admin/available-rooms/search/`, {
+      const response = await api.get(`/api/v1/admin/available-rooms/search/`, {
         baseURL: BOOKING_URL,
         params: queryParams,
         headers: {

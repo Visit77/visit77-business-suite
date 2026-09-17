@@ -7,7 +7,7 @@ import { message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { createHotelBuilding } from "../service/buildingSlice";
 
-export const CreateBuildingAndArea = () => {
+const CreateBuildingAndArea = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const businessId = useSelector(selectBusinessId);
@@ -40,3 +40,4 @@ export const CreateBuildingAndArea = () => {
     </div>
   );
 };
+export default CreateBuildingAndArea;

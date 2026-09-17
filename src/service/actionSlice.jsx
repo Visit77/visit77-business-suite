@@ -7,7 +7,7 @@ export const updateRoomStatus = createAsyncThunk(
   async ({ id, business_id, data }, { rejectWithValue }) => {
     try {
       const response = await api.patch(
-        `/admin/physical-rooms/${id}`,
+        `/api/v1/admin/physical-rooms/${id}`,
         { ...data },
         {
           baseURL: BOOKING_URL,
@@ -29,7 +29,7 @@ export const roomBlock = createAsyncThunk(
   async ({ id, business_id, data }, { rejectWithValue }) => {
     try {
       const response = await api.post(
-        `/admin/room-blocks/`,
+        `/api/v1/admin/room-blocks/`,
         { ...data },
         {
           baseURL: BOOKING_URL,
@@ -50,14 +50,18 @@ export const walkInBooking = createAsyncThunk(
   "room_action/walkInBooking",
   async ({ business_id, data }, { rejectWithValue }) => {
     try {
-      const response = await api.post(`/admin/walk-in-booking-v2/`, data, {
-        baseURL: BOOKING_URL,
-        headers: {
-          "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
-          "X-Booking-Business-ID": business_id,
-          "Content-Type": "multipart/form-data",
+      const response = await api.post(
+        `/api/v1/admin/walk-in-booking-v2/`,
+        data,
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+            "Content-Type": "multipart/form-data",
+          },
         },
-      });
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || "failed");
@@ -70,7 +74,7 @@ export const finalVerifiedCheckIn = createAsyncThunk(
   async ({ booking_id, business_id }, { rejectWithValue }) => {
     try {
       const response = await api.post(
-        `/admin/bookings/${booking_id}/check-in/`,
+        `/api/v1/admin/bookings/${booking_id}/check-in/`,
         {
           verification_confirmed: true,
           verification_note: "Guest identity and room assignment verified.",
@@ -95,7 +99,7 @@ export const updateCheckInInfo = createAsyncThunk(
   async ({ booking_id, business_id, data }, { rejectWithValue }) => {
     try {
       const response = await api.patch(
-        `/admin/bookings/${booking_id}/check-in-form/`,
+        `/api/v1/admin/bookings/${booking_id}/check-in-form/`,
         data,
         {
           baseURL: BOOKING_URL,
@@ -118,7 +122,7 @@ export const roomUnblock = createAsyncThunk(
   async ({ id, business_id }, { rejectWithValue }) => {
     try {
       const response = await api.post(
-        `/admin/room-blocks/${id}/unblock/`,
+        `/api/v1/admin/room-blocks/${id}/unblock/`,
         {},
         {
           baseURL: BOOKING_URL,
@@ -140,7 +144,7 @@ export const checkOutRoom = createAsyncThunk(
   async ({ booking_id, business_id }, { rejectWithValue }) => {
     try {
       const response = await api.post(
-        `/admin/bookings/${booking_id}/check-out/`,
+        `/api/v1/admin/bookings/${booking_id}/check-out/`,
         {},
         {
           baseURL: BOOKING_URL,

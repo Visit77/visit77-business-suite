@@ -5,12 +5,17 @@ import dayjs from "dayjs";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { selectBusinessId } from "../service/businessSlice";
-import { getRoomHistory, roomSelector } from "../service/roomSlice";
+import {
+  getRoomDetails,
+  getRoomHistory,
+  roomSelector,
+} from "../service/roomSlice";
 import {
   FilePdfOutlined,
   FileTextOutlined,
   UserOutlined,
 } from "@ant-design/icons";
+import { BOOKING_URL } from "../variables/constants";
 
 const { RangePicker } = DatePicker;
 
@@ -23,7 +28,10 @@ const RoomHistory = () => {
   const businessId = useSelector(selectBusinessId);
 
   const { history: roomData = [], isPending } = useSelector(roomSelector);
+
   const dispatch = useDispatch();
+  const { details: roomDetails, isPending: isRoomPending } =
+    useSelector(roomSelector);
 
   useEffect(() => {
     if (id && businessId) {
@@ -38,6 +46,11 @@ const RoomHistory = () => {
       }
 
       dispatch(getRoomHistory(payload));
+      dispatch(
+        getRoomDetails({
+          id: id,
+        }),
+      );
     }
   }, [id, businessId, dates, dispatch]);
 
@@ -45,7 +58,7 @@ const RoomHistory = () => {
     setDates(values);
   };
 
-  if (isPending) {
+  if (isPending || isRoomPending) {
     return <div className="p-4 text-center">Loading...</div>;
   }
 
@@ -113,7 +126,7 @@ const RoomHistory = () => {
       render: (_, record) =>
         record.invoice_url ? (
           <a
-            href={`https://uat.api.business.visit77.com${record.invoice_url}`}
+            href={`${BOOKING_URL}${record.invoice_url}`}
             target="_blank"
             rel="noreferrer"
           >
@@ -133,11 +146,14 @@ const RoomHistory = () => {
   }, {});
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="">
+      <div className=" text-xl text-primary font-semibold mb-3">
+        Room no : {roomDetails?.room_no}
+      </div>
       {/* Main Container */}
-      <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+      <div>
         {/* Date Filter Controls */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-6 pb-6 border-b border-gray-100">
+        <div className="flex flex-wrap items-center justify-between gap-4  pb-3 border-b border-gray-100">
           <div className="flex items-center space-x-4">
             <div>
               <label className="block text-xs text-gray-400 font-medium mb-1">

@@ -18,15 +18,18 @@ import {
 import { useLanguage } from "./context/LanguageContext";
 import { getLanguage } from "./service/languageSlice";
 import ScrollToTop from "./components/ScrollToTop";
-import Reserved from "./page/Reserved";
-import HotelFacility from "./page/HotelFacility";
-import EditRoomType from "./page/EditRoomType";
-import { CreateBuildingAndArea } from "./page/CreateBuildingAndArea";
-import BuildingAndArea from "./page/BuildingAndArea";
-import { EditBuildingAndArea } from "./page/EditBuildingAndArea";
-import OtaRevenueTable from "./page/OTARevenueTable";
-import RoomHistory from "./page/RoomHistory";
 
+const CreateBuildingAndArea = lazy(
+  () => import("./page/CreateBuildingAndArea"),
+);
+const BuildingAndArea = lazy(() => import("./page/BuildingAndArea"));
+const EditBuildingAndArea = lazy(() => import("./page/EditBuildingAndArea"));
+const OtaRevenueTable = lazy(() => import("./page/OtaRevenueTable"));
+const RoomHistory = lazy(() => import("./page/RoomHistory"));
+const OTAManagement = lazy(() => import("./page/OTAManagement"));
+const Reserved = lazy(() => import("./page/Reserved"));
+const HotelFacility = lazy(() => import("./page/HotelFacility"));
+const EditRoomType = lazy(() => import("./page/EditRoomType"));
 const Dashboard = lazy(() => import("./page/Dashboard"));
 const Room = lazy(() => import("./page/Room"));
 const RoomDetail = lazy(() => import("./page/RoomDetail"));
@@ -108,6 +111,10 @@ function App() {
                 />
 
                 <Route path="/ota-revenue" element={<OtaRevenueTable />} />
+                <Route
+                  path="/ota-revenue/management"
+                  element={<OTAManagement />}
+                />
               </Route>
             </Route>
           </Route>

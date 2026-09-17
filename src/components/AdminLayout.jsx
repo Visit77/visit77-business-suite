@@ -14,6 +14,7 @@ import {
   CoinsDollarIcon,
   ConciergeBellIcon,
   DashboardSquare01Icon,
+  Door01Icon,
   MeetingRoomIcon,
 } from "@hugeicons/core-free-icons";
 import LanguageSelect from "./LanguageSelect";
@@ -62,6 +63,13 @@ const ROUTE_CONFIG = [
     label: "OTA Revenue Table",
     breadcrumb: "OTA Revenue",
     icon: <HugeiconsIcon icon={CoinsDollarIcon} />,
+  },
+  {
+    path: "/ota-revenue/management",
+    key: "/ota-revenue/management",
+    label: "OTA Management",
+    breadcrumb: "OTA Management",
+    icon: <HugeiconsIcon icon={Door01Icon} />,
   },
 ];
 

@@ -11,7 +11,7 @@ import {
   updateHotelBuilding,
 } from "../service/buildingSlice";
 
-export const EditBuildingAndArea = () => {
+const EditBuildingAndArea = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const businessId = useSelector(selectBusinessId);
@@ -61,3 +61,4 @@ export const EditBuildingAndArea = () => {
     </div>
   );
 };
+export default EditBuildingAndArea;

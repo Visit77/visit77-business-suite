@@ -8,7 +8,7 @@ export const getRoomBoard = createAsyncThunk(
     const { business_id, ...queryParams } = params;
 
     try {
-      const response = await api.get(`/admin/room-board`, {
+      const response = await api.get(`/api/v1/admin/room-board`, {
         baseURL: BOOKING_URL,
         params: queryParams,
         headers: {
@@ -27,7 +27,7 @@ export const deleteRoom = createAsyncThunk(
   "room_board/deleteRoom",
   async ({ id, business_id }, { rejectWithValue }) => {
     try {
-      await api.delete(`/room_board/${id}`, {
+      await api.delete(`/api/v1/room_board/${id}`, {
         headers: {
           "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
           "X-Booking-Business-ID": business_id,
@@ -47,7 +47,7 @@ export const getOneRoom = createAsyncThunk(
 
     try {
       const response = await api.get(
-        `/admin/physical-rooms/${queryParams?.id}/`,
+        `/api/v1/admin/physical-rooms/${queryParams?.id}/`,
         {
           baseURL: BOOKING_URL,
           params: queryParams,
