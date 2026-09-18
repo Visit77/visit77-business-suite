@@ -17,6 +17,9 @@ import {
   getOTARoom,
   otaManagementSelector,
 } from "../service/otaManagementSlice";
+import { Link } from "react-router-dom";
+import { Button } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 
 export default function OTAManagement() {
   const [activeTab, setActiveTab] = useState("rooms");
@@ -75,6 +78,15 @@ export default function OTAManagement() {
 
   return (
     <div className="min-h-screen font-sans text-neutral-800 bg-neutral-50/50">
+      <Link to={`/ota-revenue/add-room`}>
+        <Button
+          type="default"
+          icon={<PlusOutlined />}
+          className="h-9 px-3 sm:px-4 rounded-xl text-blue-600 border-blue-100 bg-blue-50/50 hover:bg-blue-100! hover:text-blue-700! font-semibold text-xs flex items-center gap-1 shadow-none"
+        >
+          Add Room Numbers
+        </Button>
+      </Link>
       {/* Tabs Bar */}
       <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
 

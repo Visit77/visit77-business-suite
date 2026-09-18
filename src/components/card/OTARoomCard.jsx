@@ -7,7 +7,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { Dropdown, message } from "antd";
 import {
-  removeOTARoom,
+  manageOTARoom,
   updateSaleStatus,
 } from "../../service/otaManagementSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -65,7 +65,7 @@ export const OTARoomCard = ({ room }) => {
       danger: true,
       onClick: () =>
         dispatch(
-          removeOTARoom({
+          manageOTARoom({
             business_id: businessId,
             id: room?.physical_room_id,
           }),
@@ -82,7 +82,6 @@ export const OTARoomCard = ({ room }) => {
   return (
     <div className="bg-white rounded-2xl border border-neutral-200 p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow relative flex flex-col justify-between h-full">
       <div>
-        {/* Header section with Room Code & Status */}
         <div className="flex items-center justify-between mb-2 gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <span className="text-base sm:text-lg font-bold text-neutral-800 truncate">
@@ -109,7 +108,6 @@ export const OTARoomCard = ({ room }) => {
           </Dropdown>
         </div>
 
-        {/* Room Specifications */}
         <p className="text-xs text-neutral-500 font-medium mb-4 leading-relaxed">
           {room?.room_standard?.name}
           {room?.bed_type?.name && ` • ${room?.bed_type?.name}`}
@@ -126,7 +124,6 @@ export const OTARoomCard = ({ room }) => {
         </p>
       </div>
 
-      {/* Footer Details */}
       <div className="pt-3 border-t border-neutral-100 flex items-center justify-between text-xs gap-2">
         <span
           className={`font-semibold shrink-0 ${

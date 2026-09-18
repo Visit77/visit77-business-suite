@@ -75,13 +75,21 @@ export const updateSaleStatus = createAsyncThunk(
   },
 );
 
-export const removeOTARoom = createAsyncThunk(
-  "otaManagement/removeOTARoom",
-  async ({ id, business_id }, { rejectWithValue }) => {
+export const manageOTARoom = createAsyncThunk(
+  "otaManagement/manageOTARoom",
+  async ({ id, business_id, selected_room_ids }, { rejectWithValue }) => {
     try {
+      const payload = {};
+      if (id) {
+        payload.deselected_room_ids = [id];
+      }
+      if (selected_room_ids) {
+        payload.selected_room_ids = selected_room_ids;
+      }
+
       const response = await api.put(
         "/api/v1/admin/ota-rooms/selection/",
-        { deselected_room_ids: [id] },
+        payload,
         {
           baseURL: BOOKING_URL,
           headers: {
@@ -91,6 +99,25 @@ export const removeOTARoom = createAsyncThunk(
         },
       );
       return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  },
+);
+export const getOTARoomType = createAsyncThunk(
+  "otaManagement/getOTARoomType",
+  async (params, { rejectWithValue }) => {
+    const { business_id, ...queryParams } = params;
+    try {
+      const { data, headers } = await api.get("/api/v1/admin/room-types/", {
+        baseURL: BOOKING_URL,
+        params: queryParams,
+        headers: {
+          "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+          "X-Booking-Business-ID": business_id,
+        },
+      });
+      return { data, headers };
     } catch (error) {
       return rejectWithValue(error);
     }
@@ -142,15 +169,28 @@ const otaManagementSlice = createSlice({
         state.isPending = false;
         state.hasError = true;
       })
-      .addCase(removeOTARoom.pending, (state) => {
+      .addCase(manageOTARoom.pending, (state) => {
         state.isPending = true;
         state.hasError = false;
       })
-      .addCase(removeOTARoom.fulfilled, (state, { payload }) => {
+      .addCase(manageOTARoom.fulfilled, (state, { payload }) => {
         state.isPending = false;
         state.data = payload.data;
       })
-      .addCase(removeOTARoom.rejected, (state) => {
+      .addCase(manageOTARoom.rejected, (state) => {
+        state.isPending = false;
+        state.hasError = true;
+      })
+      .addCase(getOTARoomType.pending, (state) => {
+        state.isPending = true;
+        state.hasError = false;
+      })
+      .addCase(getOTARoomType.fulfilled, (state, { payload }) => {
+        state.isPending = false;
+        state.data = payload.data?.data;
+        state.count = payload.count || state.count;
+      })
+      .addCase(getOTARoomType.rejected, (state) => {
         state.isPending = false;
         state.hasError = true;
       });
