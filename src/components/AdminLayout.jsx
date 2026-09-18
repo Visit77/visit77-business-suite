@@ -71,6 +71,11 @@ const ROUTE_CONFIG = [
     breadcrumb: "OTA Management",
     icon: <HugeiconsIcon icon={Door01Icon} />,
   },
+  {
+    path: "/ota-revenue/add-room",
+    key: "/ota-revenue/add-room",
+    breadcrumb: "Add Room for OTA",
+  },
 ];
 
 const AdminLayout = () => {
@@ -91,11 +96,17 @@ const AdminLayout = () => {
   const activeKey = currentRoute?.key || "/dashboard";
   const currentBreadcrumb = currentRoute?.breadcrumb || "Dashboard";
 
-  const menuItems = ROUTE_CONFIG.map((item) => ({
-    key: item.key,
-    icon: item.icon,
-    label: <Link to={item.path}>{item.label}</Link>,
-  }));
+  const menuItems = ROUTE_CONFIG.flatMap((item) =>
+    item.label
+      ? [
+          {
+            key: item.key,
+            icon: item.icon,
+            label: <Link to={item.path}>{item.label}</Link>,
+          },
+        ]
+      : [],
+  );
 
   const handleLogout = () => {
     localStorage.removeItem(TOKEN_LABEL);
