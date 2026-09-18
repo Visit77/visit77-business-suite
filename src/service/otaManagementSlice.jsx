@@ -53,6 +53,50 @@ export const getOTARecord = createAsyncThunk(
   },
 );
 
+export const updateSaleStatus = createAsyncThunk(
+  "otaManagement/updateSaleStatus",
+  async ({ id, business_id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(
+        `/api/v1/admin/ota-rooms/${id}/sale-status/`,
+        data,
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
+export const removeOTARoom = createAsyncThunk(
+  "otaManagement/removeOTARoom",
+  async ({ id, business_id }, { rejectWithValue }) => {
+    try {
+      const response = await api.put(
+        "/api/v1/admin/ota-rooms/selection/",
+        { deselected_room_ids: [id] },
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
 const otaManagementSlice = createSlice({
   name: "otaManagement",
   initialState,
@@ -83,6 +127,30 @@ const otaManagementSlice = createSlice({
         state.count = payload.count || state.count;
       })
       .addCase(getOTARecord.rejected, (state) => {
+        state.isPending = false;
+        state.hasError = true;
+      })
+      .addCase(updateSaleStatus.pending, (state) => {
+        state.isPending = true;
+        state.hasError = false;
+      })
+      .addCase(updateSaleStatus.fulfilled, (state, { payload }) => {
+        state.isPending = false;
+        state.data = payload.data;
+      })
+      .addCase(updateSaleStatus.rejected, (state) => {
+        state.isPending = false;
+        state.hasError = true;
+      })
+      .addCase(removeOTARoom.pending, (state) => {
+        state.isPending = true;
+        state.hasError = false;
+      })
+      .addCase(removeOTARoom.fulfilled, (state, { payload }) => {
+        state.isPending = false;
+        state.data = payload.data;
+      })
+      .addCase(removeOTARoom.rejected, (state) => {
         state.isPending = false;
         state.hasError = true;
       });

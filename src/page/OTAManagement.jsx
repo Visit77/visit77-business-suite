@@ -28,19 +28,19 @@ export default function OTAManagement() {
   } = useSelector(otaManagementSelector);
 
   const businessId = useSelector(selectBusinessId);
-
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(
       getOTARoom({
         business_id: businessId,
+        timeline_status: "all",
       }),
     );
   }, [businessId, dispatch]);
 
   useEffect(() => {
-    if (activeTab == "bookings") {
+    if (activeTab === "bookings") {
       dispatch(
         getOTARecord({
           business_id: businessId,
@@ -50,7 +50,11 @@ export default function OTAManagement() {
   }, [businessId, dispatch, activeTab]);
 
   if (isPending) {
-    return <div className="p-4 text-center">Loading...</div>;
+    return (
+      <div className="p-8 text-center text-slate-500 font-medium">
+        Loading...
+      </div>
+    );
   }
 
   const toggleGroup = (groupName) => {
@@ -60,53 +64,51 @@ export default function OTAManagement() {
   const groupedData = record?.rooms
     ? Object.groupBy(record.rooms, (item) => item?.check_in)
     : {};
-  const recordData = Object.entries(groupedData).map(
-    ([checkInDate, items], index) => {
-      return {
-        check_in: checkInDate,
-        rooms: items?.map((item, itemIndex) => ({
-          ...item,
-        })),
-      };
-    },
-  );
+  const recordData = Object.entries(groupedData).map(([checkInDate, items]) => {
+    return {
+      check_in: checkInDate,
+      rooms: items?.map((item) => ({
+        ...item,
+      })),
+    };
+  });
 
   return (
-    <div className="min-h-screen font-sans text-neutral-800">
+    <div className="min-h-screen font-sans text-neutral-800 bg-neutral-50/50">
       {/* Tabs Bar */}
       <TabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Main Container */}
-      <main className="mx-auto px-6 py-6 ">
+      <main className="mx-auto px-4 sm:px-6 py-4 sm:py-6 max-w-7xl">
         {/* ROOMS TAB CONTENT */}
         {activeTab === "rooms" && (
           <div className="space-y-6">
             {/* Summary Statistics & Filter Bar */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-neutral-200 shadow-sm">
-              <div className="flex items-center gap-4 text-sm">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-neutral-200 shadow-sm">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm">
                 <div className="font-bold text-blue-600">
                   Total Rooms:{" "}
                   <span className="text-neutral-800">
-                    {otaManagement?.total_rooms}
+                    {otaManagement?.total_rooms || 0}
                   </span>
                 </div>
-                <div className="h-4 w-px bg-neutral-200" />
+                <div className="hidden sm:block h-4 w-px bg-neutral-200" />
                 <div className="font-bold text-neutral-600">
                   Total OTA:{" "}
                   <span className="text-neutral-800">
-                    {otaManagement?.total_ota_rooms}
+                    {otaManagement?.total_ota_rooms || 0}
                   </span>
                 </div>
-                <div className="h-4 w-px bg-neutral-200" />
+                <div className="hidden sm:block h-4 w-px bg-neutral-200" />
                 <div className="font-bold text-emerald-600">
                   Active OTA Room:{" "}
                   <span className="text-neutral-800">
-                    {otaManagement?.total_open_ota_rooms}
+                    {otaManagement?.total_open_ota_rooms || 0}
                   </span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 self-end md:self-auto">
                 <button className="p-2.5 bg-neutral-100 hover:bg-neutral-200 rounded-xl text-neutral-600 transition-colors">
                   <HugeiconsIcon icon={FilterIcon} size={18} />
                 </button>
@@ -127,10 +129,10 @@ export default function OTAManagement() {
                   {/* Accordion Group Header */}
                   <div
                     onClick={() => toggleGroup(groupId)}
-                    className="flex items-center justify-between cursor-pointer select-none py-1"
+                    className="flex items-center justify-between cursor-pointer select-none py-1.5 px-1 rounded-lg hover:bg-neutral-100/60 transition-colors"
                   >
                     <div>
-                      <h2 className="text-lg font-bold text-neutral-800">
+                      <h2 className="text-base sm:text-lg font-bold text-neutral-800">
                         {roomType.room_type_name}
                       </h2>
                       <p className="text-xs font-semibold text-emerald-600">
@@ -146,9 +148,9 @@ export default function OTAManagement() {
                     </button>
                   </div>
 
-                  {/* Desktop Grid Layout */}
+                  {/* Desktop & Mobile Grid Layout */}
                   {!isCollapsed && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                       {roomsInGroup.map((room) => (
                         <OTARoomCard
                           key={
@@ -173,7 +175,7 @@ export default function OTAManagement() {
               <HugeiconsIcon
                 icon={Search01Icon}
                 size={20}
-                className="absolute left-4 top-1/2 -tra-neutral-y-1/2 text-neutral-400"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400"
               />
               <input
                 type="text"
@@ -186,10 +188,10 @@ export default function OTAManagement() {
             <div className="space-y-8">
               {recordData?.map((group) => (
                 <div key={group?.check_in} className="space-y-3">
-                  <h3 className="text-md font-bold text-neutral-800">
+                  <h3 className="text-sm sm:text-base font-bold text-neutral-800">
                     {group?.check_in}
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2  gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {group?.rooms?.map((room) => (
                       <OTABookingCard key={room?.id} booking={room} />
                     ))}
