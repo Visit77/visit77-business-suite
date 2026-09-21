@@ -61,6 +61,8 @@ const AddRoomNumberForm = ({
         custom_option_value_ids: [],
         status: "vacant",
         smoking_type: "non_smoking",
+        extra_bed_available: values.extra_bed_available || false,
+        extra_bed_quantity: Number(values.extra_bed_quantity) || 0,
       });
     }
   };
