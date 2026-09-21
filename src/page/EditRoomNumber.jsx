@@ -39,8 +39,8 @@ export default function EditRoomNumber() {
     if (!physicalRoom) return null;
 
     return {
-      building: physicalRoom?.building_data?.id,
-      floor: physicalRoom?.floor_data?.id,
+      building_id: physicalRoom?.building_data?.id,
+      floor_id: physicalRoom?.floor_data?.id,
       room_no: physicalRoom?.room_no,
       room_view_ids: physicalRoom?.room_views?.map((v) => `${v.id}`) || [],
       bath_type_ids: physicalRoom?.bath_types?.map((b) => `${b.id}`) || [],

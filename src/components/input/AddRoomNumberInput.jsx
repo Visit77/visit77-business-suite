@@ -8,7 +8,7 @@ import { hotelBuildingSelector } from "../../service/buildingSlice";
 export default function AddRoomNumberInput({ isUpdate, form }) {
   const { data: buildingList } = useSelector(hotelBuildingSelector);
 
-  const selectedBuilding = Form.useWatch("building", form);
+  const selectedBuilding = Form.useWatch("building_id", form);
   const groupsValue = Form.useWatch("groups", form);
 
   const getFloorOptions = (buildingId) => {
@@ -26,7 +26,7 @@ export default function AddRoomNumberInput({ isUpdate, form }) {
       <div className="bg-white p-4 rounded-xl space-y-4 mb-4 border border-gray-100">
         <div className="grid grid-cols-2 gap-4">
           <Form.Item
-            name="building"
+            name="building_id"
             label="Building / Area"
             rules={[{ required: true, message: "Building is required" }]}
           >
@@ -36,12 +36,12 @@ export default function AddRoomNumberInput({ isUpdate, form }) {
                 label: b.name,
                 value: b.id,
               }))}
-              onChange={() => form.setFieldValue("floor", undefined)}
+              onChange={() => form.setFieldValue("floor_id", undefined)}
             />
           </Form.Item>
 
           <Form.Item
-            name="floor"
+            name="floor_id"
             label="Floor"
             // rules={[{ required: true, message: "Floor is required" }]}
           >
@@ -73,7 +73,7 @@ export default function AddRoomNumberInput({ isUpdate, form }) {
       {(fields, { add, remove }) => (
         <div className="space-y-4 mb-4">
           {fields.map(({ key, name, ...restField }) => {
-            const currentBuilding = groupsValue?.[name]?.building;
+            const currentBuilding = groupsValue?.[name]?.building_id;
 
             return (
               <div
@@ -83,7 +83,7 @@ export default function AddRoomNumberInput({ isUpdate, form }) {
                 <div className="grid grid-cols-2 gap-4">
                   <Form.Item
                     {...restField}
-                    name={[name, "building"]}
+                    name={[name, "building_id"]}
                     label="Building / Area"
                     rules={[{ required: true, message: "Select building" }]}
                   >
@@ -107,7 +107,7 @@ export default function AddRoomNumberInput({ isUpdate, form }) {
 
                   <Form.Item
                     {...restField}
-                    name={[name, "floor"]}
+                    name={[name, "floor_id"]}
                     label="Floor"
                     // rules={[{ required: true, message: "Select floor" }]}
                   >

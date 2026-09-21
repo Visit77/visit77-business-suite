@@ -34,8 +34,8 @@ const AddRoomNumberForm = ({
   const handleFinish = (values) => {
     if (isUpdate) {
       const formattedPayload = {
-        building_id: values.building,
-        floor_id: values.floor,
+        building_id: values.building_id,
+        floor_id: values.floor_id,
         room_no: values.room_no,
         room_view_ids: values.room_view_ids,
         bath_type_ids: values.bath_type_ids,
@@ -135,7 +135,9 @@ const AddRoomNumberForm = ({
         layout="vertical"
         onFinish={handleFinish}
         initialValues={{
-          groups: [{ building: undefined, floor: undefined, room_numbers: [] }],
+          groups: [
+            { building_id: undefined, floor_id: undefined, room_numbers: [] },
+          ],
           extra_bed_available: false,
           extra_bed_quantity: 0,
           room_view_ids: [],
