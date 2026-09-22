@@ -22,17 +22,17 @@ import {
   nrcCodes,
   nrcTownships,
   nrcTypes,
-} from "../../utils/utils";
+} from "../../utils/utils.jsx";
 import _ from "lodash";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   finalVerifiedCheckIn,
   updateCheckInInfo,
-  walkInBooking,
-} from "../../service/actionSlice";
-import { selectBusinessId } from "../../service/businessSlice";
-import AvailableRoomsModal from "../modal/AvailableRoomsModal";
+  makeReservation,
+} from "../../service/actionSlice.jsx";
+import { selectBusinessId } from "../../service/businessSlice.jsx";
+import AvailableRoomsModal from "../modal/AvailableRoomsModal.jsx";
 import { getAvailableRoom, roomSelector } from "../../service/roomSlice.jsx";
 import { CheckmarkCircle01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
@@ -68,7 +68,7 @@ const parseNrcString = (nrcStr) => {
 
 const normFile = (e) => (Array.isArray(e) ? e : e?.fileList);
 
-const CheckInForm = ({ data }) => {
+const CheckInForm = ({ data, onNext }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -441,12 +441,16 @@ const CheckInForm = ({ data }) => {
 
     const actionToDispatch =
       data?.display_status === "reserved"
-        ? updateCheckInInfo({
+        ? // updateCheckInInfo({
+          //     business_id: businessId,
+          //     booking_id: data?.current_booking?.id,
+          //     data: formData,
+          //   })
+          makeReservation({
             business_id: businessId,
-            booking_id: data?.current_booking?.id,
             data: formData,
           })
-        : walkInBooking({
+        : makeReservation({
             business_id: businessId,
             data: formData,
           });
@@ -454,17 +458,18 @@ const CheckInForm = ({ data }) => {
     dispatch(actionToDispatch)
       .then((res) => {
         if (_.endsWith(res.type, "fulfilled")) {
-          dispatch(
-            finalVerifiedCheckIn({
-              business_id: businessId,
-              booking_id: res.payload?.data?.booking?.id,
-            }),
-          ).then((finalRes) => {
-            if (_.endsWith(finalRes.type, "fulfilled")) {
-              message.success("Success Check In");
-              navigate(-1);
-            }
-          });
+          onNext();
+          // dispatch(
+          //   finalVerifiedCheckIn({
+          //     business_id: businessId,
+          //     booking_id: res.payload?.data?.booking?.id,
+          //   }),
+          // ).then((finalRes) => {
+          //   if (_.endsWith(finalRes.type, "fulfilled")) {
+          //     message.success("Success Check In");
+
+          //   }
+          // });
         }
       })
       .catch(() => {

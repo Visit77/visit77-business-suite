@@ -46,22 +46,18 @@ export const roomBlock = createAsyncThunk(
   },
 );
 
-export const walkInBooking = createAsyncThunk(
-  "room_action/walkInBooking",
+export const makeReservation = createAsyncThunk(
+  "room_action/makeReservation",
   async ({ business_id, data }, { rejectWithValue }) => {
     try {
-      const response = await api.post(
-        `/api/v1/admin/walk-in-booking-v2/`,
-        data,
-        {
-          baseURL: BOOKING_URL,
-          headers: {
-            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
-            "X-Booking-Business-ID": business_id,
-            "Content-Type": "multipart/form-data",
-          },
+      const response = await api.post(`/api/v1/admin/reservations/`, data, {
+        baseURL: BOOKING_URL,
+        headers: {
+          "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+          "X-Booking-Business-ID": business_id,
+          "Content-Type": "multipart/form-data",
         },
-      );
+      });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || "failed");

@@ -21,7 +21,7 @@ import { getDotColor, nrcCodes, nrcTownships, nrcTypes } from "../utils/utils";
 import _ from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { walkInBooking } from "../service/actionSlice";
+import { makeReservation } from "../service/actionSlice";
 import { selectBusinessId } from "../service/businessSlice";
 import PageLoading from "../components/PageLoading";
 import { getOneRoom, roomBoardSelector } from "../service/roomBoardSlice";
@@ -395,7 +395,7 @@ const Reserved = () => {
       }
     });
 
-    const actionToDispatch = walkInBooking({
+    const actionToDispatch = makeReservation({
       business_id: businessId,
       data: formData,
     });
