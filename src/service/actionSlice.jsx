@@ -157,6 +157,28 @@ export const checkOutRoom = createAsyncThunk(
   },
 );
 
+export const cancelRoom = createAsyncThunk(
+  "room_action/cancelRoom",
+  async ({ booking_id, business_id }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(
+        `/api/v1/admin/bookings/${booking_id}/cancel/`,
+        {},
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
 const actionSlice = createSlice({
   name: "data",
   initialState: {

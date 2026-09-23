@@ -27,7 +27,6 @@ import _ from "lodash";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  finalVerifiedCheckIn,
   updateCheckInInfo,
   makeReservation,
 } from "../../service/actionSlice.jsx";
@@ -36,20 +35,15 @@ import AvailableRoomsModal from "../modal/AvailableRoomsModal.jsx";
 import { getAvailableRoom, roomSelector } from "../../service/roomSlice.jsx";
 import { CheckmarkCircle01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { getOneRoom } from "../../service/roomBoardSlice.jsx";
+import moment from "moment";
 
 const { Option } = Select;
 const { TextArea } = Input;
 
-// NRC parsing helper
+// Helper: NRC string parsing
 const parseNrcString = (nrcStr) => {
-  if (!nrcStr)
-    return {
-      nrcCode: "12",
-      nrcTownship: "MaYaKa",
-      nrcType: "Naing",
-      nrcNumber: "",
-    };
-  const match = nrcStr.match(/^(\d+)\/([^\(]+)\((.+)\)\/(.*)$/);
+  const match = nrcStr?.match(/^(\d+)\/([^\(]+)\((.+)\)\/(.*)$/);
   if (match) {
     return {
       nrcCode: match[1],
@@ -68,7 +62,7 @@ const parseNrcString = (nrcStr) => {
 
 const normFile = (e) => (Array.isArray(e) ? e : e?.fileList);
 
-const CheckInForm = ({ data, onNext }) => {
+const CheckInForm = ({ data, onNext, initialValues }) => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -85,58 +79,63 @@ const CheckInForm = ({ data, onNext }) => {
 
   const formValues = Form.useWatch([], form);
 
-  const disabledCheckInDate = (current) => {
-    return current && current < dayjs().startOf("day");
-  };
+  const disabledCheckInDate = (current) =>
+    current && current < dayjs().startOf("day");
 
   const disabledCheckOutDate = (current) => {
     const checkInDate = form.getFieldValue("check_in");
-    if (!checkInDate) {
-      return current && current < dayjs().startOf("day");
-    }
-    return current && current <= dayjs(checkInDate).startOf("day");
+    return current && current <= dayjs(checkInDate || dayjs()).startOf("day");
   };
 
   const handleCheckInChange = (date) => {
     const checkOutDate = form.getFieldValue("check_out");
-    if (
-      date &&
-      checkOutDate &&
-      (dayjs(date).isAfter(checkOutDate) ||
-        dayjs(date).isSame(checkOutDate, "day"))
-    ) {
-      form.setFieldsValue({
-        check_out: dayjs(date).add(1, "day"),
-      });
+    if (date && checkOutDate && !dayjs(date).isBefore(checkOutDate, "day")) {
+      form.setFieldsValue({ check_out: dayjs(date).add(1, "day") });
     }
   };
 
+  // Sync initial state for rooms
   useEffect(() => {
-    if (data) {
-      setSelectedRooms([
-        {
-          id: data.id,
-          room_number: data.room_number,
-          floor: data.floor,
-          building: data.building,
-          room_type: data.room_type,
-          room_standard: data.room_standard,
-          core_snapshot: data.core_snapshot,
-          breakfast_price:
-            data?.current_booking?.guest_market == "local"
-              ? data.room_type?.breakfast?.price?.local_base_price
-              : data?.room_type?.breakfast_price?.foreign_base_price,
-          has_breakfast: false,
-          extra_bed: 0,
-          is_primary: true,
-          ...data,
-        },
-      ]);
-    }
-  }, [data]);
+    const hasInitial = initialValues && Object.keys(initialValues).length > 0;
+    const booking = hasInitial ? initialValues : {};
 
+    if (hasInitial && booking?.rooms?.length > 0) {
+      const guestMarket = booking?.guest_market || "local";
+      const mappedRooms = booking.rooms.map((rmItem, idx) => {
+        const assignedPhysical = rmItem?.assigned_physical_rooms?.[0];
+        const roomTypeSnapshot = rmItem?.room_type_snapshot;
+
+        return {
+          ...rmItem,
+          id: assignedPhysical?.id,
+          physical_room_id: assignedPhysical?.id,
+          room_number: assignedPhysical?.room_number,
+          floor: assignedPhysical?.floor,
+          building: assignedPhysical?.building,
+          room_type: roomTypeSnapshot,
+          room_standard: roomTypeSnapshot?.room_standard,
+          core_snapshot: roomTypeSnapshot,
+          breakfast_price:
+            guestMarket === "local"
+              ? roomTypeSnapshot?.breakfast?.price?.local_base_price || 0
+              : roomTypeSnapshot?.breakfast?.price?.foreign_base_price || 0,
+          has_breakfast:
+            rmItem?.breakfast_selected ?? rmItem?.breakfast?.selected ?? false,
+          extra_bed: rmItem?.extra_beds ?? rmItem?.extra_bed_count ?? 0,
+          is_primary: idx === 0,
+          rate_plan_id: rmItem?.rate_plan_id || rmItem?.rate_plan?.id,
+        };
+      });
+      setSelectedRooms(mappedRooms);
+    }
+  }, [initialValues]);
+
+  // Sync Form Values & Guests List
   useEffect(() => {
-    const booking = data?.current_booking;
+    const booking =
+      initialValues && Object.keys(initialValues).length > 0
+        ? initialValues
+        : {};
 
     if (booking) {
       const bookingGuests =
@@ -156,47 +155,44 @@ const CheckInForm = ({ data, onNext }) => {
             ? "local"
             : "foreigner"
           : defaultMarket;
-
-        const nrcParsed = g?.nrc_number ? parseNrcString(g.nrc_number) : {};
+        const nrcParsed = parseNrcString(g?.nrc_number);
 
         formattedGuestState.push({
           id: g?.id || Date.now() + index,
           guestType,
-          selectedCode: nrcParsed.nrcCode || "12",
-          is_primary: index === 0,
+          selectedCode: nrcParsed.nrcCode,
+          is_primary: g?.is_primary ?? index === 0,
         });
 
         formattedGuestsFormValue.push({
-          name: g?.name || "",
+          name: g?.name || booking?.contact?.name || "",
           phone: g?.phone || booking?.contact?.phone || "",
           email: g?.email || booking?.contact?.email || "",
-          guestType: guestType,
-          nrcCode: nrcParsed.nrcCode || "12",
-          nrcTownship: nrcParsed.nrcTownship || "MaYaKa",
-          nrcType: nrcParsed.nrcType || "Naing",
-          nrcNumber: nrcParsed.nrcNumber || "",
+          guestType,
+          ...nrcParsed,
           passport: g?.passport_number || g?.identity_number || "",
-          identityPhoto: g?.documents
+          identityPhoto: g?.documents?.[0]?.file_url
             ? [
                 {
                   uid: `-guest-${index}`,
                   name: "identity.png",
                   status: "done",
-                  url: g.documents?.[0]?.file_url,
+                  url: g.documents[0].file_url,
                 },
               ]
             : [],
         });
       });
 
+      const primaryRoom = booking?.rooms?.[0];
       setGuests(formattedGuestState);
       form.setFieldsValue({
         check_in: booking?.check_in ? dayjs(booking.check_in) : dayjs(),
         check_out: booking?.check_out
           ? dayjs(booking.check_out)
           : dayjs().add(1, "day"),
-        adults: booking?.guest_count?.adults ?? 2,
-        children: booking?.guest_count?.children ?? 0,
+        adults: booking?.guest_count?.adults ?? primaryRoom?.adults ?? 2,
+        children: booking?.guest_count?.children ?? primaryRoom?.children ?? 0,
         guest_market: defaultMarket,
         specialRequest: booking?.special_request || "",
         paymentMethod: booking?.payments?.[0]?.provider || "cash",
@@ -236,12 +232,10 @@ const CheckInForm = ({ data, onNext }) => {
         ],
       });
     }
-  }, [data, form]);
+  }, [data, initialValues, form]);
 
-  // Fetch Available Rooms when Form criteria changes
   const fetchAvailableRooms = useCallback(() => {
     if (!businessId || !formValues?.check_in || !formValues?.check_out) return;
-
     const currentRatePlan = data?.room_type?.rate_plans?.find(
       (plan) => plan?.id,
     );
@@ -275,40 +269,34 @@ const CheckInForm = ({ data, onNext }) => {
     fetchAvailableRooms();
   }, [fetchAvailableRooms]);
 
-  const handleOpenRoomModal = () => {
-    setTempSelectedRoomIds([]);
-    setIsRoomModalOpen(true);
-  };
-
   const handleConfirmAddRoom = () => {
-    if (!tempSelectedRoomIds || tempSelectedRoomIds.length === 0) {
+    if (!tempSelectedRoomIds?.length) {
       message.warning("Please select at least one room!");
       return;
     }
 
     const newRoomsToAdd = [];
-
     availableRoomsList?.groups?.forEach((group) => {
       const parentRoomType = group?.room_type;
       const rate_plan_id = group?.rate_plan?.id;
 
       group?.rooms?.forEach((room) => {
-        if (tempSelectedRoomIds.includes(room.id)) {
-          const isAlreadyAdded = selectedRooms.some((r) => r.id === room.id);
-          if (!isAlreadyAdded) {
-            newRoomsToAdd.push({
-              ...room,
-              room_type: parentRoomType,
-              rate_plan_id: rate_plan_id,
-              has_breakfast: false,
-              extra_bed: room?.extra_bed,
-              breakfast_price:
-                formValues.guest_market == "local"
-                  ? parentRoomType?.breakfast?.meal_plan?.local_base_price
-                  : parentRoomType?.breakfast?.meal_plan?.foreign_base_price,
-              is_primary: false,
-            });
-          }
+        if (
+          tempSelectedRoomIds.includes(room.id) &&
+          !selectedRooms.some((r) => r.id === room.id)
+        ) {
+          newRoomsToAdd.push({
+            ...room,
+            room_type: parentRoomType,
+            rate_plan_id,
+            has_breakfast: false,
+            extra_bed: room?.extra_bed,
+            breakfast_price:
+              formValues.guest_market === "local"
+                ? parentRoomType?.breakfast?.meal_plan?.local_base_price
+                : parentRoomType?.breakfast?.meal_plan?.foreign_base_price,
+            is_primary: false,
+          });
         }
       });
     });
@@ -318,13 +306,11 @@ const CheckInForm = ({ data, onNext }) => {
     } else {
       message.warning("Selected room(s) are already added!");
     }
-
     setIsRoomModalOpen(false);
   };
 
-  const handleRemoveRoom = (roomId) => {
+  const handleRemoveRoom = (roomId) =>
     setSelectedRooms((prev) => prev.filter((r) => r.id !== roomId));
-  };
 
   const handleRoomBreakfastChange = (roomId, checked) => {
     setSelectedRooms((prev) =>
@@ -338,7 +324,6 @@ const CheckInForm = ({ data, onNext }) => {
     );
   };
 
-  // Guest Handlers
   const handleAddGuest = () => {
     setGuests((prev) => [
       ...prev,
@@ -350,22 +335,13 @@ const CheckInForm = ({ data, onNext }) => {
     ]);
   };
 
-  const handleRemoveGuest = (index) => {
+  const handleRemoveGuest = (index) =>
     setGuests((prev) => prev.filter((_, i) => i !== index));
-  };
 
-  const handleGuestTypeChange = (index, value) => {
+  const updateGuestState = (index, key, value) => {
     setGuests((prev) => {
       const updated = [...prev];
-      updated[index].guestType = value;
-      return updated;
-    });
-  };
-
-  const handleNrcCodeChange = (index, value) => {
-    setGuests((prev) => {
-      const updated = [...prev];
-      updated[index].selectedCode = value;
+      updated[index][key] = value;
       return updated;
     });
   };
@@ -382,12 +358,15 @@ const CheckInForm = ({ data, onNext }) => {
       "check_out",
       values?.check_out ? dayjs(values.check_out).format("YYYY-MM-DD") : "",
     );
-
+    console.log(selectedRooms);
     selectedRooms.forEach((room, index) => {
       const ratePlanId = room?.room_type?.rate_plans?.find(
         (plan) => plan?.guest_market === values?.guest_market,
       )?.id;
-      formData.append(`rooms[${index}][physical_room_id]`, room.id);
+      formData.append(
+        `rooms[${index}][physical_room_id]`,
+        room.assigned_physical_rooms?.[0]?.id,
+      );
       formData.append(
         `rooms[${index}][rate_plan_id]`,
         room?.rate_plan_id || ratePlanId,
@@ -439,47 +418,33 @@ const CheckInForm = ({ data, onNext }) => {
       }
     });
 
-    const actionToDispatch =
-      data?.display_status === "reserved"
-        ? // updateCheckInInfo({
-          //     business_id: businessId,
-          //     booking_id: data?.current_booking?.id,
-          //     data: formData,
-          //   })
-          makeReservation({
-            business_id: businessId,
-            data: formData,
-          })
-        : makeReservation({
-            business_id: businessId,
-            data: formData,
-          });
+    const hasInitialValues =
+      initialValues && Object.keys(initialValues).length > 0;
+    const actionToDispatch = hasInitialValues
+      ? updateCheckInInfo({
+          business_id: businessId,
+          booking_id: initialValues?.id,
+          data: formData,
+        })
+      : makeReservation({ business_id: businessId, data: formData });
 
     dispatch(actionToDispatch)
       .then((res) => {
         if (_.endsWith(res.type, "fulfilled")) {
+          dispatch(
+            getOneRoom({
+              business_id: businessId,
+              date: moment().format("YYYY-MM-DD"),
+              id: data?.id,
+            }),
+          );
           onNext();
-          // dispatch(
-          //   finalVerifiedCheckIn({
-          //     business_id: businessId,
-          //     booking_id: res.payload?.data?.booking?.id,
-          //   }),
-          // ).then((finalRes) => {
-          //   if (_.endsWith(finalRes.type, "fulfilled")) {
-          //     message.success("Success Check In");
-
-          //   }
-          // });
         }
       })
-      .catch(() => {
-        message.error("Something went wrong!");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      .catch(() => message.error("Something went wrong!"))
+      .finally(() => setLoading(false));
   };
-
+  console.log("selected room", selectedRooms);
   return (
     <div className="px-3 pb-10">
       {/* Header Room Title */}
@@ -489,24 +454,21 @@ const CheckInForm = ({ data, onNext }) => {
             #{data?.room_number}
           </h2>
           <span
-            className={`${getDotColor(
-              data?.display_status,
-            )} text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider`}
+            className={`${getDotColor(data?.display_status)} text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider`}
           >
             {data?.display_status}
           </span>
         </div>
         <p className="text-xs font-medium text-neutral-500 mt-1.5">
-          {data?.core_snapshot?.room_type?.name} &nbsp; .&nbsp;
-          {data?.room_standard?.name} &nbsp;
-          {_.map(data?.core_snapshot?.beds, (bed, index) => (
-            <span key={index}>.&nbsp;{bed?.bed_type?.name}&nbsp;</span>
+          {data?.core_snapshot?.room_type?.name} . {data?.room_standard?.name}{" "}
+          {_.map(data?.core_snapshot?.beds, (bed, i) => (
+            <span key={i}>. {bed?.bed_type?.name} </span>
           ))}
-          {_.map(data?.core_snapshot?.room_views, (view, index) => (
-            <span key={index}>.&nbsp;{view?.name}&nbsp;</span>
+          {_.map(data?.core_snapshot?.room_views, (view, i) => (
+            <span key={i}>. {view?.name} </span>
           ))}
           {data?.core_snapshot?.room_area && (
-            <span>.&nbsp; {data?.core_snapshot?.area_unit}</span>
+            <span>. {data?.core_snapshot?.area_unit}</span>
           )}
         </p>
       </div>
@@ -586,7 +548,9 @@ const CheckInForm = ({ data, onNext }) => {
           <div className="pt-2 flex justify-center space-x-6">
             <Form.Item name="guest_market" className="mb-0">
               <Radio.Group
-                onChange={(e) => handleGuestTypeChange(0, e.target.value)}
+                onChange={(e) =>
+                  updateGuestState(0, "guestType", e.target.value)
+                }
                 className="flex space-x-6"
               >
                 <Radio
@@ -606,112 +570,112 @@ const CheckInForm = ({ data, onNext }) => {
           </div>
         </div>
 
-        {/* Total Rooms Display & Added Room Cards */}
+        {/* Selected Rooms Display */}
         {selectedRooms.length > 1 && (
           <div className="font-extrabold text-neutral-800 text-sm px-1">
             Total Room ({selectedRooms.length})
           </div>
         )}
 
-        {selectedRooms.map((rm) => {
-          return (
-            <div
-              key={rm.id}
-              className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-2xs space-y-3 relative"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <h2 className="text-sm font-extrabold text-neutral-900 flex items-center gap-1.5">
-                    {!rm.is_primary && (
-                      <CloseOutlined
-                        onClick={() => handleRemoveRoom(rm.id)}
-                        className="text-red-500 cursor-pointer mr-1"
-                      />
-                    )}
-                    #{rm.room_number} . {rm.floor} Floor, {rm.building}
-                  </h2>
-                  <p className="text-[11px] font-medium text-neutral-500 mt-1">
-                    {rm.core_snapshot?.room_type?.name || rm.room_type?.name} .{" "}
-                    {rm.room_standard?.name} .{" "}
-                    {_.map(
-                      rm.core_snapshot?.beds,
-                      (b) => b?.bed_type?.name,
-                    ).join(" / ")}{" "}
-                    .{" "}
-                    {_.map(rm.core_snapshot?.room_views, (v) => v?.name).join(
-                      " . ",
-                    )}
-                  </p>
-                </div>
-              </div>
-              {rm?.room_type?.breakfast?.included == true ? (
-                <div className="flex items-center justify-between pt-1">
-                  <div className=" font-medium text-primary-500 flex items-center">
-                    <HugeiconsIcon
-                      icon={CheckmarkCircle01Icon}
-                      className=" text-green-700 mr-1"
+        {selectedRooms.map((rm) => (
+          <div
+            key={rm.id}
+            className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-2xs space-y-3 relative"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <h2 className="text-sm font-extrabold text-neutral-900 flex items-center gap-1.5">
+                  {!rm.is_primary && (
+                    <CloseOutlined
+                      onClick={() => handleRemoveRoom(rm.id)}
+                      className="text-red-500 cursor-pointer mr-1"
                     />
-                    Breakfast Included
-                  </div>
-
-                  <span className="text-xs font-medium text-neutral-400">
-                    Included
-                  </span>
-                </div>
-              ) : (
-                <div className="flex items-center justify-between pt-1">
-                  <Checkbox
-                    checked={rm.has_breakfast}
-                    onChange={(e) =>
-                      handleRoomBreakfastChange(rm.id, e.target.checked)
-                    }
-                    className="text-xs font-bold text-neutral-700"
-                  >
-                    Breakfast Price
-                  </Checkbox>
-                  <span className="text-xs font-bold text-neutral-800">
-                    MMK {rm.breakfast_price || 0}
-                  </span>
-                </div>
-              )}
-
-              {/* Extra Bed Select */}
-
-              <div className="flex items-center justify-between pt-1">
-                <span className="text-xs font-medium text-neutral-600">
-                  Extra Bed
-                </span>
-                <Select
-                  onChange={(val) => handleRoomExtraBedChange(rm.id, val)}
-                  className="w-24 h-9 [&_.ant-select-selector]:rounded-xl!"
-                >
-                  {Array.from({ length: rm?.extra_bed_quantity }, (_, i) => {
-                    const count = i + 1;
-                    return (
-                      <Option key={count} value={count}>
-                        {count}
-                      </Option>
-                    );
-                  })}
-                </Select>
+                  )}
+                  #{rm.room_number} . {rm.floor} Floor, {rm.building}
+                </h2>
+                <p className="text-[11px] font-medium text-neutral-500 mt-1">
+                  {rm.core_snapshot?.room_type?.name ||
+                    rm.room_type_name ||
+                    rm.room_type?.name}{" "}
+                  . {rm.room_standard?.name} .{" "}
+                  {_.map(
+                    rm.core_snapshot?.beds || rm.room_type_snapshot?.beds,
+                    (b) => b?.bed_type?.name,
+                  ).join(" / ")}{" "}
+                  .{" "}
+                  {_.map(rm.core_snapshot?.room_views, (v) => v?.name).join(
+                    " . ",
+                  )}
+                </p>
               </div>
             </div>
-          );
-        })}
 
-        {/* Add More Room Button */}
+            {rm?.room_type?.breakfast?.included ? (
+              <div className="flex items-center justify-between pt-1">
+                <div className="font-medium text-primary-500 flex items-center">
+                  <HugeiconsIcon
+                    icon={CheckmarkCircle01Icon}
+                    className="text-green-700 mr-1"
+                  />
+                  Breakfast Included
+                </div>
+                <span className="text-xs font-medium text-neutral-400">
+                  Included
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between pt-1">
+                <Checkbox
+                  checked={rm.has_breakfast}
+                  onChange={(e) =>
+                    handleRoomBreakfastChange(rm.id, e.target.checked)
+                  }
+                  className="text-xs font-bold text-neutral-700"
+                >
+                  Breakfast Price
+                </Checkbox>
+                <span className="text-xs font-bold text-neutral-800">
+                  MMK {rm.breakfast_price || 0}
+                </span>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-xs font-medium text-neutral-600">
+                Extra Bed
+              </span>
+              <Select
+                value={rm.extra_bed || 0}
+                onChange={(val) => handleRoomExtraBedChange(rm.id, val)}
+                className="w-24 h-9 [&_.ant-select-selector]:rounded-xl!"
+              >
+                {Array.from(
+                  { length: (rm?.extra_bed_quantity || 5) + 1 },
+                  (_, i) => (
+                    <Option key={i} value={i}>
+                      {i}
+                    </Option>
+                  ),
+                )}
+              </Select>
+            </div>
+          </div>
+        ))}
+
         <Button
           type="primary"
-          onClick={handleOpenRoomModal}
+          onClick={() => {
+            setTempSelectedRoomIds([]);
+            setIsRoomModalOpen(true);
+          }}
           className="w-full h-11 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs"
         >
           + Add More Room
         </Button>
 
-        {/* Guest Information Section */}
+        {/* Guests Section */}
         {guests.map((guest, index) => {
           const isMainGuest = index === 0;
-
           return (
             <div
               key={guest.id}
@@ -741,7 +705,7 @@ const CheckInForm = ({ data, onNext }) => {
                   >
                     <Radio.Group
                       onChange={(e) =>
-                        handleGuestTypeChange(index, e.target.value)
+                        updateGuestState(index, "guestType", e.target.value)
                       }
                       className="flex space-x-6"
                     >
@@ -806,10 +770,7 @@ const CheckInForm = ({ data, onNext }) => {
                     }
                     name={["guests", index, "email"]}
                     rules={[
-                      {
-                        type: "email",
-                        message: "Please enter valid email",
-                      },
+                      { type: "email", message: "Please enter valid email" },
                     ]}
                     className="mb-2"
                   >
@@ -832,7 +793,9 @@ const CheckInForm = ({ data, onNext }) => {
                       className="mb-0"
                     >
                       <Select
-                        onChange={(val) => handleNrcCodeChange(index, val)}
+                        onChange={(val) =>
+                          updateGuestState(index, "selectedCode", val)
+                        }
                         className="h-9 [&_.ant-select-selector]:rounded-xl! text-xs"
                       >
                         {nrcCodes.map((code) => (
@@ -919,7 +882,6 @@ const CheckInForm = ({ data, onNext }) => {
           );
         })}
 
-        {/* Add Guest Button */}
         <button
           type="button"
           onClick={handleAddGuest}
@@ -929,7 +891,7 @@ const CheckInForm = ({ data, onNext }) => {
           <span>Add Another Guest Information</span>
         </button>
 
-        {/* Special Request */}
+        {/* Special Request & Payment */}
         <div className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-2xs space-y-2">
           <label className="text-xs font-semibold text-neutral-600 block">
             Special Request
@@ -943,12 +905,10 @@ const CheckInForm = ({ data, onNext }) => {
           </Form.Item>
         </div>
 
-        {/* Payment Section */}
         <div className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-2xs space-y-3">
           <div className="text-xs font-bold text-teal-500 tracking-wider uppercase">
             Payment
           </div>
-
           <Form.Item
             label={
               <span className="text-xs font-semibold text-neutral-600">
@@ -984,7 +944,6 @@ const CheckInForm = ({ data, onNext }) => {
           </Form.Item>
         </div>
 
-        {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-3 pt-2">
           <Button
             onClick={() => navigate(-1)}
@@ -992,7 +951,6 @@ const CheckInForm = ({ data, onNext }) => {
           >
             Cancel
           </Button>
-
           <Button
             loading={loading}
             type="primary"
@@ -1003,6 +961,7 @@ const CheckInForm = ({ data, onNext }) => {
           </Button>
         </div>
       </Form>
+
       <AvailableRoomsModal
         isOpen={isRoomModalOpen}
         onClose={() => setIsRoomModalOpen(false)}

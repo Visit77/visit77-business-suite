@@ -20,7 +20,7 @@ const InvoiceStep = ({ data, formData, summaryData, onBack }) => {
   );
 
   const handleFinalSubmit = () => {
-    setLoading(true);
+    // setLoading(true);
     const payloadData = new FormData();
 
     payloadData.append(
@@ -42,24 +42,24 @@ const InvoiceStep = ({ data, formData, summaryData, onBack }) => {
     payloadData.append("payment[provider]", paymentProvider);
     payloadData.append("payment[status]", "paid");
 
-    dispatch(makeReservation({ business_id: businessId, data: payloadData }))
-      .then((res) => {
-        if (_.endsWith(res.type, "fulfilled")) {
-          dispatch(
-            finalVerifiedCheckIn({
-              business_id: businessId,
-              booking_id: res.payload?.data?.booking?.id,
-            }),
-          ).then((finalRes) => {
-            if (_.endsWith(finalRes.type, "fulfilled")) {
-              message.success("Success Check In");
-              navigate(-1);
-            }
-          });
-        }
-      })
-      .catch(() => message.error("Something went wrong!"))
-      .finally(() => setLoading(false));
+    // dispatch(makeReservation({ business_id: businessId, data: payloadData }))
+    //   .then((res) => {
+    //     if (_.endsWith(res.type, "fulfilled")) {
+    //       dispatch(
+    //         finalVerifiedCheckIn({
+    //           business_id: businessId,
+    //           booking_id: res.payload?.data?.booking?.id,
+    //         }),
+    //       ).then((finalRes) => {
+    //         if (_.endsWith(finalRes.type, "fulfilled")) {
+    //           message.success("Success Check In");
+    //           navigate(-1);
+    //         }
+    //       });
+    //     }
+    //   })
+    //   .catch(() => message.error("Something went wrong!"))
+    //   .finally(() => setLoading(false));
   };
 
   return (

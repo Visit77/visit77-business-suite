@@ -23,6 +23,7 @@ import mealPlanReducer from "../service/mealPlanSlice.jsx";
 import physicalRoomReducer from "../service/physicalRoomSlice.jsx";
 import otaRevenueReducer from "../service/otaRevenueSlice.jsx";
 import otaManagementReducer from "../service/otaManagementSlice.jsx";
+import bookingReducer from "../service/bookingSlice.jsx";
 
 const appReducer = combineReducers({
   auth: authReducer,
@@ -49,6 +50,7 @@ const appReducer = combineReducers({
   physicalRoom: physicalRoomReducer,
   otaRevenue: otaRevenueReducer,
   otaManagement: otaManagementReducer,
+  booking: bookingReducer,
 });
 
 const rootReducer = (state, action) => {

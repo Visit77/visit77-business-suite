@@ -1,16 +1,34 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Radio, Checkbox, Button } from "antd";
+import { bookingSelector, getBookingDetails } from "../../service/bookingSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { selectBusinessId } from "../../service/businessSlice";
+import PageLoading from "../PageLoading";
 
-const BookingSummary = ({ data, formData, onNext, onBack }) => {
+const BookingSummary = ({ data, onNext, onBack, currentStep }) => {
   const [smokingPref, setSmokingPref] = useState("non-smoking");
   const [bedPref, setBedPref] = useState("large");
   const [selectedMealPlans, setSelectedMealPlans] = useState([]);
+  const businessId = useSelector(selectBusinessId);
+  const dispatch = useDispatch();
+  const { details: booking, isPending } = useSelector(bookingSelector);
+  const guestInfo = booking?.guests?.[0];
 
-  // Room Total calculation (နမူနာ)
   const roomTotal = 288000;
   const breakfastTotal = 0;
   const mealPlanTotal = selectedMealPlans.includes("default") ? 200000 : 0;
   const grandTotal = roomTotal + breakfastTotal + mealPlanTotal;
+
+  useEffect(() => {
+    if (currentStep == 2) {
+      dispatch(
+        getBookingDetails({
+          business_id: businessId,
+          booking_id: data?.current_booking?.id,
+        }),
+      );
+    }
+  }, [currentStep]);
 
   const handleContinue = () => {
     onNext({
@@ -24,9 +42,12 @@ const BookingSummary = ({ data, formData, onNext, onBack }) => {
     });
   };
 
+  if (isPending) {
+    return <PageLoading message="Loading room data..." />;
+  }
   return (
     <div className="px-4 pb-10 space-y-4">
-      <h2 className="text-base font-bold text-neutral-800 my-2">
+      <h2 className="text-base! font-medium! text-neutral-800 my-2">
         Booking Summary
       </h2>
 
@@ -72,20 +93,16 @@ const BookingSummary = ({ data, formData, onNext, onBack }) => {
         <h3 className="text-xs font-bold text-neutral-700 mb-2">Guest Info</h3>
         <div className="flex justify-between text-xs">
           <span className="text-neutral-500">Name</span>
-          <span className="font-semibold">
-            {formData?.guests?.[0]?.name || "N/A"}
-          </span>
+          <span className="font-semibold">{guestInfo?.name || "N/A"}</span>
         </div>
         <div className="flex justify-between text-xs">
           <span className="text-neutral-500">Phone</span>
-          <span className="font-semibold">
-            {formData?.guests?.[0]?.phone || "N/A"}
-          </span>
+          <span className="font-semibold">{guestInfo?.phone || "N/A"}</span>
         </div>
         <div className="flex justify-between text-xs border-t border-neutral-100 pt-2">
           <span className="text-neutral-500">Market</span>
           <span className="font-semibold uppercase">
-            {formData?.guest_market || "LOCAL"}
+            {booking?.guest_market || "LOCAL"}
           </span>
         </div>
       </div>
@@ -93,23 +110,37 @@ const BookingSummary = ({ data, formData, onNext, onBack }) => {
       {/* Room Info */}
       <div className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-2xs space-y-2">
         <h3 className="text-xs font-bold text-neutral-700 mb-2">Room Info</h3>
-        <div className="flex justify-between text-xs">
-          <span className="text-neutral-500">Room Type</span>
-          <span className="font-semibold">
-            {data?.core_snapshot?.room_type?.name || "yyy"}
-          </span>
-        </div>
-        <div className="flex justify-between text-xs">
-          <span className="text-neutral-500">Check-in</span>
-          <span className="font-semibold">
-            {formData?.check_in?.format("YYYY-MM-DD")}
-          </span>
-        </div>
-        <div className="flex justify-between text-xs">
-          <span className="text-neutral-500">Check-out</span>
-          <span className="font-semibold">
-            {formData?.check_out?.format("YYYY-MM-DD")}
-          </span>
+
+        <div>
+          <div className="flex justify-between text-xs">
+            <span className="text-neutral-500">Room Type</span>
+            <span className="font-semibold">
+              {data?.room_type?.room_type_name}
+            </span>
+          </div>
+          <div className="flex justify-between text-xs">
+            <span className="text-neutral-500">Check-in</span>
+            <span className="font-semibold">
+              {data?.current_booking?.check_in}
+            </span>
+          </div>
+          <div className="flex justify-between text-xs">
+            <span className="text-neutral-500">Check-out</span>
+            <span className="font-semibold">
+              {data?.current_booking?.check_out}
+            </span>
+          </div>
+
+          <div className="flex justify-between text-xs">
+            <span className="text-neutral-500">Stay</span>
+            <span className="font-semibold">{booking?.nights}</span>
+          </div>
+          <div className="flex justify-between text-xs">
+            <span className="text-neutral-500">Room Count</span>
+            <span className="font-semibold">
+              {data?.current_booking?.check_out}
+            </span>
+          </div>
         </div>
       </div>
 

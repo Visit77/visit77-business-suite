@@ -25,7 +25,11 @@ import {
 } from "@hugeicons/core-free-icons";
 import OutOfServiceModal from "../components/modal/OutOfServiceModal";
 import RoomBlockModal from "../components/modal/RoomBlockModal";
-import { finalVerifiedCheckIn, roomUnblock } from "../service/actionSlice";
+import {
+  cancelRoom,
+  finalVerifiedCheckIn,
+  roomUnblock,
+} from "../service/actionSlice";
 import CheckOutModal from "../components/modal/CheckOutModal";
 import CleanRoomModal from "../components/modal/CleanRoomModal";
 import FinishRepairModal from "../components/modal/FinishRepairModal";
@@ -376,6 +380,34 @@ const RoomDetailsPage = () => {
                           {reserve?.formatted_grand_total}
                         </div>
                       </div>
+                      <div className=" w-full flex justify-end">
+                        <button
+                          onClick={() => {
+                            dispatch(
+                              cancelRoom({
+                                business_id: businessId,
+                                booking_id: reserve?.booking_id,
+                              }),
+                            ).then((res) => {
+                              if (_.endsWith(res.type, "fulfilled")) {
+                                message.success(
+                                  "Reservation cancel is successful.",
+                                );
+                                dispatch(
+                                  getOneRoom({
+                                    business_id: businessId,
+                                    date: moment().format("YYYY-MM-DD"),
+                                    id: id,
+                                  }),
+                                );
+                              }
+                            });
+                          }}
+                          className="  bg-red-700 text-white p-2 rounded-lg font-medium"
+                        >
+                          Cancel Booking
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
@@ -414,7 +446,11 @@ const RoomDetailsPage = () => {
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         onClick={() => {
-                          navigate(`/room/${id}/check-in/`);
+                          navigate(`/room/${id}/check-in/`, {
+                            state: {
+                              booking_id: roomData?.current_booking?.id,
+                            },
+                          });
                         }}
                         className="flex flex-col items-center justify-center p-3 rounded-xl hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-info-600 cursor-pointer"
                       >
