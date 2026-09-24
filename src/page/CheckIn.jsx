@@ -66,7 +66,7 @@ const CheckIn = () => {
     <div className="max-w-2xl mx-auto bg-white min-h-screen">
       {currentStep === 1 && (
         <CheckInForm
-          // data={roomData}
+          data={roomData}
           onNext={handleStep1Next}
           initialValues={booking}
         />
@@ -74,7 +74,7 @@ const CheckIn = () => {
 
       {currentStep === 2 && (
         <BookingSummary
-          data={roomData}
+          booking_id={booking?.id}
           onNext={handleStep2Next}
           onBack={handleBack}
           currentStep={currentStep}

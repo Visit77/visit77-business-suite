@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectBusinessId } from "../../service/businessSlice";
 import PageLoading from "../PageLoading";
 
-const BookingSummary = ({ data, onNext, onBack, currentStep }) => {
+const BookingSummary = ({ booking_id, onNext, onBack }) => {
   const [smokingPref, setSmokingPref] = useState("non-smoking");
   const [bedPref, setBedPref] = useState("large");
   const [selectedMealPlans, setSelectedMealPlans] = useState([]);
@@ -20,15 +20,15 @@ const BookingSummary = ({ data, onNext, onBack, currentStep }) => {
   const grandTotal = roomTotal + breakfastTotal + mealPlanTotal;
 
   useEffect(() => {
-    if (currentStep == 2) {
+    if (businessId && booking_id && (!booking || booking.id !== booking_id)) {
       dispatch(
         getBookingDetails({
           business_id: businessId,
-          booking_id: data?.current_booking?.id,
+          booking_id: booking_id,
         }),
       );
     }
-  }, [currentStep]);
+  }, [businessId, booking_id, dispatch]);
 
   const handleContinue = () => {
     onNext({
@@ -53,20 +53,20 @@ const BookingSummary = ({ data, onNext, onBack, currentStep }) => {
 
       {/* Preference Section */}
       <div className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-2xs space-y-3">
-        <h3 className="text-xs font-bold text-neutral-700">Preference</h3>
+        <h3 className="text-xs font-medium text-neutral-700 ">Preference</h3>
         <div>
-          <p className="text-[11px] text-neutral-500 mb-1">
+          <p className="text-[11px] text-neutral-500 mb-1 font-medium">
             Smoking Preference
           </p>
           <Radio.Group
             onChange={(e) => setSmokingPref(e.target.value)}
             value={smokingPref}
-            className="flex flex-col space-y-2"
+            className="flex flex-col space-y-2 "
           >
-            <Radio value="non-smoking" className="text-xs">
+            <Radio value="non-smoking" className="text-xs font-light!">
               Non-smoking Room
             </Radio>
-            <Radio value="smoking" className="text-xs">
+            <Radio value="smoking" className="text-xs font-light!">
               Smoking Room
             </Radio>
           </Radio.Group>
@@ -78,10 +78,10 @@ const BookingSummary = ({ data, onNext, onBack, currentStep }) => {
             value={bedPref}
             className="flex flex-col space-y-2"
           >
-            <Radio value="large" className="text-xs">
+            <Radio value="large" className="text-xs font-light!">
               Large Bed
             </Radio>
-            <Radio value="twin" className="text-xs">
+            <Radio value="twin" className="text-xs font-light!">
               Twin Bed
             </Radio>
           </Radio.Group>
@@ -90,17 +90,19 @@ const BookingSummary = ({ data, onNext, onBack, currentStep }) => {
 
       {/* Guest Info */}
       <div className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-2xs space-y-2">
-        <h3 className="text-xs font-bold text-neutral-700 mb-2">Guest Info</h3>
+        <h3 className="text-xs font-bold text-neutral-700 mb-2 font-medium!">
+          Guest Info
+        </h3>
         <div className="flex justify-between text-xs">
-          <span className="text-neutral-500">Name</span>
+          <span className="text-neutral-500 font-light!">Name</span>
           <span className="font-semibold">{guestInfo?.name || "N/A"}</span>
         </div>
         <div className="flex justify-between text-xs">
-          <span className="text-neutral-500">Phone</span>
+          <span className="text-neutral-500 font-light">Phone</span>
           <span className="font-semibold">{guestInfo?.phone || "N/A"}</span>
         </div>
         <div className="flex justify-between text-xs border-t border-neutral-100 pt-2">
-          <span className="text-neutral-500">Market</span>
+          <span className="text-neutral-500 font-light">Market</span>
           <span className="font-semibold uppercase">
             {booking?.guest_market || "LOCAL"}
           </span>
@@ -109,63 +111,61 @@ const BookingSummary = ({ data, onNext, onBack, currentStep }) => {
 
       {/* Room Info */}
       <div className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-2xs space-y-2">
-        <h3 className="text-xs font-bold text-neutral-700 mb-2">Room Info</h3>
+        <h3 className="text-xs font-bold text-neutral-700 mb-2 font-medium!">
+          Room Info
+        </h3>
 
         <div>
-          <div className="flex justify-between text-xs">
-            <span className="text-neutral-500">Room Type</span>
+          <div className="flex justify-between text-xs mt-2">
+            <span className="text-neutral-500 font-light">Room Type</span>
             <span className="font-semibold">
-              {data?.room_type?.room_type_name}
+              {booking?.rooms
+                ?.map((item) => `${item?.room_type_name}`)
+                .join(" . ")}
             </span>
           </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-neutral-500">Check-in</span>
-            <span className="font-semibold">
-              {data?.current_booking?.check_in}
-            </span>
+          <div className="flex justify-between text-xs mt-2">
+            <span className="text-neutral-500 font-light">Check-in</span>
+            <span className="font-semibold">{booking?.check_in}</span>
           </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-neutral-500">Check-out</span>
-            <span className="font-semibold">
-              {data?.current_booking?.check_out}
-            </span>
+          <div className="flex justify-between text-xs mt-2">
+            <span className="text-neutral-500 font-light">Check-out</span>
+            <span className="font-semibold">{booking?.check_out}</span>
           </div>
 
-          <div className="flex justify-between text-xs">
-            <span className="text-neutral-500">Stay</span>
+          <div className="flex justify-between text-xs mt-2">
+            <span className="text-neutral-500 font-light">Stay</span>
             <span className="font-semibold">{booking?.nights}</span>
           </div>
-          <div className="flex justify-between text-xs">
-            <span className="text-neutral-500">Room Count</span>
-            <span className="font-semibold">
-              {data?.current_booking?.check_out}
-            </span>
+          <div className="flex justify-between text-xs mt-2">
+            <span className="text-neutral-500 font-light">Room Count</span>
+            <span className="font-semibold">{booking?.rooms?.length}</span>
           </div>
         </div>
       </div>
 
       {/* Total Charges */}
       <div className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-2xs space-y-2">
-        <h3 className="text-xs font-bold text-neutral-700 mb-2">
+        <h3 className="text-xs font-bold text-neutral-700 mb-2 font-medium!">
           Total Charges
         </h3>
         <div className="flex justify-between text-xs">
-          <span className="text-neutral-500">Room Total</span>
+          <span className="text-neutral-500 font-light">Room Total</span>
           <span>MMK {roomTotal.toLocaleString()}</span>
         </div>
         <div className="flex justify-between text-xs">
-          <span className="text-neutral-500">Breakfast Total</span>
+          <span className="text-neutral-500 font-light">Breakfast Total</span>
           <span>MMK {breakfastTotal.toLocaleString()}</span>
         </div>
         <div className="flex justify-between text-xs font-bold text-indigo-600 border-t border-neutral-100 pt-2">
-          <span>Total Amount</span>
+          <span className=" font-medium">Total Amount</span>
           <span>MMK {grandTotal.toLocaleString()}</span>
         </div>
       </div>
 
       {/* Meal Plans */}
       <div className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-2xs space-y-2">
-        <h3 className="text-xs font-bold text-neutral-700">Meal Plans</h3>
+        <h3 className="text-xs font-medium! text-neutral-700">Meal Plans</h3>
         <div className="border border-neutral-200 rounded-xl p-3 flex justify-between items-start">
           <Checkbox
             onChange={(e) => {
@@ -178,13 +178,15 @@ const BookingSummary = ({ data, onNext, onBack, currentStep }) => {
             }}
           >
             <div>
-              <p className="text-xs font-bold">default</p>
-              <p className="text-[10px] text-neutral-400">
+              <p className="text-xs font-medium">default</p>
+              <p className="text-[10px] text-neutral-400  font-medium">
                 - Service Duration - 06:30 to 10:00
               </p>
             </div>
           </Checkbox>
-          <span className="text-xs font-bold text-indigo-600">MMK 200,000</span>
+          <span className="text-xs font-medium text-indigo-600">
+            MMK 200,000
+          </span>
         </div>
       </div>
 

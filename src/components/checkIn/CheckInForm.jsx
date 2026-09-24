@@ -94,6 +94,30 @@ const CheckInForm = ({ data, onNext, initialValues }) => {
     }
   };
 
+  useEffect(() => {
+    if (data) {
+      setSelectedRooms([
+        {
+          id: data.id,
+          room_number: data.room_number,
+          floor: data.floor,
+          building: data.building,
+          room_type: data.room_type,
+          room_standard: data.room_standard,
+          core_snapshot: data.core_snapshot,
+          breakfast_price:
+            data?.current_booking?.guest_market == "local"
+              ? data.room_type?.breakfast?.price?.local_base_price
+              : data?.room_type?.breakfast_price?.foreign_base_price,
+          has_breakfast: false,
+          extra_bed: 0,
+          is_primary: true,
+          ...data,
+        },
+      ]);
+    }
+  }, [data]);
+
   // Sync initial state for rooms
   useEffect(() => {
     const hasInitial = initialValues && Object.keys(initialValues).length > 0;
@@ -350,6 +374,8 @@ const CheckInForm = ({ data, onNext, initialValues }) => {
     setLoading(true);
     const formData = new FormData();
 
+    formData.append("adults", values?.adults);
+    formData.append("children", values?.children);
     formData.append(
       "check_in",
       values?.check_in ? dayjs(values.check_in).format("YYYY-MM-DD") : "",
@@ -358,21 +384,19 @@ const CheckInForm = ({ data, onNext, initialValues }) => {
       "check_out",
       values?.check_out ? dayjs(values.check_out).format("YYYY-MM-DD") : "",
     );
-    console.log(selectedRooms);
     selectedRooms.forEach((room, index) => {
       const ratePlanId = room?.room_type?.rate_plans?.find(
         (plan) => plan?.guest_market === values?.guest_market,
       )?.id;
       formData.append(
         `rooms[${index}][physical_room_id]`,
-        room.assigned_physical_rooms?.[0]?.id,
+        room.assigned_physical_rooms?.[0]?.id || room?.id,
       );
       formData.append(
         `rooms[${index}][rate_plan_id]`,
         room?.rate_plan_id || ratePlanId,
       );
-      formData.append(`rooms[${index}][adults]`, values?.adults ?? 2);
-      formData.append(`rooms[${index}][children]`, values?.children ?? 0);
+
       formData.append(`rooms[${index}][extra_beds]`, room?.extra_bed || 0);
       formData.append(
         `rooms[${index}][breakfast_selected]`,
@@ -431,20 +455,13 @@ const CheckInForm = ({ data, onNext, initialValues }) => {
     dispatch(actionToDispatch)
       .then((res) => {
         if (_.endsWith(res.type, "fulfilled")) {
-          dispatch(
-            getOneRoom({
-              business_id: businessId,
-              date: moment().format("YYYY-MM-DD"),
-              id: data?.id,
-            }),
-          );
           onNext();
         }
       })
       .catch(() => message.error("Something went wrong!"))
       .finally(() => setLoading(false));
   };
-  console.log("selected room", selectedRooms);
+
   return (
     <div className="px-3 pb-10">
       {/* Header Room Title */}
