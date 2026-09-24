@@ -31,17 +31,15 @@ const CheckIn = () => {
   useEffect(() => {
     if (!businessId) return;
 
-    if (booking_id) {
-      dispatch(getBookingDetails({ business_id: businessId, booking_id }));
-    } else if (id) {
-      dispatch(
-        getOneRoom({
-          business_id: businessId,
-          date: moment().format("YYYY-MM-DD"),
-          id: id,
-        }),
-      );
-    }
+    dispatch(getBookingDetails({ business_id: businessId, booking_id }));
+
+    dispatch(
+      getOneRoom({
+        business_id: businessId,
+        date: moment().format("YYYY-MM-DD"),
+        id: id,
+      }),
+    );
   }, [id, businessId, booking_id, dispatch]);
 
   if (isPending || isBookingPending) {
@@ -77,7 +75,7 @@ const CheckIn = () => {
           booking_id={booking?.id}
           onNext={handleStep2Next}
           onBack={handleBack}
-          currentStep={currentStep}
+          guest_market={booking?.guest_market}
         />
       )}
 

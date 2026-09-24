@@ -5,6 +5,7 @@ const initialState = {
   isPending: false,
   hasError: false,
   data: [],
+  packageMeal: [],
   count: 0,
 };
 
@@ -14,6 +15,20 @@ export const getMealPlan = createAsyncThunk(
     try {
       const { data, headers } = await api.get("/meal_plans/", {
         params: { ...params },
+      });
+      return { data, headers };
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
+export const getMealPlanForPackage = createAsyncThunk(
+  "mealPlan/getMealPlanForPackage",
+  async (params, { rejectWithValue }) => {
+    try {
+      const { data, headers } = await api.get("/meal_plans/", {
+        params: { ...params, plan_type: "package" },
       });
       return { data, headers };
     } catch (error) {
@@ -38,6 +53,19 @@ const mealPlanSlice = createSlice({
         state.count = payload.count || state.count;
       })
       .addCase(getMealPlan.rejected, (state) => {
+        state.isPending = false;
+        state.hasError = true;
+      })
+      .addCase(getMealPlanForPackage.pending, (state) => {
+        state.isPending = true;
+        state.hasError = false;
+      })
+      .addCase(getMealPlanForPackage.fulfilled, (state, { payload }) => {
+        state.isPending = false;
+        state.packageMeal = payload.data?.data;
+        state.count = payload.count || state.count;
+      })
+      .addCase(getMealPlanForPackage.rejected, (state) => {
         state.isPending = false;
         state.hasError = true;
       });

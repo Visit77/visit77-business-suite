@@ -94,29 +94,9 @@ const CheckInForm = ({ data, onNext, initialValues }) => {
     }
   };
 
-  useEffect(() => {
-    if (data) {
-      setSelectedRooms([
-        {
-          id: data.id,
-          room_number: data.room_number,
-          floor: data.floor,
-          building: data.building,
-          room_type: data.room_type,
-          room_standard: data.room_standard,
-          core_snapshot: data.core_snapshot,
-          breakfast_price:
-            data?.current_booking?.guest_market == "local"
-              ? data.room_type?.breakfast?.price?.local_base_price
-              : data?.room_type?.breakfast_price?.foreign_base_price,
-          has_breakfast: false,
-          extra_bed: 0,
-          is_primary: true,
-          ...data,
-        },
-      ]);
-    }
-  }, [data]);
+  // useEffect(() => {
+
+  // }, [data]);
 
   // Sync initial state for rooms
   useEffect(() => {
@@ -151,6 +131,26 @@ const CheckInForm = ({ data, onNext, initialValues }) => {
         };
       });
       setSelectedRooms(mappedRooms);
+    } else {
+      setSelectedRooms([
+        {
+          id: data.id,
+          room_number: data.room_number,
+          floor: data.floor,
+          building: data.building,
+          room_type: data.room_type,
+          room_standard: data.room_standard,
+          core_snapshot: data.core_snapshot,
+          breakfast_price:
+            data?.current_booking?.guest_market == "local"
+              ? data.room_type?.breakfast?.price?.local_base_price
+              : data?.room_type?.breakfast_price?.foreign_base_price,
+          has_breakfast: false,
+          extra_bed: 0,
+          is_primary: true,
+          ...data,
+        },
+      ]);
     }
   }, [initialValues]);
 
@@ -215,8 +215,14 @@ const CheckInForm = ({ data, onNext, initialValues }) => {
         check_out: booking?.check_out
           ? dayjs(booking.check_out)
           : dayjs().add(1, "day"),
-        adults: booking?.guest_count?.adults ?? primaryRoom?.adults ?? 2,
-        children: booking?.guest_count?.children ?? primaryRoom?.children ?? 0,
+        adults:
+          data?.current_booking?.guest_count?.adults ??
+          data?.current_booking?.guest_count?.adults ??
+          2,
+        children:
+          data?.current_booking?.guest_count?.children ??
+          data?.current_booking?.guest_count?.children ??
+          0,
         guest_market: defaultMarket,
         specialRequest: booking?.special_request || "",
         paymentMethod: booking?.payments?.[0]?.provider || "cash",

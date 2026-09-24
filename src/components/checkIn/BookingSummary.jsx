@@ -4,14 +4,26 @@ import { bookingSelector, getBookingDetails } from "../../service/bookingSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { selectBusinessId } from "../../service/businessSlice";
 import PageLoading from "../PageLoading";
+import {
+  getMealPlan,
+  getMealPlanForPackage,
+  mealPlanSelector,
+} from "../../service/mealPlanSlice";
 
-const BookingSummary = ({ booking_id, onNext, onBack }) => {
+const BookingSummary = ({ booking_id, onNext, onBack, guest_market }) => {
   const [smokingPref, setSmokingPref] = useState("non-smoking");
   const [bedPref, setBedPref] = useState("large");
+
   const [selectedMealPlans, setSelectedMealPlans] = useState([]);
   const businessId = useSelector(selectBusinessId);
   const dispatch = useDispatch();
   const { details: booking, isPending } = useSelector(bookingSelector);
+  const {
+    data,
+    isPending: mealPlanPending,
+    packageMeal,
+  } = useSelector(mealPlanSelector);
+
   const guestInfo = booking?.guests?.[0];
 
   const roomTotal = 288000;
@@ -29,6 +41,24 @@ const BookingSummary = ({ booking_id, onNext, onBack }) => {
       );
     }
   }, [businessId, booking_id, dispatch]);
+
+  useEffect(() => {
+    dispatch(
+      getMealPlan({
+        business_id: businessId,
+        guest_market: guest_market,
+        plan_type: "single",
+        core_active: true,
+      }),
+    );
+    dispatch(
+      getMealPlanForPackage({
+        business_id: businessId,
+        guest_market: guest_market,
+        core_active: true,
+      }),
+    );
+  }, [businessId, dispatch]);
 
   const handleContinue = () => {
     onNext({
@@ -166,6 +196,7 @@ const BookingSummary = ({ booking_id, onNext, onBack }) => {
       {/* Meal Plans */}
       <div className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-2xs space-y-2">
         <h3 className="text-xs font-medium! text-neutral-700">Meal Plans</h3>
+        <span className="">Select one or more meal plans</span>
         <div className="border border-neutral-200 rounded-xl p-3 flex justify-between items-start">
           <Checkbox
             onChange={(e) => {
