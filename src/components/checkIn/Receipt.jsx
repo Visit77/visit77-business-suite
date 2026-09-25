@@ -10,7 +10,6 @@ const Receipt = ({ booking }) => {
 
   const handleDownload = () => {
     const pdfUrl = booking?.payments?.[0]?.receipt_pdf_url;
-    console.log("pdf", pdfUrl);
 
     if (pdfUrl) {
       window.open(`${BOOKING_URL}/${pdfUrl}`, "_blank");

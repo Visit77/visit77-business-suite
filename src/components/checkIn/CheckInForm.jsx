@@ -35,8 +35,6 @@ import AvailableRoomsModal from "../modal/AvailableRoomsModal.jsx";
 import { getAvailableRoom, roomSelector } from "../../service/roomSlice.jsx";
 import { CheckmarkCircle01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { getOneRoom } from "../../service/roomBoardSlice.jsx";
-import moment from "moment";
 import { getBookingDetails } from "../../service/bookingSlice.jsx";
 
 const { Option } = Select;
@@ -458,7 +456,6 @@ const CheckInForm = ({ data, onNext, initialValues }) => {
     dispatch(actionToDispatch)
       .then((res) => {
         if (_.endsWith(res.type, "fulfilled")) {
-          console.log("res", res);
           if (!hasInitialValues) {
             dispatch(
               getBookingDetails({

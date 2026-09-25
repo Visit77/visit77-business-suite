@@ -22,8 +22,6 @@ const CheckIn = () => {
     useSelector(bookingSelector);
 
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({});
-  const [summaryData, setSummaryData] = useState({});
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
@@ -31,7 +29,7 @@ const CheckIn = () => {
 
   useEffect(() => {
     if (!businessId) return;
-
+    if (!booking_id) return;
     dispatch(getBookingDetails({ business_id: businessId, booking_id }));
 
     dispatch(
@@ -48,12 +46,10 @@ const CheckIn = () => {
   }
 
   const handleStep1Next = (values) => {
-    setFormData(values);
     setCurrentStep(2);
   };
 
   const handleStep2Next = (data) => {
-    setSummaryData(data);
     setCurrentStep(3);
   };
   const handleStep3Next = (data) => {

@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, isPending } from "@reduxjs/toolkit";
 import api from "../api/axiosInstance";
 import { BOOKING_ADMIN_KEY, BOOKING_URL } from "../variables/constants";
-import { finalVerifiedCheckIn } from "./actionSlice";
+import { finalVerifiedCheckIn, updateCheckInInfo } from "./actionSlice";
 
 export const getBookingDetails = createAsyncThunk(
   "booking/getBookingDetails",
@@ -47,9 +47,11 @@ const bookingSlice = createSlice({
         state.isPending = false;
         state.error = action.payload;
       })
+      .addCase(updateCheckInInfo.fulfilled, (state, action) => {
+        state.details = action.payload.data?.booking;
+      })
 
       .addCase(finalVerifiedCheckIn.fulfilled, (state, action) => {
-        console.log("action", action);
         state.details = action.payload.data;
       });
   },

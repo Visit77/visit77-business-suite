@@ -52,21 +52,6 @@ const BookingSummary = ({ booking, onNext, onBack, guest_market }) => {
   const grandTotal = roomTotal + breakfastTotal + mealPlanTotal;
 
   useEffect(() => {
-    if (
-      businessId &&
-      booking?.id &&
-      (!bookingData || bookingData.id !== booking?.id)
-    ) {
-      dispatch(
-        getBookingDetails({
-          business_id: businessId,
-          booking_id: booking?.id,
-        }),
-      );
-    }
-  }, [businessId, booking?.id, dispatch]);
-
-  useEffect(() => {
     if (businessId) {
       dispatch(
         getMealPlan({
