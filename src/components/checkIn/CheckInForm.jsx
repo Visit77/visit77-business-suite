@@ -37,6 +37,7 @@ import { CheckmarkCircle01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { getOneRoom } from "../../service/roomBoardSlice.jsx";
 import moment from "moment";
+import { getBookingDetails } from "../../service/bookingSlice.jsx";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -415,10 +416,6 @@ const CheckInForm = ({ data, onNext, initialValues }) => {
     formData.append("contact_name", values?.guests?.[0]?.name || "");
     formData.append("contact_phone", values?.guests?.[0]?.phone || "");
 
-    formData.append("payment[provider]", values?.paymentMethod || "cash");
-    formData.append("payment[status]", values?.paymentStatus || "paid");
-    formData.append("payment[payment_type]", "full_payment");
-
     values?.guests?.forEach((guest, index) => {
       const isPrimary = index === 0;
       const isLocal = isPrimary
@@ -461,6 +458,15 @@ const CheckInForm = ({ data, onNext, initialValues }) => {
     dispatch(actionToDispatch)
       .then((res) => {
         if (_.endsWith(res.type, "fulfilled")) {
+          console.log("res", res);
+          if (!hasInitialValues) {
+            dispatch(
+              getBookingDetails({
+                business_id: businessId,
+                booking_id: res?.payload?.data?.booking?.id,
+              }),
+            );
+          }
           onNext();
         }
       })
@@ -928,7 +934,7 @@ const CheckInForm = ({ data, onNext, initialValues }) => {
           </Form.Item>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-2xs space-y-3">
+        {/* <div className="bg-white p-4 rounded-2xl border border-neutral-100 shadow-2xs space-y-3">
           <div className="text-xs font-bold text-teal-500 tracking-wider uppercase">
             Payment
           </div>
@@ -965,7 +971,7 @@ const CheckInForm = ({ data, onNext, initialValues }) => {
               <Option value="paid">Paid</Option>
             </Select>
           </Form.Item>
-        </div>
+        </div> */}
 
         <div className="grid grid-cols-2 gap-3 pt-2">
           <Button

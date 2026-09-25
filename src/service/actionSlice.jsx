@@ -179,6 +179,29 @@ export const cancelRoom = createAsyncThunk(
   },
 );
 
+export const bookingPayment = createAsyncThunk(
+  "room_action/bookingPayment",
+  async ({ booking_id, business_id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(
+        `/api/v1/admin/bookings/${booking_id}/payment/`,
+        { ...data },
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
 const actionSlice = createSlice({
   name: "data",
   initialState: {
@@ -192,14 +215,14 @@ const actionSlice = createSlice({
   extraReducers: (builder) => {
     builder;
 
-    // .addCase(getOneRoom.pending, (state) => {
+    // .addCase(finalVerifiedCheckIn.pending, (state) => {
     //   state.isPending = true;
     // })
-    // .addCase(getOneRoom.fulfilled, (state, action) => {
+    // .addCase(finalVerifiedCheckIn.fulfilled, (state, action) => {
     //   state.isPending = false;
     //   state.details = action.payload.data;
     // })
-    // .addCase(getOneRoom.rejected, (state, action) => {
+    // .addCase(finalVerifiedCheckIn.rejected, (state, action) => {
     //   state.isPending = false;
     //   state.error = action.payload;
     // });

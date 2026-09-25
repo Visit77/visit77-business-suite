@@ -9,6 +9,7 @@ import CheckInForm from "../components/checkIn/CheckInForm";
 import BookingSummary from "../components/checkIn/BookingSummary";
 import InvoiceStep from "../components/checkIn/InvoiceStep";
 import { bookingSelector, getBookingDetails } from "../service/bookingSlice";
+import Receipt from "../components/checkIn/Receipt";
 
 const CheckIn = () => {
   const { id } = useParams();
@@ -55,6 +56,9 @@ const CheckIn = () => {
     setSummaryData(data);
     setCurrentStep(3);
   };
+  const handleStep3Next = (data) => {
+    setCurrentStep(4);
+  };
 
   const handleBack = () => {
     setCurrentStep((prev) => prev - 1);
@@ -72,7 +76,7 @@ const CheckIn = () => {
 
       {currentStep === 2 && (
         <BookingSummary
-          booking_id={booking?.id}
+          booking={booking}
           onNext={handleStep2Next}
           onBack={handleBack}
           guest_market={booking?.guest_market}
@@ -81,12 +85,13 @@ const CheckIn = () => {
 
       {currentStep === 3 && (
         <InvoiceStep
-          data={roomData}
-          formData={formData}
-          summaryData={summaryData}
+          booking={booking}
           onBack={handleBack}
+          onNext={handleStep3Next}
         />
       )}
+
+      {currentStep === 4 && <Receipt booking={booking} />}
     </div>
   );
 };
