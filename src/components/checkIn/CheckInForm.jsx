@@ -76,6 +76,7 @@ const CheckInForm = ({ data, onNext, initialValues }) => {
   const hasHydratedRef = useRef(false);
   const skipPersistRef = useRef(true);
   const appliedBookingRef = useRef(false);
+  const hydratedRoomIdRef = useRef(null);
   const { data: availableRoomsList } = useSelector(roomSelector);
   const [loading, setLoading] = useState(false);
 
@@ -264,11 +265,26 @@ const CheckInForm = ({ data, onNext, initialValues }) => {
   };
 
   useEffect(() => {
+    if (hydratedRoomIdRef.current !== roomId) {
+      hasHydratedRef.current = false;
+      appliedBookingRef.current = false;
+      skipPersistRef.current = true;
+      hydratedRoomIdRef.current = roomId;
+    }
+
     const booking =
       initialValues && Object.keys(initialValues).length > 0
         ? initialValues
         : null;
     const draft = getCheckInSession(roomId);
+
+    const currentRoomId = String(data?.id || roomId);
+    const draftBelongsToThisRoom = (draftRooms) =>
+      (draftRooms || []).some(
+        (room) =>
+          String(room?.id) === currentRoomId ||
+          String(room?.physical_room_id) === currentRoomId,
+      );
 
     const canUseDraft =
       Boolean(draft?.formValues) &&
@@ -277,6 +293,7 @@ const CheckInForm = ({ data, onNext, initialValues }) => {
         : !draft.bookingId);
     const canUseDraftRooms =
       Boolean(draft?.selectedRooms?.length) &&
+      draftBelongsToThisRoom(draft.selectedRooms) &&
       (booking?.id
         ? String(draft.bookingId) === String(booking.id)
         : !draft.bookingId);
@@ -322,6 +339,7 @@ const CheckInForm = ({ data, onNext, initialValues }) => {
       formValues: serializeCheckInFormValues(formValues),
       selectedRooms,
       guests,
+      ...(initialValues?.id ? { bookingId: initialValues.id } : {}),
     });
   }, [formValues, selectedRooms, guests, roomId]);
 

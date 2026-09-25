@@ -8,7 +8,11 @@ import PageLoading from "../components/PageLoading";
 import CheckInForm from "../components/checkIn/CheckInForm";
 import BookingSummary from "../components/checkIn/BookingSummary";
 import InvoiceStep from "../components/checkIn/InvoiceStep";
-import { bookingSelector, getBookingDetails } from "../service/bookingSlice";
+import {
+  bookingSelector,
+  clearBookingDetails,
+  getBookingDetails,
+} from "../service/bookingSlice";
 import Receipt from "../components/checkIn/Receipt";
 import {
   getCheckInSession,
@@ -31,14 +35,18 @@ const CheckIn = () => {
     useSelector(bookingSelector);
 
   const persisted = getCheckInSession(id);
+  const urlBookingId = searchParams.get("booking_id");
+  const roomMatches = String(roomData?.id) === String(id);
   const booking_id =
-    searchParams.get("booking_id") ||
+    urlBookingId ||
     location.state?.booking_id ||
-    persisted?.bookingId ||
-    roomData?.current_booking?.id ||
+    (parseStep(searchParams.get("step")) > 1 ? persisted?.bookingId : null) ||
+    (roomMatches ? roomData?.current_booking?.id : null) ||
     null;
   const currentStep =
     parseStep(searchParams.get("step")) || persisted?.step || 1;
+  const activeBooking =
+    booking_id && String(booking?.id) === String(booking_id) ? booking : {};
 
   const syncCheckInUrl = (step, nextBookingId = booking_id) => {
     setSearchParams(
@@ -64,15 +72,14 @@ const CheckIn = () => {
 
   useEffect(() => {
     const urlStep = searchParams.get("step");
-    const urlBookingId = searchParams.get("booking_id");
+    const currentUrlBookingId = searchParams.get("booking_id");
     if (
       parseStep(urlStep) === currentStep &&
-      String(urlBookingId || "") === String(booking_id || "")
+      String(currentUrlBookingId || "") === String(booking_id || "")
     ) {
       return;
     }
     syncCheckInUrl(currentStep, booking_id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, currentStep, booking_id]);
 
   useEffect(() => {
@@ -87,12 +94,18 @@ const CheckIn = () => {
   }, [id, businessId, dispatch]);
 
   useEffect(() => {
-    if (!businessId || !booking_id) return;
+    if (!booking_id) {
+      dispatch(clearBookingDetails());
+      return;
+    }
+    if (!businessId) return;
+    if (String(booking?.id) === String(booking_id)) return;
     dispatch(getBookingDetails({ business_id: businessId, booking_id }));
   }, [id, businessId, booking_id, dispatch]);
 
   if (
     isPending ||
+    !roomMatches ||
     (booking_id &&
       isBookingPending &&
       String(booking?.id) !== String(booking_id))
@@ -122,28 +135,28 @@ const CheckIn = () => {
         <CheckInForm
           data={roomData}
           onNext={handleStep1Next}
-          initialValues={booking}
+          initialValues={activeBooking}
         />
       )}
 
       {currentStep === 2 && (
         <BookingSummary
-          booking={booking}
+          booking={activeBooking}
           onNext={handleStep2Next}
           onBack={handleBack}
-          guest_market={booking?.guest_market}
+          guest_market={activeBooking?.guest_market}
         />
       )}
 
       {currentStep === 3 && (
         <InvoiceStep
-          booking={booking}
+          booking={activeBooking}
           onBack={handleBack}
           onNext={handleStep3Next}
         />
       )}
 
-      {currentStep === 4 && <Receipt booking={booking} />}
+      {currentStep === 4 && <Receipt booking={activeBooking} />}
     </div>
   );
 };

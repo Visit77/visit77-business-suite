@@ -33,6 +33,7 @@ import {
 import CheckOutModal from "../components/modal/CheckOutModal";
 import CleanRoomModal from "../components/modal/CleanRoomModal";
 import FinishRepairModal from "../components/modal/FinishRepairModal";
+import { clearCheckInSession } from "../utils/checkInPersistence";
 
 const RoomDetailsPage = () => {
   const { id } = useParams();
@@ -446,6 +447,7 @@ const RoomDetailsPage = () => {
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         onClick={() => {
+                          clearCheckInSession(id);
                           navigate(
                             roomData?.current_booking?.id
                               ? `/room/${id}/check-in/?booking_id=${roomData.current_booking.id}&step=1`
