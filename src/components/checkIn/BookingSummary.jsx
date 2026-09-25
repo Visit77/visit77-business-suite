@@ -11,14 +11,29 @@ import {
 } from "../../service/mealPlanSlice";
 import { updateCheckInInfo } from "../../service/actionSlice";
 import _ from "lodash";
+import { useParams } from "react-router-dom";
+import {
+  getCheckInSession,
+  saveCheckInSession,
+} from "../../utils/checkInPersistence";
 
 const BookingSummary = ({ booking, onNext, onBack, guest_market }) => {
-  const [smokingPref, setSmokingPref] = useState("non_smoking");
-  const [bedPref, setBedPref] = useState("large_bed");
+  const { id: roomId } = useParams();
+  const persisted = getCheckInSession(roomId);
+  const [smokingPref, setSmokingPref] = useState(
+    persisted?.summary?.smokingPref || "non_smoking",
+  );
+  const [bedPref, setBedPref] = useState(
+    persisted?.summary?.bedPref || "large_bed",
+  );
 
   // Selection states
-  const [selectedMealPlans, setSelectedMealPlans] = useState([]);
-  const [selectedMealPackage, setSelectedMealPackage] = useState(null);
+  const [selectedMealPlans, setSelectedMealPlans] = useState(
+    persisted?.summary?.selectedMealPlans || [],
+  );
+  const [selectedMealPackage, setSelectedMealPackage] = useState(
+    persisted?.summary?.selectedMealPackage || null,
+  );
 
   const businessId = useSelector(selectBusinessId);
   const dispatch = useDispatch();
@@ -70,6 +85,18 @@ const BookingSummary = ({ booking, onNext, onBack, guest_market }) => {
       );
     }
   }, [businessId, guest_market, dispatch]);
+
+  useEffect(() => {
+    if (!roomId) return;
+    saveCheckInSession(roomId, {
+      summary: {
+        smokingPref,
+        bedPref,
+        selectedMealPlans,
+        selectedMealPackage,
+      },
+    });
+  }, [roomId, smokingPref, bedPref, selectedMealPlans, selectedMealPackage]);
 
   const handleMealPlanChange = (planId, checked) => {
     if (checked) {

@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button, message } from "antd";
 import _ from "lodash";
 import { InvoiceTable } from "./InvoiceTable";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { BOOKING_URL } from "../../variables/constants";
+import { clearCheckInSession } from "../../utils/checkInPersistence";
 
 const Receipt = ({ booking }) => {
   const navigate = useNavigate();
+  const { id: roomId } = useParams();
 
   const handleDownload = () => {
     const pdfUrl = booking?.payments?.[0]?.receipt_pdf_url;
@@ -40,6 +42,8 @@ const Receipt = ({ booking }) => {
           type="primary"
           className="h-11 rounded-xl bg-indigo-600 font-bold text-xs"
           onClick={() => {
+            console.log(roomId);
+            clearCheckInSession(roomId);
             navigate("/rooms-board");
           }}
         >

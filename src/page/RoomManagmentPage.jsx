@@ -92,7 +92,7 @@ const RoomDetailsPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#F5F7FB] p-8">
+    <div className="min-h-screen  p-8">
       <div className="space-y-5">
         {/* 2. Top Banner: Room Info & Pricing */}
         <div className="bg-white rounded-2xl p-6 border border-neutral-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -446,11 +446,11 @@ const RoomDetailsPage = () => {
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         onClick={() => {
-                          navigate(`/room/${id}/check-in/`, {
-                            state: {
-                              booking_id: roomData?.current_booking?.id,
-                            },
-                          });
+                          navigate(
+                            roomData?.current_booking?.id
+                              ? `/room/${id}/check-in/?booking_id=${roomData.current_booking.id}&step=1`
+                              : `/room/${id}/check-in/?step=1`,
+                          );
                         }}
                         className="flex flex-col items-center justify-center p-3 rounded-xl hover:bg-neutral-100 transition-colors text-neutral-700 font-bold text-xs border-2 border-info-600 cursor-pointer"
                       >

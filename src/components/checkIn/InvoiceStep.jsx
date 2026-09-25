@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Select, Button, message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 
 import { selectBusinessId } from "../../service/businessSlice";
 import _ from "lodash";
@@ -9,12 +10,26 @@ import {
   finalVerifiedCheckIn,
 } from "../../service/actionSlice";
 import { InvoiceTable } from "./InvoiceTable";
+import {
+  getCheckInSession,
+  saveCheckInSession,
+} from "../../utils/checkInPersistence";
+
+const { Option } = Select;
 
 const InvoiceStep = ({ booking, onBack, onNext }) => {
   const dispatch = useDispatch();
   const businessId = useSelector(selectBusinessId);
+  const { id: roomId } = useParams();
   const [loading, setLoading] = useState(false);
-  const [paymentProvider, setPaymentProvider] = useState("cash");
+  const [paymentProvider, setPaymentProvider] = useState(
+    getCheckInSession(roomId)?.paymentProvider || "cash",
+  );
+
+  useEffect(() => {
+    if (!roomId) return;
+    saveCheckInSession(roomId, { paymentProvider });
+  }, [roomId, paymentProvider]);
 
   const handleFinalSubmit = () => {
     setLoading(true);
