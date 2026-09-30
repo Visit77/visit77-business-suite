@@ -2,7 +2,6 @@ import React from "react";
 import { Form, Input, Button, TimePicker, message } from "antd";
 
 import dayjs from "dayjs";
-import { ArrowLeft } from "@hugeicons/core-free-icons";
 
 const MealPlanForm = () => {
   const [form] = Form.useForm();

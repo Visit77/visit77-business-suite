@@ -22,7 +22,7 @@ const BuildingAndAreaForm = ({
   const isEditMode = Boolean(initialData);
 
   const [floorType, setFloorType] = useState("single_floor");
-  console.log("inin", initialData);
+
   useEffect(() => {
     if (initialData) {
       setFloorType(initialData.floor_type || "single_floor");
