@@ -38,6 +38,7 @@ const RoomBookingList = lazy(() => import("./page/RoomBookingList"));
 const AddRoomNumber = lazy(() => import("./page/AddRoomNumber"));
 const EditRoomNumber = lazy(() => import("./page/EditRoomNumber"));
 const AddOTARoom = lazy(() => import("./page/AddOTARoom"));
+const CreateMealPlan = lazy(() => import("./page/CreateMealPlan"));
 
 function App() {
   const dispatch = useDispatch();
@@ -117,6 +118,8 @@ function App() {
                   element={<OTAManagement />}
                 />
                 <Route path="/ota-revenue/add-room" element={<AddOTARoom />} />
+
+                <Route path="/meal-plan/create" element={<CreateMealPlan />} />
               </Route>
             </Route>
           </Route>

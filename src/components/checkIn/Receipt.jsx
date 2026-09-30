@@ -42,7 +42,6 @@ const Receipt = ({ booking }) => {
           type="primary"
           className="h-11 rounded-xl bg-indigo-600 font-bold text-xs"
           onClick={() => {
-            console.log(roomId);
             clearCheckInSession(roomId);
             navigate("/rooms-board");
           }}

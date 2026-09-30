@@ -16,6 +16,7 @@ import {
   DashboardSquare01Icon,
   Door01Icon,
   MeetingRoomIcon,
+  Restaurant01Icon,
 } from "@hugeicons/core-free-icons";
 import LanguageSelect from "./LanguageSelect";
 
@@ -29,13 +30,7 @@ const ROUTE_CONFIG = [
     breadcrumb: "Dashboard",
     icon: <HugeiconsIcon icon={DashboardSquare01Icon} />,
   },
-  {
-    path: "/building-and-area",
-    key: "/building-and-area",
-    label: "Buildings & Areas",
-    breadcrumb: "Building Management",
-    icon: <HugeiconsIcon icon={Building01Icon} />,
-  },
+
   {
     path: "/rooms-board",
     key: "/rooms-board",
@@ -50,13 +45,7 @@ const ROUTE_CONFIG = [
     breadcrumb: "Room Type Management",
     icon: <HugeiconsIcon icon={BedSingle02Icon} />,
   },
-  {
-    path: "/hotel-facility",
-    key: "/hotel-facility",
-    label: "Hotel Facility & Rating",
-    breadcrumb: "Facility Management",
-    icon: <HugeiconsIcon icon={ConciergeBellIcon} />,
-  },
+
   {
     path: "/ota-revenue",
     key: "/ota-revenue",
@@ -71,10 +60,38 @@ const ROUTE_CONFIG = [
     breadcrumb: "OTA Management",
     icon: <HugeiconsIcon icon={Door01Icon} />,
   },
+  // {
+  //   path: "/meal-plan",
+  //   key: "/meal-plan",
+  //   label: "Meal Plan",
+  //   breadcrumb: "Meal Plan",
+  //   icon: <HugeiconsIcon icon={Restaurant01Icon} />,
+  // },
+  {
+    path: "/meal-plan/create/",
+    key: "/meal-plan/create/",
+    label: "Meal Plan",
+    breadcrumb: "Meal Plan",
+    icon: <HugeiconsIcon icon={Restaurant01Icon} />,
+  },
   {
     path: "/ota-revenue/add-room",
     key: "/ota-revenue/add-room",
     breadcrumb: "Add Room for OTA",
+  },
+  {
+    path: "/building-and-area",
+    key: "/building-and-area",
+    label: "Buildings & Areas",
+    breadcrumb: "Building Management",
+    icon: <HugeiconsIcon icon={Building01Icon} />,
+  },
+  {
+    path: "/hotel-facility",
+    key: "/hotel-facility",
+    label: "Hotel Facility & Rating",
+    breadcrumb: "Facility Management",
+    icon: <HugeiconsIcon icon={ConciergeBellIcon} />,
   },
 ];
 
