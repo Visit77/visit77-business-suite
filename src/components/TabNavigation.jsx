@@ -9,7 +9,7 @@ export const TabNavigation = ({ activeTab, setActiveTab }) => {
   ];
 
   return (
-    <div className="border-b border-slate-200 bg-white px-6">
+    <div className="border-b border-neutral-200 bg-white px-6">
       <nav className="flex gap-8">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
@@ -20,7 +20,7 @@ export const TabNavigation = ({ activeTab, setActiveTab }) => {
               className={`py-4 px-1 font-semibold text-sm relative transition-colors ${
                 isActive
                   ? "text-blue-600"
-                  : "text-slate-500 hover:text-slate-700"
+                  : "text-neutral-500 hover:text-neutral-700"
               }`}
             >
               {tab.label}
