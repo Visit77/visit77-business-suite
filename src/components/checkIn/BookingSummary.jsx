@@ -114,17 +114,11 @@ const BookingSummary = ({ booking, onNext, onBack, guest_market }) => {
     const formData = new FormData();
 
     booking?.rooms.forEach((room, index) => {
-      const ratePlanId = room?.room_type?.rate_plans?.find(
-        (plan) => plan?.guest_market === values?.guest_market,
-      )?.id;
       formData.append(
         `rooms[${index}][physical_room_id]`,
         room.assigned_physical_rooms?.[0]?.id || room?.id,
       );
-      formData.append(
-        `rooms[${index}][rate_plan_id]`,
-        room?.rate_plan_id || ratePlanId,
-      );
+      formData.append(`rooms[${index}][rate_plan_id]`, room?.rate_plan_id);
 
       formData.append(`rooms[${index}][extra_beds]`, room?.extra_bed || 0);
 
