@@ -1,25 +1,9 @@
 import React from "react";
 import { Form, Input, Button, TimePicker, message } from "antd";
-
 import dayjs from "dayjs";
 
-const MealPlanForm = () => {
+const MealPlanForm = ({ handleFinish }) => {
   const [form] = Form.useForm();
-
-  // Handle Form Submission
-  const handleFinish = (values) => {
-    const formattedValues = {
-      ...values,
-      serviceStartTime: values.serviceStartTime
-        ? values.serviceStartTime.format("hh:mm A")
-        : null,
-      serviceEndTime: values.serviceEndTime
-        ? values.serviceEndTime.format("hh:mm A")
-        : null,
-    };
-    console.log("Meal Plan Form Data:", formattedValues);
-    message.success("Meal Plan created successfully!");
-  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-2 sm:p-6 font-sans">
@@ -30,14 +14,14 @@ const MealPlanForm = () => {
           layout="vertical"
           onFinish={handleFinish}
           initialValues={{
-            mealPlanName: "Deluxe King",
+            name: "",
             serviceStartTime: dayjs("06:30 AM", "hh:mm A"),
             serviceEndTime: dayjs("10:00 AM", "hh:mm A"),
-            localMmk: "",
-            localUsd: "",
-            foreignerMmk: "",
-            foreignerUsd: "",
-            description: "Breakfast buffet for 2 guests included.",
+            local_base_price: "",
+            local_usd_display_price: "",
+            foreign_base_price: "",
+            foreign_usd_display_price: "",
+            description: "",
           }}
           requiredMark={false}
         >
@@ -48,12 +32,12 @@ const MealPlanForm = () => {
                 Meal Plan Name <span className="text-red-500">*</span>
               </span>
             }
-            name="mealPlanName"
+            name="name"
             rules={[{ required: true, message: "Please enter meal plan name" }]}
             className="mb-5"
           >
             <Input
-              placeholder="Deluxe King"
+              placeholder="Type ..."
               className="h-12 bg-[#f4f6fb] border-gray-300 hover:border-indigo-400 focus:border-indigo-500 rounded-xl text-neutral-700 placeholder:text-gray-400 font-medium"
             />
           </Form.Item>
@@ -72,7 +56,6 @@ const MealPlanForm = () => {
                   minuteStep={5}
                   allowClear={false}
                   className="w-full h-12 bg-[#f4f6fb] border-gray-300 hover:border-indigo-400 rounded-xl text-neutral-800 font-medium"
-                  popupClassName="custom-timepicker-popup"
                 />
               </Form.Item>
 
@@ -84,7 +67,6 @@ const MealPlanForm = () => {
                   minuteStep={5}
                   allowClear={false}
                   className="w-full h-12 bg-[#f4f6fb] border-gray-300 hover:border-indigo-400 rounded-xl text-neutral-800 font-medium"
-                  popupClassName="custom-timepicker-popup"
                 />
               </Form.Item>
             </div>
@@ -106,7 +88,7 @@ const MealPlanForm = () => {
                 <div className="w-20 h-12 bg-white border border-gray-300 rounded-xl flex items-center justify-center text-neutral-700 font-bold text-xs shadow-sm">
                   MMK
                 </div>
-                <Form.Item name="localMmk" className="flex-1 mb-0">
+                <Form.Item name="local_base_price" className="flex-1 mb-0">
                   <Input
                     placeholder="Type ..."
                     className="h-12 bg-[#f4f6fb] border-gray-300 hover:border-indigo-400 rounded-xl placeholder:text-gray-400 text-neutral-700"
@@ -119,7 +101,10 @@ const MealPlanForm = () => {
                 <div className="w-20 h-12 bg-white border border-gray-300 rounded-xl flex items-center justify-center text-neutral-700 font-bold text-xs shadow-sm">
                   USD
                 </div>
-                <Form.Item name="localUsd" className="flex-1 mb-0">
+                <Form.Item
+                  name="local_usd_display_price"
+                  className="flex-1 mb-0"
+                >
                   <Input
                     placeholder="Type ..."
                     className="h-12 bg-[#f4f6fb] border-gray-300 hover:border-indigo-400 rounded-xl placeholder:text-gray-400 text-neutral-700"
@@ -139,7 +124,7 @@ const MealPlanForm = () => {
                 <div className="w-20 h-12 bg-white border border-gray-300 rounded-xl flex items-center justify-center text-neutral-700 font-bold text-xs shadow-sm">
                   MMK
                 </div>
-                <Form.Item name="foreignerMmk" className="flex-1 mb-0">
+                <Form.Item name="foreign_base_price" className="flex-1 mb-0">
                   <Input
                     placeholder="Type ..."
                     className="h-12 bg-[#f4f6fb] border-gray-300 hover:border-indigo-400 rounded-xl placeholder:text-gray-400 text-neutral-700"
@@ -169,8 +154,8 @@ const MealPlanForm = () => {
             </h2>
             <Form.Item name="description" className="mb-0">
               <Input.TextArea
-                rows={2}
-                placeholder="Breakfast buffet for 2 guests included."
+                rows={3}
+                placeholder="Type ..."
                 className="bg-[#f4f6fb] border-gray-300 hover:border-indigo-400 rounded-xl p-3 placeholder:text-gray-400 text-neutral-700 text-sm resize-none"
               />
             </Form.Item>

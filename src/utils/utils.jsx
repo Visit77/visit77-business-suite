@@ -269,3 +269,34 @@ export const ratingOption = [
     value: "seven",
   },
 ];
+
+export const MEAL_SECTIONS = [
+  {
+    key: "default_breakfast",
+    title: "Breakfast (Default to show in room amenity)",
+  },
+  { key: "other_breakfast", title: "Other Breakfast" },
+  { key: "lunch", title: "Lunch" },
+  { key: "dinner", title: "Dinner" },
+  { key: "drinks", title: "Drink" },
+  { key: "other_meal", title: "Other Meal" },
+];
+
+export const convertTo24Hour = (timeStr) => {
+  if (!timeStr) return "";
+
+  const [time, modifier] = timeStr.split(" ");
+  let [hours, minutes] = time.split(":");
+
+  if (hours === "12") {
+    hours = "00";
+  }
+
+  if (modifier === "PM") {
+    hours = parseInt(hours, 10) + 12;
+  }
+
+  const formattedHours = String(hours).padStart(2, "0");
+
+  return `${formattedHours}:${minutes}`;
+};

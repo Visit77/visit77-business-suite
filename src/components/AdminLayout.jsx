@@ -68,8 +68,8 @@ const ROUTE_CONFIG = [
   //   icon: <HugeiconsIcon icon={Restaurant01Icon} />,
   // },
   {
-    path: "/meal-plan/create/",
-    key: "/meal-plan/create/",
+    path: "/meal-plan/",
+    key: "/meal-plan/",
     label: "Meal Plan",
     breadcrumb: "Meal Plan",
     icon: <HugeiconsIcon icon={Restaurant01Icon} />,

@@ -9,6 +9,20 @@ const initialState = {
   count: 0,
 };
 
+export const createMealPlan = createAsyncThunk(
+  "meal_plans/createMealPlan",
+  async ({ data }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(`/meal_plans/`, {
+        ...data,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
 export const getMealPlan = createAsyncThunk(
   "mealPlan/getMealPlan",
   async (params, { rejectWithValue }) => {
