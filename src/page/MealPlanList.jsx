@@ -4,6 +4,7 @@ import { selectBusinessId } from "../service/businessSlice";
 import {
   deleteMealPlan,
   getMealPlan,
+  getMealPlanForPackage,
   mealPlanSelector,
 } from "../service/mealPlanSlice";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
@@ -26,6 +27,11 @@ const MealPlanList = () => {
     if (businessId) {
       dispatch(
         getMealPlan({
+          business_id: businessId,
+        }),
+      );
+      dispatch(
+        getMealPlanForPackage({
           business_id: businessId,
         }),
       );
@@ -156,7 +162,7 @@ const MealPlanList = () => {
                                   },
                                 });
                               }}
-                              className="text-indigo-900! hover:text-indigo-700! bg-transparent! border-0! cursor-pointer! text-base!"
+                              className="text-primary-900! hover:text-primary-700! bg-transparent! border-0! cursor-pointer! text-base!"
                             >
                               <EditOutlined />
                             </button>
@@ -189,7 +195,7 @@ const MealPlanList = () => {
         <Button
           type="outline"
           icon={<PlusOutlined />}
-          className="w-full! h-12! rounded-xl! bg-white! border-indigo-900! text-indigo-900! font-semibold! hover:border-indigo-400! hover:text-indigo-700!"
+          className="w-full! h-12! rounded-xl! bg-white! border-primary-900! text-primary-900! font-semibold! hover:border-primary-400! hover:text-primary-700!"
           onClick={() => {
             navigate("/meal-plan/create/", {
               state: {
@@ -200,6 +206,43 @@ const MealPlanList = () => {
         >
           Add Other Meal Plan
         </Button>
+      </div>
+
+      <div className=" mt-6">
+        <h1 className="text-base! font-bold! text-gray-900! mb-2! ">
+          Create Meal Package
+        </h1>
+        <div className=" mt-3">
+          {packageMeal?.map((item) => {
+            return (
+              <Card
+                key={item.id}
+                className="border! border-gray-200! rounded-xl! shadow-sm! bg-white!  transition-all! my-3!"
+              >
+                {/* Meal Name */}
+                <div className="flex justify-between">
+                  <p className="font-bold! text-gray-900! text-base! m-0!">
+                    {item.name}
+                  </p>
+                  <button className="text-primary-900! hover:text-primary-700! bg-transparent! border-0! cursor-pointer! text-base!">
+                    Edit
+                  </button>
+                </div>
+
+                {/* Price Info */}
+                <p className="text-gray-600! text-sm! m-0!">
+                  {item?.components?.map((component) => {
+                    return (
+                      <p className=" text-md! m-0!">
+                        - {component?.name} ({getServiceDuration(component)})
+                      </p>
+                    );
+                  })}
+                </p>
+              </Card>
+            );
+          })}
+        </div>
       </div>
 
       <DeleteConfirmModal
