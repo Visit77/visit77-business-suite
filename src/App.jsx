@@ -18,6 +18,7 @@ import {
 import { useLanguage } from "./context/LanguageContext";
 import { getLanguage } from "./service/languageSlice";
 import ScrollToTop from "./components/ScrollToTop";
+import EditMealPlan from "./page/EditMealPlan";
 
 const CreateBuildingAndArea = lazy(
   () => import("./page/CreateBuildingAndArea"),
@@ -122,6 +123,10 @@ function App() {
 
                 <Route path="/meal-plan/" element={<MealPlanList />} />
                 <Route path="/meal-plan/create" element={<CreateMealPlan />} />
+                <Route
+                  path="/meal-plan/update/:id"
+                  element={<EditMealPlan />}
+                />
               </Route>
             </Route>
           </Route>

@@ -6,6 +6,7 @@ const initialState = {
   hasError: false,
   data: [],
   packageMeal: [],
+  details: {},
   count: 0,
 };
 
@@ -37,6 +38,18 @@ export const getMealPlan = createAsyncThunk(
   },
 );
 
+export const getOneMealPlan = createAsyncThunk(
+  "mealPlan/getOneMealPlan",
+  async (params, { rejectWithValue }) => {
+    try {
+      const { data, headers } = await api.get(`/meal_plans/${params?.id}`, {});
+      return { data, headers };
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
 export const getMealPlanForPackage = createAsyncThunk(
   "mealPlan/getMealPlanForPackage",
   async (params, { rejectWithValue }) => {
@@ -47,6 +60,32 @@ export const getMealPlanForPackage = createAsyncThunk(
       return { data, headers };
     } catch (error) {
       return rejectWithValue(error);
+    }
+  },
+);
+
+export const deleteMealPlan = createAsyncThunk(
+  "mealPlan/deleteMealPlan",
+  async (id, { rejectWithValue }) => {
+    try {
+      await api.delete(`/meal_plans/${id}`);
+      return id;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Delete failed");
+    }
+  },
+);
+
+export const updateMealPlan = createAsyncThunk(
+  "mealPlan/updateMealPlan",
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.patch(`/meal_plans/${id}`, {
+        ...data,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
     }
   },
 );
@@ -82,6 +121,21 @@ const mealPlanSlice = createSlice({
       .addCase(getMealPlanForPackage.rejected, (state) => {
         state.isPending = false;
         state.hasError = true;
+      })
+      .addCase(deleteMealPlan.fulfilled, (state, action) => {
+        state.data = state.data.filter((item) => item.id !== action.payload);
+        state.total -= 1;
+      })
+      .addCase(getOneMealPlan.pending, (state) => {
+        state.isPending = true;
+      })
+      .addCase(getOneMealPlan.fulfilled, (state, action) => {
+        state.isPending = false;
+        state.details = action.payload.data.data;
+      })
+      .addCase(getOneMealPlan.rejected, (state, action) => {
+        state.isPending = false;
+        state.error = action.payload;
       });
   },
 });

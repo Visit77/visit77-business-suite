@@ -2,6 +2,7 @@ import _ from "lodash";
 import { API_URL, TOKEN_LABEL, WEB_URL } from "../variables/constants";
 import { jwtDecode } from "jwt-decode";
 import api from "../api/axiosInstance";
+import dayjs from "dayjs";
 
 export const decodeToken = (initialState) => {
   const jwt = localStorage.getItem(TOKEN_LABEL);
@@ -299,4 +300,18 @@ export const convertTo24Hour = (timeStr) => {
   const formattedHours = String(hours).padStart(2, "0");
 
   return `${formattedHours}:${minutes}`;
+};
+
+export const parseTimeString = (timeStr, defaultTime) => {
+  if (!timeStr) return dayjs(defaultTime, "hh:mm A");
+
+  if (dayjs(timeStr, "HH:mm", true).isValid()) {
+    return dayjs(timeStr, "HH:mm");
+  }
+
+  if (dayjs(timeStr, "hh:mm A", true).isValid()) {
+    return dayjs(timeStr, "hh:mm A");
+  }
+
+  return dayjs(timeStr, "HH:mm");
 };

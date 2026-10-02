@@ -1,11 +1,17 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectBusinessId } from "../service/businessSlice";
-import { getMealPlan, mealPlanSelector } from "../service/mealPlanSlice";
+import {
+  deleteMealPlan,
+  getMealPlan,
+  mealPlanSelector,
+} from "../service/mealPlanSlice";
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Card } from "antd";
+import { Button, Card, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { MEAL_SECTIONS } from "../utils/utils";
+import DeleteConfirmModal from "../components/modal/DeleteConfirmModal";
+import _ from "lodash";
 
 const MealPlanList = () => {
   const businessId = useSelector(selectBusinessId);
@@ -65,6 +71,13 @@ const MealPlanList = () => {
     return window ? `${window.start} to ${window.end}` : "-";
   };
   const navigate = useNavigate();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedMealPlan, setSelectedMealPlan] = useState();
+
+  const onDelete = () => {
+    setIsModalOpen(true);
+  };
 
   return (
     <>
@@ -135,12 +148,27 @@ const MealPlanList = () => {
 
                           {/* Action Buttons */}
                           <div className="flex! items-center! gap-3!">
-                            <button className="text-indigo-900! hover:text-indigo-700! bg-transparent! border-0! cursor-pointer! text-base!">
+                            <button
+                              onClick={() => {
+                                navigate(`/meal-plan/update/${item?.id}`, {
+                                  state: {
+                                    included_meals: section.key,
+                                  },
+                                });
+                              }}
+                              className="text-indigo-900! hover:text-indigo-700! bg-transparent! border-0! cursor-pointer! text-base!"
+                            >
                               <EditOutlined />
                             </button>
 
                             {!isDefaultBreakfast && (
-                              <button className="text-red-500! hover:text-red-700! bg-transparent! border-0! cursor-pointer! text-base!">
+                              <button
+                                onClick={() => {
+                                  setSelectedMealPlan(item);
+                                  onDelete();
+                                }}
+                                className="text-red-500! hover:text-red-700! bg-transparent! border-0! cursor-pointer! text-base!"
+                              >
                                 <DeleteOutlined />
                               </button>
                             )}
@@ -161,11 +189,38 @@ const MealPlanList = () => {
         <Button
           type="outline"
           icon={<PlusOutlined />}
-          className="w-full! h-12! rounded-xl! border-indigo-200! text-indigo-900! font-semibold! hover:border-indigo-400! hover:text-indigo-700!"
+          className="w-full! h-12! rounded-xl! bg-white! border-indigo-900! text-indigo-900! font-semibold! hover:border-indigo-400! hover:text-indigo-700!"
+          onClick={() => {
+            navigate("/meal-plan/create/", {
+              state: {
+                included_meals: "other_meal",
+              },
+            });
+          }}
         >
           Add Other Meal Plan
         </Button>
       </div>
+
+      <DeleteConfirmModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={() => {
+          setIsDeleting(true);
+          dispatch(deleteMealPlan(selectedMealPlan?.id)).then((response) => {
+            if (_.endsWith(response.type, "fulfilled")) {
+              message.success("Success");
+            } else {
+              message.error("Error");
+            }
+          });
+          setIsDeleting(false);
+          setIsModalOpen(false);
+          setSelectedMealPlan();
+        }}
+        loading={isDeleting}
+        title={`Delete ${selectedMealPlan?.name} ?`}
+      />
     </>
   );
 };
