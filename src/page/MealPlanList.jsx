@@ -262,7 +262,6 @@ const MealPlanList = () => {
                 {items.length > 0 ? (
                   <div className="space-y-3!">
                     {items.map((item) => {
-                      const duration = getServiceDuration(item);
                       const isDefaultBreakfast =
                         item.is_default_for_room_type_breakfast;
 
@@ -275,9 +274,8 @@ const MealPlanList = () => {
                             <div className="space-y-1!">
                               {/* Meal Name */}
                               <p className="font-bold! text-gray-900! text-base! m-0!">
-                                {item.name}- {item.local_base_currency}{" "}
-                                {item.local_base_price}, — USD{" "}
-                                {item.foreign_usd_display_price}
+                                {item.name}- {item?.local_base_currency}{" "}
+                                {item.effective_local_base_price}
                               </p>
 
                               {/* Service Duration */}
@@ -309,18 +307,21 @@ const MealPlanList = () => {
                             <div className="flex! items-center! gap-3!">
                               <button
                                 onClick={() => {
-                                  navigate(`/meal-plan/update/${item?.id}/`, {
-                                    state: {
-                                      included_meals: section.key,
+                                  navigate(
+                                    `/meal-plan/package/${item?.id}/update/`,
+                                    {
+                                      state: {
+                                        included_meals: section.key,
+                                      },
                                     },
-                                  });
+                                  );
                                 }}
                                 className="text-primary-900! hover:text-primary-700! bg-transparent! border-0! cursor-pointer! text-base!"
                               >
                                 <EditOutlined />
                               </button>
 
-                              {!isDefaultBreakfast && (
+                              {/* {!isDefaultBreakfast && (
                                 <button
                                   onClick={() => {
                                     setSelectedMealPlan(item);
@@ -330,7 +331,7 @@ const MealPlanList = () => {
                                 >
                                   <DeleteOutlined />
                                 </button>
-                              )}
+                              )} */}
                             </div>
                           </div>
                         </Card>

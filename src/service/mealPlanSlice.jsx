@@ -90,8 +90,6 @@ export const updateMealPlan = createAsyncThunk(
   },
 );
 
-
-
 const mealPlanSlice = createSlice({
   name: "mealPlan",
   initialState,
@@ -127,6 +125,10 @@ const mealPlanSlice = createSlice({
       .addCase(deleteMealPlan.fulfilled, (state, action) => {
         state.data = state.data.filter((item) => item.id !== action.payload);
         state.total -= 1;
+
+        state.packageMeal = state.packageMeal.filter(
+          (item) => item.id !== action.payload,
+        );
       })
       .addCase(getOneMealPlan.pending, (state) => {
         state.isPending = true;

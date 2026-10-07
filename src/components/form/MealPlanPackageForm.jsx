@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Form, Checkbox, Input, Button } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { selectBusinessId } from "../../service/businessSlice";
@@ -11,11 +11,15 @@ const MealPlanPackageForm = ({
   selectedMeals = [],
   handleMealCheck,
   calculatedTotals,
+  packageName,
 }) => {
   const businessId = useSelector(selectBusinessId);
   const dispatch = useDispatch();
   const { data: mealPlansData = [], isPending: mealPlanPending } =
     useSelector(mealPlanSelector);
+
+  // Form ထဲက isSetNewPrice တန်ဖိုးကို တိုက်ရိုက် စောင့်ကြည့်မည်
+  const isSetNewPrice = Form.useWatch("isSetNewPrice", form);
 
   useEffect(() => {
     if (businessId) {
@@ -27,8 +31,6 @@ const MealPlanPackageForm = ({
     }
   }, [businessId, dispatch]);
 
-  const [isSetNewPrice, setIsSetNewPrice] = useState(true);
-
   return (
     <>
       <Form
@@ -36,11 +38,11 @@ const MealPlanPackageForm = ({
         layout="vertical"
         onFinish={handleFinish}
         initialValues={{
-          isSetNewPrice: true,
+          isSetNewPrice: false,
         }}
       >
-        <h2 className="text-lg font-bold text-gray-900 mb-3">Half Board</h2>
-        {/* Choose Meals - Checkboxes */}
+        <h2 className="text-lg font-bold text-gray-900 mb-3">{packageName}</h2>
+
         <div className="mb-4">
           <label className="block text-sm font-semibold text-gray-700 mb-3">
             Choose Meals
@@ -53,7 +55,6 @@ const MealPlanPackageForm = ({
           ) : mealPlansData.length > 0 ? (
             <div className="space-y-3">
               {mealPlansData.map((meal) => {
-                // Object Array ထဲမှာ ရှိ/မရှိ စစ်ခြင်း
                 const isChecked = selectedMeals.some(
                   (item) => item.id === meal.id,
                 );
@@ -64,9 +65,7 @@ const MealPlanPackageForm = ({
                   >
                     <Checkbox
                       checked={isChecked}
-                      onChange={
-                        (e) => handleMealCheck(meal, e.target.checked) // meal object တခုလုံး ပို့ပေးခြင်း
-                      }
+                      onChange={(e) => handleMealCheck(meal, e.target.checked)}
                       className="text-gray-800 font-medium"
                     >
                       {meal.name}
@@ -89,20 +88,12 @@ const MealPlanPackageForm = ({
         {selectedMeals.length > 0 && (
           <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 my-3">
             <div className="text-xs font-bold text-blue-800 uppercase tracking-wider mb-1">
-              Selected Total Price ({selectedMeals.length} items)
+              {packageName} Price ({selectedMeals.length} items)
             </div>
             <div className="flex justify-between text-sm font-semibold text-gray-800">
               <span>Local Total:</span>
               <span>
-                MMK {calculatedTotals.local_base_price.toLocaleString()} / $
-                {calculatedTotals.local_usd_display_price}
-              </span>
-            </div>
-            <div className="flex justify-between text-sm font-semibold text-gray-800 mt-1">
-              <span>Foreigner Total:</span>
-              <span>
-                MMK {calculatedTotals.foreign_base_price.toLocaleString()} / $
-                {calculatedTotals.foreign_usd_display_price}
+                MMK {calculatedTotals.local_base_price.toLocaleString()}
               </span>
             </div>
           </div>
@@ -110,19 +101,18 @@ const MealPlanPackageForm = ({
         <div className="text-center text-gray-400 my-3 text-sm font-medium">
           or
         </div>
+
         <Form.Item
           name="isSetNewPrice"
           valuePropName="checked"
           className="mb-4"
         >
-          <Checkbox
-            onChange={(e) => setIsSetNewPrice(e.target.checked)}
-            className="text-base font-bold text-gray-900"
-          >
+          <Checkbox className="text-base font-bold text-gray-900">
             Set New Price
           </Checkbox>
         </Form.Item>
 
+        {/* isSetNewPrice အမှန်တကယ် true ဖြစ်မှသာ input များ ပေါ်မည် */}
         {isSetNewPrice && (
           <div className="space-y-5 transition-all duration-300">
             <div>

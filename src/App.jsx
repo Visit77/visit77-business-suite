@@ -21,6 +21,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import EditMealPlan from "./page/EditMealPlan";
 import MealPlanPackageForm from "./components/form/MealPlanPackageForm";
 import CreateMealPlanPackage from "./page/CreateMealPlanPackage";
+import EditMealPlanPackage from "./page/EditMealPlanPackage";
 
 const CreateBuildingAndArea = lazy(
   () => import("./page/CreateBuildingAndArea"),
@@ -125,10 +126,14 @@ function App() {
                 <Route
                   path="/meal-plan/update/:id"
                   element={<EditMealPlan />}
-                />{" "}
+                />
                 <Route
                   path="/meal-plan/package/"
                   element={<CreateMealPlanPackage />}
+                />
+                <Route
+                  path="/meal-plan/package/:id/update"
+                  element={<EditMealPlanPackage />}
                 />
               </Route>
             </Route>

@@ -1,22 +1,66 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Form, message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { selectBusinessId } from "../service/businessSlice";
-import { useLocation, useNavigate } from "react-router-dom";
-import { createMealPlan } from "../service/mealPlanSlice";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  updateMealPlan,
+  getOneMealPlan,
+  mealPlanSelector,
+} from "../service/mealPlanSlice";
 import _ from "lodash";
 import MealPlanPackageForm from "../components/form/MealPlanPackageForm";
 
-const CreateMealPlanPackage = () => {
+const EditMealPlanPackage = () => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
+  const { id } = useParams();
 
   const businessId = useSelector(selectBusinessId);
-  const { included_meals } = location?.state || {};
 
   const [selectedMeals, setSelectedMeals] = useState([]);
+
+  useEffect(() => {
+    if (businessId && id) {
+      dispatch(
+        getOneMealPlan({
+          id: id,
+        }),
+      );
+    }
+  }, [businessId, dispatch, id]);
+
+  const { details: planPackageData, isPending: mealPlanPending } =
+    useSelector(mealPlanSelector);
+
+  useEffect(() => {
+    if (planPackageData) {
+      if (
+        planPackageData?.components &&
+        planPackageData.components.length > 0
+      ) {
+        setSelectedMeals(planPackageData.components);
+      }
+
+      const isCustomPrice =
+        planPackageData?.package_pricing_mode === "custom_price";
+
+      form.setFieldsValue({
+        isSetNewPrice: isCustomPrice,
+        local: {
+          local_base_price: planPackageData?.local_base_price || 0,
+          local_usd_display_price:
+            planPackageData?.local_usd_display_price || 0,
+        },
+        foreigner: {
+          foreign_base_price: planPackageData?.foreign_base_price || 0,
+          foreign_usd_display_price:
+            planPackageData?.foreign_usd_display_price || 0,
+        },
+      });
+    }
+  }, [planPackageData, form]);
 
   const handleMealCheck = (mealObj, checked) => {
     if (checked) {
@@ -26,7 +70,6 @@ const CreateMealPlanPackage = () => {
     }
   };
 
-  // Dynamic Total Calculation
   const calculatedTotals = useMemo(() => {
     return selectedMeals.reduce(
       (totals, meal) => {
@@ -53,6 +96,7 @@ const CreateMealPlanPackage = () => {
     const formData = {
       ...values,
     };
+
     const meal_windows = selectedMeals?.reduce((acc, meal) => {
       if (meal?.meal_windows) {
         return { ...acc, ...meal.meal_windows };
@@ -76,31 +120,34 @@ const CreateMealPlanPackage = () => {
 
     const formattedValues = {
       ...formData,
-      name: included_meals,
+      id: planPackageData?.id || id,
+      name: planPackageData?.name,
       business_id: businessId,
       included_meals: selectedMeals?.map((meal) => {
-        return meal?.included_meals[0];
+        return meal?.included_meals
+          ? meal.included_meals[0]
+          : meal.name.toLowerCase();
       }),
       ...price,
       meal_windows: meal_windows,
-      is_default_for_room_type_breakfast: false,
+      is_default_for_room_type_breakfast:
+        planPackageData?.is_default_for_room_type_breakfast || false,
       foreign_base_currency: "MMK",
       local_base_currency: "MMK",
-      availability: "guest_only",
+      availability: planPackageData?.availability || "guest_only",
       plan_type: "package",
-      is_active: true,
-      component_meal_plan_ids: selectedMeals?.map((meal) => {
-        return meal?.id;
-      }),
+      is_active: planPackageData?.is_active ?? true,
+      component_meal_plan_ids: selectedMeals?.map((meal) => meal?.id),
     };
 
     dispatch(
-      createMealPlan({
+      updateMealPlan({
+        id: planPackageData?.id || id,
         data: formattedValues,
       }),
     ).then((res) => {
       if (_.endsWith(res.type, "fulfilled")) {
-        message.success("Meal Plan create Successful.");
+        message.success("Meal Plan Package updated successfully.");
         navigate(-1);
       }
     });
@@ -121,10 +168,10 @@ const CreateMealPlanPackage = () => {
         selectedMeals={selectedMeals}
         handleMealCheck={handleMealCheck}
         calculatedTotals={calculatedTotals}
-        packageName={included_meals}
+        packageName={planPackageData?.name}
       />
     </div>
   );
 };
 
-export default CreateMealPlanPackage;
+export default EditMealPlanPackage;
