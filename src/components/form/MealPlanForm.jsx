@@ -17,11 +17,10 @@ const MealPlanForm = ({ handleFinish, initialValues, isEdit = false }) => {
         serviceEndTime: initialValues.serviceEndTime
           ? dayjs(initialValues.serviceEndTime, "hh:mm A")
           : dayjs("10:00 AM", "hh:mm A"),
-        local_base_price: initialValues.local_base_price || "",
-        local_usd_display_price: initialValues.local_usd_display_price || "",
-        foreign_base_price: initialValues.foreign_base_price || "",
-        foreign_usd_display_price:
-          initialValues.foreign_usd_display_price || "",
+        local_base_price: initialValues.local_base_price || 0,
+        local_usd_display_price: initialValues.local_usd_display_price || 0,
+        foreign_base_price: initialValues.foreign_base_price || 0,
+        foreign_usd_display_price: initialValues.foreign_usd_display_price || 0,
         description: initialValues.description || "",
       });
     }

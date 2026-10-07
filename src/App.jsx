@@ -19,6 +19,8 @@ import { useLanguage } from "./context/LanguageContext";
 import { getLanguage } from "./service/languageSlice";
 import ScrollToTop from "./components/ScrollToTop";
 import EditMealPlan from "./page/EditMealPlan";
+import MealPlanPackageForm from "./components/form/MealPlanPackageForm";
+import CreateMealPlanPackage from "./page/CreateMealPlanPackage";
 
 const CreateBuildingAndArea = lazy(
   () => import("./page/CreateBuildingAndArea"),
@@ -84,7 +86,6 @@ function App() {
                   path="/rooms/:id/add-room-numbers/"
                   element={<AddRoomNumber />}
                 />
-
                 <Route
                   path="/rooms/:roomTypeId/edit-room-number/:id"
                   element={<EditRoomNumber />}
@@ -113,19 +114,21 @@ function App() {
                   path="/building-and-area/:id/edit"
                   element={<EditBuildingAndArea />}
                 />
-
                 <Route path="/ota-revenue" element={<OtaRevenueTable />} />
                 <Route
                   path="/ota-revenue/management"
                   element={<OTAManagement />}
                 />
                 <Route path="/ota-revenue/add-room" element={<AddOTARoom />} />
-
                 <Route path="/meal-plan/" element={<MealPlanList />} />
                 <Route path="/meal-plan/create" element={<CreateMealPlan />} />
                 <Route
                   path="/meal-plan/update/:id"
                   element={<EditMealPlan />}
+                />{" "}
+                <Route
+                  path="/meal-plan/package/"
+                  element={<CreateMealPlanPackage />}
                 />
               </Route>
             </Route>

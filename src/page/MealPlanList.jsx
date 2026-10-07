@@ -10,7 +10,7 @@ import {
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Card, message } from "antd";
 import { useNavigate } from "react-router-dom";
-import { MEAL_SECTIONS } from "../utils/utils";
+import { MEAL_PLAN_PACKAGE_SECTIONS, MEAL_SECTIONS } from "../utils/utils";
 import DeleteConfirmModal from "../components/modal/DeleteConfirmModal";
 import _ from "lodash";
 
@@ -41,7 +41,7 @@ const MealPlanList = () => {
   const groupedMealPlans = useMemo(() => {
     const groups = {
       default_breakfast: [],
-      other_breakfast: [],
+      breakfast: [],
       lunch: [],
       dinner: [],
       other_meal: [],
@@ -52,10 +52,10 @@ const MealPlanList = () => {
       const mealType = item.included_meals?.[0];
 
       if (mealType === "breakfast") {
-        if (item.is_default_for_room_type_breakfast) {
+        if (item.is_default_for_room_type_breakfast == true) {
           groups.default_breakfast.push(item);
         } else {
-          groups.other_breakfast.push(item);
+          groups.breakfast.push(item);
         }
       } else if (mealType === "lunch") {
         groups.lunch.push(item);
@@ -65,6 +65,28 @@ const MealPlanList = () => {
         groups.drinks.push(item);
       } else {
         groups.other_meal.push(item);
+      }
+    });
+
+    return groups;
+  }, [mealPlansData]);
+
+  const groupedPlanPackage = useMemo(() => {
+    const groups = {
+      half_board: [],
+      full_board: [],
+      all_inclusive: [],
+    };
+
+    packageMeal?.forEach((item) => {
+      const mealType = item?.name;
+
+      if (mealType === "Half Board") {
+        groups.half_board.push(item);
+      } else if (mealType === "Full Board") {
+        groups.full_board.push(item);
+      } else if (mealType === "All Inclusive") {
+        groups.all_inclusive.push(item);
       }
     });
 
@@ -213,33 +235,110 @@ const MealPlanList = () => {
           Create Meal Package
         </h1>
         <div className=" mt-3">
-          {packageMeal?.map((item) => {
-            return (
-              <Card
-                key={item.id}
-                className="border! border-gray-200! rounded-xl! shadow-sm! bg-white!  transition-all! my-3!"
-              >
-                {/* Meal Name */}
-                <div className="flex justify-between">
-                  <p className="font-bold! text-gray-900! text-base! m-0!">
-                    {item.name}
-                  </p>
-                  <button className="text-primary-900! hover:text-primary-700! bg-transparent! border-0! cursor-pointer! text-base!">
-                    Edit
-                  </button>
-                </div>
+          {MEAL_PLAN_PACKAGE_SECTIONS.map((section) => {
+            const items = groupedPlanPackage[section.key] || [];
 
-                {/* Price Info */}
-                <p className="text-gray-600! text-sm! m-0!">
-                  {item?.components?.map((component) => {
-                    return (
-                      <p className=" text-md! m-0!">
-                        - {component?.name} ({getServiceDuration(component)})
-                      </p>
-                    );
-                  })}
-                </p>
-              </Card>
+            return (
+              <div key={section.key} className="w-full! mt-2">
+                <h3
+                  onClick={() => {
+                    if (items?.length === 0) {
+                      navigate("/meal-plan/package/", {
+                        state: {
+                          included_meals: section.title,
+                        },
+                      });
+                    }
+                  }}
+                  className={`text-base! font-bold! text-gray-900! mb-2! ${
+                    items?.length === 0
+                      ? "bg-neutral-100! rounded-md! p-3! cursor-pointer! hover:bg-neutral-200! transition-colors!"
+                      : ""
+                  }`}
+                >
+                  {section.title}
+                </h3>
+
+                {items.length > 0 ? (
+                  <div className="space-y-3!">
+                    {items.map((item) => {
+                      const duration = getServiceDuration(item);
+                      const isDefaultBreakfast =
+                        item.is_default_for_room_type_breakfast;
+
+                      return (
+                        <Card
+                          key={item.id}
+                          className="border! border-gray-200! rounded-xl! shadow-sm! bg-white! transition-all!"
+                        >
+                          <div className="flex! justify-between! items-start!">
+                            <div className="space-y-1!">
+                              {/* Meal Name */}
+                              <p className="font-bold! text-gray-900! text-base! m-0!">
+                                {item.name}- {item.local_base_currency}{" "}
+                                {item.local_base_price}, — USD{" "}
+                                {item.foreign_usd_display_price}
+                              </p>
+
+                              {/* Service Duration */}
+                              <>
+                                {item?.components?.map((obj) => {
+                                  const service_time =
+                                    obj.meal_windows?.[
+                                      obj?.included_meals?.[0]
+                                    ];
+
+                                  return (
+                                    <p className="text-neutral-700 text-md! m-0!">
+                                      {obj?.name} —{" "}
+                                      {`${service_time.start} to ${service_time.end}`}
+                                    </p>
+                                  );
+                                })}
+                              </>
+
+                              {/* Description (If exists) */}
+                              {item.description && (
+                                <p className="text-gray-500! text-sm! m-0!">
+                                  - ({item.description})
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex! items-center! gap-3!">
+                              <button
+                                onClick={() => {
+                                  navigate(`/meal-plan/update/${item?.id}/`, {
+                                    state: {
+                                      included_meals: section.key,
+                                    },
+                                  });
+                                }}
+                                className="text-primary-900! hover:text-primary-700! bg-transparent! border-0! cursor-pointer! text-base!"
+                              >
+                                <EditOutlined />
+                              </button>
+
+                              {!isDefaultBreakfast && (
+                                <button
+                                  onClick={() => {
+                                    setSelectedMealPlan(item);
+                                    onDelete();
+                                  }}
+                                  className="text-red-500! hover:text-red-700! bg-transparent! border-0! cursor-pointer! text-base!"
+                                >
+                                  <DeleteOutlined />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </div>
             );
           })}
         </div>

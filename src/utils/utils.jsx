@@ -276,11 +276,17 @@ export const MEAL_SECTIONS = [
     key: "default_breakfast",
     title: "Breakfast (Default to show in room amenity)",
   },
-  { key: "other_breakfast", title: "Other Breakfast" },
+  { key: "breakfast", title: "Other Breakfast" },
   { key: "lunch", title: "Lunch" },
   { key: "dinner", title: "Dinner" },
   { key: "drinks", title: "Drink" },
   { key: "other_meal", title: "Other Meal" },
+];
+
+export const MEAL_PLAN_PACKAGE_SECTIONS = [
+  { key: "half_board", title: "Half Board" },
+  { key: "full_board", title: "Full Board" },
+  { key: "all_inclusive", title: "All Inclusive" },
 ];
 
 export const convertTo24Hour = (timeStr) => {
