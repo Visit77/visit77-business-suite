@@ -13,6 +13,7 @@ import {
   Building01Icon,
   CoinsDollarIcon,
   ConciergeBellIcon,
+  Coupon01Icon,
   DashboardSquare01Icon,
   Door01Icon,
   MeetingRoomIcon,
@@ -92,6 +93,13 @@ const ROUTE_CONFIG = [
     label: "Hotel Facility & Rating",
     breadcrumb: "Facility Management",
     icon: <HugeiconsIcon icon={ConciergeBellIcon} />,
+  },
+  {
+    path: "/invoice-receipt-setting",
+    key: "/invoice-receipt-setting",
+    label: "Invoice & Receipt Setting",
+    breadcrumb: "Invoice & Receipt Setting",
+    icon: <HugeiconsIcon icon={Coupon01Icon} />,
   },
 ];
 
