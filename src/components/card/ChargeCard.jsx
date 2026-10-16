@@ -4,7 +4,7 @@ import { EditOutlined } from "@ant-design/icons";
 const ChargeCard = ({ title, type, value, onEdit }) => {
   const getSubtext = () => {
     if (type === "included") return "Included";
-    if (type === "percentage") return `${value}% on Subtotal`;
+    if (type === "percentage") return `${value}% `;
     if (type === "fixed") return `${value} MMK`;
     return "";
   };
