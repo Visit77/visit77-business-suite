@@ -168,11 +168,55 @@ export const deletePMSInvoiceCharge = createAsyncThunk(
   },
 );
 
+export const getDocumentCode = createAsyncThunk(
+  "invoice_charge/getDocumentCode",
+  async (params, { rejectWithValue }) => {
+    const { business_id } = params;
+
+    try {
+      const response = await api.get(`/api/v1/admin/hotels/document-code/`, {
+        baseURL: BOOKING_URL,
+        // params: queryParams,
+        headers: {
+          "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+          "X-Booking-Business-ID": business_id,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Something went wrong");
+    }
+  },
+);
+
+export const updateDocumentCode = createAsyncThunk(
+  "room_action/updateDocumentCode",
+  async ({ business_id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.put(
+        `/api/v1/admin/hotels/document-code/`,
+        { ...data },
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
 const invoiceChargeSlice = createSlice({
   name: "invoiceCharge",
   initialState: {
     ota: [],
     pms: [],
+    documentCode: [],
     total: 0,
     loading: false,
     error: null,
@@ -237,6 +281,18 @@ const invoiceChargeSlice = createSlice({
           }
         }
         state.total -= 1;
+      })
+      .addCase(getDocumentCode.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getDocumentCode.fulfilled, (state, action) => {
+        state.loading = false;
+        state.documentCode = action.payload.data;
+        state.total = action.payload.total;
+      })
+      .addCase(getDocumentCode.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

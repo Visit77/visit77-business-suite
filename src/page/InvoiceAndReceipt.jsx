@@ -42,7 +42,7 @@ const InvoiceAndReceipt = () => {
     {
       title: "Document ID Setup",
       description: "Set up Invoice, Receipt & Reservation IDs",
-      path: "/document-id-setup",
+      path: "/document/id-setup/",
     },
   ];
   const navigate = useNavigate();

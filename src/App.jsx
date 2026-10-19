@@ -25,6 +25,8 @@ import EditMealPlanPackage from "./page/EditMealPlanPackage";
 import OTAChargeSetup from "./page/OTAChargeSetup";
 import InvoiceAndReceipt from "./page/InvoiceAndReceipt";
 import PMSChargeSetup from "./page/PMSChargeSetup";
+import DocumentIDSetUp from "./page/DocumentIDSetUp";
+import EditDocumentIDSetUp from "./page/EditDocumentIDSetUp";
 
 const CreateBuildingAndArea = lazy(
   () => import("./page/CreateBuildingAndArea"),
@@ -152,6 +154,16 @@ function App() {
                 <Route
                   path="/pms/invoice-receipt-setting"
                   element={<PMSChargeSetup />}
+                />
+
+                <Route
+                  path="/document/id-setup"
+                  element={<DocumentIDSetUp />}
+                />
+
+                <Route
+                  path="/document/id-setup/edit"
+                  element={<EditDocumentIDSetUp />}
                 />
               </Route>
             </Route>
