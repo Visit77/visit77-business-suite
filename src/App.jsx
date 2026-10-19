@@ -23,6 +23,8 @@ import MealPlanPackageForm from "./components/form/MealPlanPackageForm";
 import CreateMealPlanPackage from "./page/CreateMealPlanPackage";
 import EditMealPlanPackage from "./page/EditMealPlanPackage";
 import OTAChargeSetup from "./page/OTAChargeSetup";
+import InvoiceAndReceipt from "./page/InvoiceAndReceipt";
+import PMSChargeSetup from "./page/PMSChargeSetup";
 
 const CreateBuildingAndArea = lazy(
   () => import("./page/CreateBuildingAndArea"),
@@ -138,8 +140,18 @@ function App() {
                 />
 
                 <Route
-                  path="/invoice-receipt-setting"
+                  path="/invoice-and-receipt"
+                  element={<InvoiceAndReceipt />}
+                />
+
+                <Route
+                  path="/ota/invoice-receipt-setting"
                   element={<OTAChargeSetup />}
+                />
+
+                <Route
+                  path="/pms/invoice-receipt-setting"
+                  element={<PMSChargeSetup />}
                 />
               </Route>
             </Route>

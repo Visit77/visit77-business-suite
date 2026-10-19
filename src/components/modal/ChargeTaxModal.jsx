@@ -43,11 +43,9 @@ const ChargeTaxModal = ({
       footer={null}
       closeIcon={<CloseOutlined className="text-gray-500 text-lg" />}
       className="top-auto bottom-0 m-0 p-0 max-w-full sm:max-w-md sm:relative sm:bottom-auto"
-      bodyStyle={{ padding: "24px", borderRadius: "24px 24px 0 0" }}
+      title={title}
     >
       <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-6" />
-
-      <h3 className="text-lg font-bold text-gray-800 mb-6">"{title}"</h3>
 
       <Form form={form} onFinish={handleFinish} layout="vertical">
         <Form.Item name="mode" className="mb-4">

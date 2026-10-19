@@ -95,8 +95,8 @@ const ROUTE_CONFIG = [
     icon: <HugeiconsIcon icon={ConciergeBellIcon} />,
   },
   {
-    path: "/invoice-receipt-setting",
-    key: "/invoice-receipt-setting",
+    path: "/invoice-and-receipt",
+    key: "/invoice-and-receipt",
     label: "Invoice & Receipt Setting",
     breadcrumb: "Invoice & Receipt Setting",
     icon: <HugeiconsIcon icon={Coupon01Icon} />,

@@ -41,11 +41,9 @@ const OtherChargeModal = ({ visible, onClose, onSave, title, initialData }) => {
       footer={null}
       closeIcon={<CloseOutlined className="text-gray-500 text-lg" />}
       className="top-auto bottom-0 m-0 p-0 max-w-full sm:max-w-md"
-      bodyStyle={{ padding: "24px", borderRadius: "24px 24px 0 0" }}
+      title={title}
     >
       <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-6" />
-
-      <h3 className="text-lg font-bold text-gray-800 mb-6">"{title}"</h3>
 
       <Form form={form} onFinish={handleFinish} layout="vertical">
         {/* Title Input */}
@@ -89,7 +87,7 @@ const OtherChargeModal = ({ visible, onClose, onSave, title, initialData }) => {
               {chargeType === "fixed" && (
                 <div className="ml-7 mt-3 space-y-4">
                   <div className="flex items-center space-x-2">
-                    <span className="px-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 font-medium">
+                    <span className="px-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-gray-700 text-sm">
                       MMK
                     </span>
                     <Form.Item name="value" noStyle>
@@ -98,22 +96,22 @@ const OtherChargeModal = ({ visible, onClose, onSave, title, initialData }) => {
                   </div>
 
                   <Form.Item name="calculation_basis" className="pt-2 mb-0">
-                    <Radio.Group className="space-y-3 flex flex-col">
+                    <Radio.Group className="space-y-3 flex! flex-col!">
                       <Radio
                         value="per_booking_per_night"
-                        className="font-medium text-gray-700"
+                        className="font-medium text-gray-700 mt-3!"
                       >
                         Per Booking / Night
                       </Radio>
                       <Radio
                         value="per_guest_per_night"
-                        className="font-medium text-gray-700"
+                        className="font-medium text-gray-700 mt-3!"
                       >
                         Per Guest / Night
                       </Radio>
                       <Radio
                         value="per_room_per_night"
-                        className="font-medium text-gray-700"
+                        className="font-medium text-gray-700 mt-3!"
                       >
                         Per Room / Night
                       </Radio>

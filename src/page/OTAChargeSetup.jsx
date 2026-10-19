@@ -13,7 +13,6 @@ import {
 } from "../service/invoiceChargeSlice";
 import _ from "lodash";
 import { message } from "antd";
-import { useNavigate } from "react-router-dom";
 
 const AddButton = ({ onClick }) => {
   return (
@@ -29,7 +28,6 @@ const AddButton = ({ onClick }) => {
 const OTAChargeSetup = () => {
   const businessId = useSelector(selectBusinessId);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { ota, isPending } = useSelector(invoiceChargeSelector);
 
   useEffect(() => {
@@ -214,6 +212,7 @@ const OTAChargeSetup = () => {
                 title={item.title}
                 type={item.mode}
                 value={item.value}
+                item={item}
                 onEdit={() =>
                   openOtherModal(
                     "other_charge",
@@ -260,6 +259,7 @@ const OTAChargeSetup = () => {
                 title={item.title}
                 type={item.mode}
                 value={item.value}
+                item={item}
                 onEdit={() =>
                   openOtherModal("other_tax", "Other Tax Description", item)
                 }
