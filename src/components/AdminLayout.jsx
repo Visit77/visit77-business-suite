@@ -18,6 +18,7 @@ import {
   Door01Icon,
   MeetingRoomIcon,
   Restaurant01Icon,
+  TaskEdit01Icon,
 } from "@hugeicons/core-free-icons";
 import LanguageSelect from "./LanguageSelect";
 
@@ -100,6 +101,13 @@ const ROUTE_CONFIG = [
     label: "Invoice & Receipt Setting",
     breadcrumb: "Invoice & Receipt Setting",
     icon: <HugeiconsIcon icon={Coupon01Icon} />,
+  },
+  {
+    path: "/cancellation-policy",
+    key: "/cancellation-policy",
+    label: "Booking Cancellation",
+    breadcrumb: "Booking Cancellation",
+    icon: <HugeiconsIcon icon={TaskEdit01Icon} />,
   },
 ];
 

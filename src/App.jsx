@@ -27,6 +27,7 @@ import InvoiceAndReceipt from "./page/InvoiceAndReceipt";
 import PMSChargeSetup from "./page/PMSChargeSetup";
 import DocumentIDSetUp from "./page/DocumentIDSetUp";
 import EditDocumentIDSetUp from "./page/EditDocumentIDSetUp";
+import CancellationPolicy from "./page/CancellationPolicy";
 
 const CreateBuildingAndArea = lazy(
   () => import("./page/CreateBuildingAndArea"),
@@ -164,6 +165,11 @@ function App() {
                 <Route
                   path="/document/id-setup/edit"
                   element={<EditDocumentIDSetUp />}
+                />
+
+                <Route
+                  path="/cancellation-policy"
+                  element={<CancellationPolicy />}
                 />
               </Route>
             </Route>

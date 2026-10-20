@@ -28,7 +28,6 @@ const EditDocumentIDSetUp = () => {
 
   const [prefix, setPrefix] = useState("");
 
-  // API မှ documentCode ရလာတဲ့အခါ prefix state ကို update လုပ်ပေးရန်
   useEffect(() => {
     if (documentCode?.code) {
       setPrefix(documentCode.code);
@@ -37,7 +36,7 @@ const EditDocumentIDSetUp = () => {
 
   const handlePrefixChange = (e) => {
     const value = e.target.value.toUpperCase().replace(/[^A-Z]/g, "");
-    if (value.length <= 4) {
+    if (value.length <= 8) {
       setPrefix(value);
     }
   };
