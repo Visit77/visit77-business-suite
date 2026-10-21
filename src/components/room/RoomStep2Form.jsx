@@ -137,7 +137,11 @@ const RoomStep2Form = ({ form }) => {
         {/* Bed Types */}
         <div className="space-y-2">
           <span className="text-xs font-bold text-slate-800">Bed Types</span>
-          <Form.Item name="beds" className="mb-0! mt-3!">
+          <Form.Item
+            name="beds"
+            className="mb-0! mt-3!"
+            rules={[{ required: true, message: "Required" }]}
+          >
             <Checkbox.Group className="w-full flex flex-col space-y-2">
               {(showAllBeds ? bedTypesOption : bedTypesOption.slice(0, 3)).map(
                 (bed) => (
@@ -168,7 +172,11 @@ const RoomStep2Form = ({ form }) => {
         {/* Views */}
         <div className="space-y-2">
           <span className="text-xs font-bold text-slate-800">Views</span>
-          <Form.Item name="view_options" className="mb-0! mt-3!">
+          <Form.Item
+            name="view_options"
+            className="mb-0! mt-3!"
+            rules={[{ required: true, message: "Required" }]}
+          >
             <Checkbox.Group className="w-full flex flex-col space-y-2">
               {(showAllViews
                 ? roomViewsOption
@@ -200,7 +208,11 @@ const RoomStep2Form = ({ form }) => {
         {/* Bath Types */}
         <div className="space-y-2">
           <span className="text-xs font-bold text-slate-800">Bath Types</span>
-          <Form.Item name="bath_options" className="mb-0! mt-3!">
+          <Form.Item
+            name="bath_options"
+            className="mb-0! mt-3!"
+            rules={[{ required: true, message: "Required" }]}
+          >
             <Checkbox.Group className="w-full flex flex-col space-y-2">
               {(showAllBaths
                 ? bathTypesOption
