@@ -67,13 +67,15 @@ const AddRoomNumberForm = ({
     }
   };
 
-  const areaOptions = Array.from(
-    {
-      length:
-        (roomType?.room_area_to || 0) - (roomType?.room_area_from || 0) + 1,
-    },
-    (_, i) => (roomType?.room_area_from || 0) + i,
-  );
+  const areaLength = roomType?.room_area_to - roomType?.room_area_from + 1;
+
+  const areaOptions =
+    areaLength > 0
+      ? Array.from(
+          { length: areaLength },
+          (_, i) => (roomType?.room_area_from || 0) + i,
+        )
+      : [];
 
   const bedOptions = Array.from(
     { length: (roomType?.extra_bed_quantity || 0) + 1 },
@@ -201,11 +203,17 @@ const AddRoomNumberForm = ({
           <div className="grid grid-cols-2 gap-3">
             <Form.Item name="room_area" label="Room Area">
               <Select size="large">
-                {areaOptions.map((option) => (
-                  <Option key={option} value={option}>
-                    {option}
-                  </Option>
-                ))}
+                {areaOptions.map((option) => {
+                  return (
+                    <>
+                      {option > 0 && (
+                        <Option key={option} value={option}>
+                          {option}
+                        </Option>
+                      )}
+                    </>
+                  );
+                })}
               </Select>
             </Form.Item>
 
