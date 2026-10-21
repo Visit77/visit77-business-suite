@@ -94,8 +94,8 @@ const EditRoomType = () => {
         description: roomTypeData?.description || "",
         max_adults: String(roomTypeData?.max_adults ?? "2"),
         max_children: String(roomTypeData?.max_children ?? "0"),
-        room_area_from: roomTypeData?.room_area_from || "",
-        room_area_to: roomTypeData?.room_area_to || "",
+        room_area_from: roomTypeData?.room_area_from,
+        room_area_to: roomTypeData?.room_area_to,
         area_unit: roomTypeData?.area_unit || "sqft",
 
         // Step 2: Options
