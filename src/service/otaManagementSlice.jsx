@@ -77,14 +77,17 @@ export const updateSaleStatus = createAsyncThunk(
 
 export const manageOTARoom = createAsyncThunk(
   "otaManagement/manageOTARoom",
-  async ({ id, business_id, selected_room_ids }, { rejectWithValue }) => {
+  async ({ id, business_id, selected_room_ids, data }, { rejectWithValue }) => {
     try {
-      const payload = {};
+      let payload = {};
       if (id) {
         payload.deselected_room_ids = [id];
       }
       if (selected_room_ids) {
         payload.selected_room_ids = selected_room_ids;
+      }
+      if (data) {
+        payload = data;
       }
 
       const response = await api.put(
@@ -120,6 +123,28 @@ export const getOTARoomType = createAsyncThunk(
       return { data, headers };
     } catch (error) {
       return rejectWithValue(error);
+    }
+  },
+);
+
+export const changeInventoryMode = createAsyncThunk(
+  "otaManagement/changeInventoryMode",
+  async ({ business_id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.patch(
+        `/api/v1/admin/ota-rooms/selection/`,
+        data,
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
     }
   },
 );
@@ -191,6 +216,19 @@ const otaManagementSlice = createSlice({
         state.count = payload.count || state.count;
       })
       .addCase(getOTARoomType.rejected, (state) => {
+        state.isPending = false;
+        state.hasError = true;
+      })
+      .addCase(changeInventoryMode.pending, (state) => {
+        state.isPending = true;
+        state.hasError = false;
+      })
+      .addCase(changeInventoryMode.fulfilled, (state, { payload }) => {
+        state.isPending = false;
+        state.data = payload.data;
+        state.count = payload.count || state.count;
+      })
+      .addCase(changeInventoryMode.rejected, (state) => {
         state.isPending = false;
         state.hasError = true;
       });

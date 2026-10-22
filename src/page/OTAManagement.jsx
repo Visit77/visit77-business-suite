@@ -13,17 +13,32 @@ import { OTABookingCard } from "../components/card/OTABookingCard";
 import { selectBusinessId } from "../service/businessSlice";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  changeInventoryMode,
   getOTARecord,
   getOTARoom,
+  manageOTARoom,
   otaManagementSelector,
 } from "../service/otaManagementSlice";
 import { Link } from "react-router-dom";
-import { Button } from "antd";
+import { Button, Divider, message, Radio } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
+import _ from "lodash";
+import { INVENTORY_MODE } from "../variables/constants";
+import AddRoomModalForOTA from "../components/modal/AddRoomModalForOTA";
+import OTARoomCloseModal from "../components/modal/OTARoomCloseModal";
 
 export default function OTAManagement() {
   const [activeTab, setActiveTab] = useState("rooms");
   const [collapsedGroups, setCollapsedGroups] = useState({});
+  const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
+
+  const [isAddRoomOpen, setIsAddRoomOpen] = useState(false);
+  const [selectedRoomType, setSelectedRoomType] = useState(null);
+
+  const [inventoryMode, setInventoryMode] = useState(
+    () => localStorage.getItem(INVENTORY_MODE) || "physical_room",
+  );
+
   const {
     data: otaManagement,
     record,
@@ -76,18 +91,50 @@ export default function OTAManagement() {
     };
   });
 
+  const options = [
+    { label: "OTA Only", value: "room_type_count" },
+    { label: "OTA+PMS", value: "physical_room" },
+  ];
+
   return (
     <div className="min-h-screen font-sans text-neutral-800 bg-neutral-50/50">
-      <div className=" flex justify-end items-center">
-        <Link to={`/ota-revenue/add-room`}>
-          <Button
-            type="default"
-            icon={<PlusOutlined />}
-            className="h-9 px-3 sm:px-4 rounded-xl bg-primary! border-blue-100 text-white! hover:bg-blue-100! hover:text-blue-700! font-semibold text-xs flex items-center gap-1 shadow-none"
-          >
-            Add Room For OTA
-          </Button>
-        </Link>
+      <div className="flex justify-between items-center">
+        <Radio.Group
+          block
+          options={options}
+          value={inventoryMode}
+          optionType="button"
+          buttonStyle="solid"
+          onChange={(e) => {
+            const newValue = e.target.value;
+            dispatch(
+              changeInventoryMode({
+                business_id: businessId,
+                data: { inventory_mode: newValue },
+              }),
+            ).then((response) => {
+              if (_.endsWith(response.type, "fulfilled")) {
+                message.success("Success");
+                localStorage.setItem(INVENTORY_MODE, newValue);
+                setInventoryMode(newValue);
+              } else {
+                message.error("Error");
+              }
+            });
+          }}
+        />
+
+        {inventoryMode == "physical_room" && (
+          <Link to={`/ota-revenue/add-room`}>
+            <Button
+              type="default"
+              icon={<PlusOutlined />}
+              className="h-9 px-3 sm:px-4 rounded-xl bg-primary! border-blue-100 text-white! hover:bg-blue-100! hover:text-blue-700! font-semibold text-xs flex items-center gap-1 shadow-none"
+            >
+              Add Room For OTA
+            </Button>
+          </Link>
+        )}
       </div>
 
       {/* Tabs Bar */}
@@ -134,58 +181,109 @@ export default function OTAManagement() {
             </div>
 
             {/* Room Groups Grid */}
-            {otaManagement?.room_types?.map((roomType) => {
-              const groupId = roomType.room_type_id || roomType.room_type_name;
-              const isCollapsed = collapsedGroups[groupId];
-              const roomsInGroup = roomType.rooms || [];
+            <>
+              {inventoryMode == "physical_room" ? (
+                <>
+                  {otaManagement?.room_types?.map((roomType) => {
+                    const groupId =
+                      roomType.room_type_id || roomType.room_type_name;
+                    const isCollapsed = collapsedGroups[groupId];
+                    const roomsInGroup = roomType.rooms || [];
 
-              return (
-                <div key={groupId} className="space-y-3">
-                  {/* Accordion Group Header */}
-                  <div
-                    onClick={() => toggleGroup(groupId)}
-                    className="flex items-center justify-between cursor-pointer select-none py-1.5 px-1 rounded-lg hover:bg-neutral-100/60 transition-colors"
-                  >
-                    <div>
-                      <h2 className="text-base sm:text-lg font-bold text-neutral-800">
-                        {roomType.room_type_name}
-                      </h2>
-                      <p className="text-xs font-semibold text-emerald-600">
-                        Selected OTA: {roomType.selected_count || 0} / Total:{" "}
-                        {roomType.total_rooms || roomsInGroup.length}
-                      </p>
-                    </div>
-                    <button type="button" className="p-1 text-neutral-400">
-                      <HugeiconsIcon
-                        icon={isCollapsed ? ArrowDown01Icon : ArrowUp01Icon}
-                        size={20}
-                      />
-                    </button>
-                  </div>
+                    return (
+                      <div key={groupId} className="space-y-3">
+                        <div
+                          onClick={() => toggleGroup(groupId)}
+                          className="flex items-center justify-between cursor-pointer select-none py-1.5 px-1 rounded-lg hover:bg-neutral-100/60 transition-colors"
+                        >
+                          <div>
+                            <h2 className="text-base sm:text-lg font-bold text-neutral-800">
+                              {roomType.room_type_name}
+                            </h2>
+                            <p className="text-xs font-semibold text-emerald-600">
+                              Selected OTA: {roomType.selected_count || 0} /
+                              Total:{" "}
+                              {roomType.total_rooms || roomsInGroup.length}
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            className="p-1 text-neutral-400"
+                          >
+                            <HugeiconsIcon
+                              icon={
+                                isCollapsed ? ArrowDown01Icon : ArrowUp01Icon
+                              }
+                              size={20}
+                            />
+                          </button>
+                        </div>
 
-                  {/* Desktop & Mobile Grid Layout */}
-                  {!isCollapsed && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                      {roomsInGroup.map((room) => (
-                        <OTARoomCard
-                          key={
-                            room.physical_room_id || room.core_physical_room_id
-                          }
-                          room={room}
-                        />
-                      ))}
-                    </div>
-                  )}
+                        {!isCollapsed && (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            {roomsInGroup.map((room) => (
+                              <OTARoomCard
+                                key={
+                                  room.physical_room_id ||
+                                  room.core_physical_room_id
+                                }
+                                room={room}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </>
+              ) : (
+                <div className="grid grid-cols-3 gap-3">
+                  {otaManagement?.room_types?.map((roomType) => {
+                    const groupId =
+                      roomType.room_type_id || roomType.room_type_name;
+
+                    return (
+                      <div
+                        className="border rounded-lg p-2 border-neutral-200 shadow bg-white"
+                        key={groupId}
+                      >
+                        <h2 className="text-base sm:text-lg font-bold text-neutral-800">
+                          {roomType.room_type_name}
+                        </h2>
+                        <div className="flex justify-between items-center text-sm text-neutral-600">
+                          <div>OTA Room : {roomType?.available_rooms}</div>
+                          <div>Booking : {roomType?.booked_rooms}</div>
+                        </div>
+                        <Divider className="border-neutral-300! my-2" />
+                        <div className="flex justify-end items-center">
+                          <button
+                            onClick={() => {
+                              setSelectedRoomType(roomType);
+                              setIsAddRoomOpen(true);
+                            }}
+                            className="text-blue-600 font-medium border-2 border-blue-200 rounded-lg px-3 py-1 mr-2 hover:bg-blue-50 transition"
+                          >
+                            Add Room
+                          </button>
+                          <button
+                            onClick={() => setIsCloseModalOpen(true)}
+                            className="text-red-700 font-medium border-2 border-red-200 rounded-lg px-3 py-1 hover:bg-red-50 transition"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
+              )}
+            </>
           </div>
         )}
 
         {/* BOOKINGS TAB CONTENT */}
         {activeTab === "bookings" && (
           <div className="space-y-6">
-            {/* Search Input Bar */}
             <div className="relative max-w-xl">
               <HugeiconsIcon
                 icon={Search01Icon}
@@ -199,7 +297,6 @@ export default function OTAManagement() {
               />
             </div>
 
-            {/* Bookings List by Date */}
             <div className="space-y-8">
               {recordData?.map((group) => (
                 <div key={group?.check_in} className="space-y-3">
@@ -217,6 +314,44 @@ export default function OTAManagement() {
           </div>
         )}
       </main>
+      <OTARoomCloseModal
+        isOpen={isCloseModalOpen}
+        onClose={() => setIsCloseModalOpen(false)}
+        roomType={{ room_type_name: "Dulux", room_type_id: 1 }}
+        onSave={(payload) => {
+          console.log("Submitted Data:", payload);
+        }}
+      />
+      <AddRoomModalForOTA
+        isOpen={isAddRoomOpen}
+        onClose={() => setIsAddRoomOpen(false)}
+        roomType={selectedRoomType}
+        onSave={(data) => {
+          dispatch(
+            manageOTARoom({
+              business_id: businessId,
+              data: {
+                room_types: [
+                  {
+                    room_type_id: data?.room_type_id,
+                    total_rooms: data?.total_rooms,
+                  },
+                ],
+              },
+            }),
+          ).then((response) => {
+            if (_.endsWith(response.type, "fulfilled")) {
+              message.success("Success");
+              setIsAddRoomOpen(false);
+              dispatch(
+                getOTARoom({ business_id: businessId, timeline_status: "all" }),
+              );
+            } else {
+              message.error("Error");
+            }
+          });
+        }}
+      />
     </div>
   );
 }
