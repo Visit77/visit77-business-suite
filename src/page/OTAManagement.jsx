@@ -159,24 +159,18 @@ export default function OTAManagement() {
             {/* Summary Statistics & Filter Bar */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-neutral-200 shadow-sm">
               <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm">
-                <div className="font-bold text-blue-600">
-                  Total Rooms:{" "}
-                  <span className="text-neutral-800">
-                    {otaManagement?.total_rooms || 0}
-                  </span>
-                </div>
-                <div className="hidden sm:block h-4 w-px bg-neutral-200" />
                 <div className="font-bold text-neutral-600">
-                  Total OTA:{" "}
+                  Total OTA Room:{" "}
                   <span className="text-neutral-800">
                     {otaManagement?.total_ota_rooms || 0}
                   </span>
                 </div>
                 <div className="hidden sm:block h-4 w-px bg-neutral-200" />
-                <div className="font-bold text-emerald-600">
-                  Active OTA Room:{" "}
+
+                <div className="font-bold text-blue-600">
+                  Total Booking:{" "}
                   <span className="text-neutral-800">
-                    {otaManagement?.total_open_ota_rooms || 0}
+                    {otaManagement?.total_booking_count || 0}
                   </span>
                 </div>
               </div>

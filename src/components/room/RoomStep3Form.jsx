@@ -67,7 +67,11 @@ const RoomStep3Form = ({ form, businessId }) => {
             For Local <span className="text-red-500">*</span>
           </span>
           <div className="space-y-2">
-            <Form.Item name="local_base_price" className="mb-0">
+            <Form.Item
+              name="local_base_price"
+              className="mb-0"
+              rules={[{ required: true, message: "Required" }]}
+            >
               <Input
                 placeholder="Type ..."
                 addonBefore={
@@ -100,7 +104,11 @@ const RoomStep3Form = ({ form, businessId }) => {
             For Foreigner <span className="text-red-500">*</span>
           </span>
           <div className="space-y-2">
-            <Form.Item name="foreign_base_price" className="mb-0">
+            <Form.Item
+              name="foreign_base_price"
+              className="mb-0"
+              rules={[{ required: true, message: "Required" }]}
+            >
               <Input
                 placeholder="Type ..."
                 addonBefore={
