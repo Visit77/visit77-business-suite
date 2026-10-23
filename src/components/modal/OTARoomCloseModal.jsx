@@ -6,28 +6,26 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { closeRoomForOta } from "../../service/otaManagementSlice";
+import { closeRoomForOta, getOTARoom } from "../../service/otaManagementSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { selectBusinessId } from "../../service/businessSlice";
+import _ from "lodash";
 
 const CloseRoomModal = ({
   isOpen,
   onClose,
   roomTypeId,
-
   maxAvailableRooms,
+  roomTypeName,
 }) => {
   const [form] = Form.useForm();
 
-  // Local state for room count
   const [roomCount, setRoomCount] = useState(0);
 
-  // Watch form values to control dynamic UI rendering
   const closeType = Form.useWatch("closeType", form) || "all";
   const periodType = Form.useWatch("periodType", form) || "now";
   const businessId = useSelector(selectBusinessId);
   const dispatch = useDispatch();
-  // Reset form states
   const resetForm = () => {
     form.resetFields();
     setRoomCount(0);
@@ -38,7 +36,6 @@ const CloseRoomModal = ({
     onClose();
   };
 
-  // Increment with max limit validation
   const handleIncrement = () => {
     if (roomCount < maxAvailableRooms) {
       const nextCount = roomCount + 1;
@@ -54,7 +51,6 @@ const CloseRoomModal = ({
     }
   };
 
-  // Decrement
   const handleDecrement = () => {
     const nextCount = Math.max(0, roomCount - 1);
     setRoomCount(nextCount);
@@ -64,7 +60,6 @@ const CloseRoomModal = ({
     });
   };
 
-  // Form Submission
   const handleSubmit = () => {
     form
       .validateFields()
@@ -102,6 +97,9 @@ const CloseRoomModal = ({
         ).then((response) => {
           if (_.endsWith(response.type, "fulfilled")) {
             message.success("Success");
+            dispatch(
+              getOTARoom({ business_id: businessId, timeline_status: "all" }),
+            );
             handleCloseModal();
           } else {
             message.error("Error");
@@ -115,15 +113,8 @@ const CloseRoomModal = ({
   };
 
   return (
-    <Modal
-      open={isOpen}
-      onCancel={handleCloseModal}
-      footer={null}
-      centered
-      // width={440}
-    >
+    <Modal open={isOpen} onCancel={handleCloseModal} footer={null} centered>
       <div className="flex flex-col select-none overflow-hidden rounded-3xl">
-        {/* Modal Form Body */}
         <Form
           form={form}
           layout="vertical"
@@ -138,7 +129,7 @@ const CloseRoomModal = ({
           <section className="mb-6 mt-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-base font-bold text-slate-900 m-0">
-                Close Room
+                Close {roomTypeName} Room
               </h3>
               <span className="text-xs text-slate-500 font-medium">
                 Available: {maxAvailableRooms} rooms
@@ -153,11 +144,10 @@ const CloseRoomModal = ({
                     value="all"
                     className="text-slate-800 font-semibold text-base"
                   >
-                    Close All Dulux
+                    Close All
                   </Radio>
                 </div>
 
-                {/* Option 2: Close + Counter */}
                 <div className="flex items-center space-x-3">
                   <Radio
                     value="specific"
@@ -166,7 +156,6 @@ const CloseRoomModal = ({
                     Close
                   </Radio>
 
-                  {/* Counter Widget */}
                   <div
                     onClick={() =>
                       form.setFieldsValue({ closeType: "specific" })
@@ -177,7 +166,6 @@ const CloseRoomModal = ({
                         : "hover:bg-[#e4edff]"
                     }`}
                   >
-                    {/* Decrement (-) */}
                     <button
                       type="button"
                       onClick={(e) => {
@@ -190,12 +178,10 @@ const CloseRoomModal = ({
                       <MinusOutlined />
                     </button>
 
-                    {/* Display Count */}
                     <span className="font-bold text-slate-800 min-w-4.5 text-center text-base select-none">
                       {roomCount}
                     </span>
 
-                    {/* Increment (+) */}
                     <button
                       type="button"
                       onClick={(e) => {
@@ -219,7 +205,6 @@ const CloseRoomModal = ({
 
           <hr className="border-gray-100 my-5" />
 
-          {/* SECTION 2: Closing Period */}
           <section className="mb-6">
             <h3 className="text-base font-bold text-slate-900 mb-4">
               Closing Period
@@ -263,7 +248,6 @@ const CloseRoomModal = ({
 
           <hr className="border-gray-100 my-5" />
 
-          {/* SECTION 3: Note */}
           <section className="mb-2">
             <h3 className="text-base font-bold text-slate-900 mb-2">Note</h3>
             <Form.Item name="note" className="mb-0">

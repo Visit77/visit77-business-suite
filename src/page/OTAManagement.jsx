@@ -6,6 +6,7 @@ import {
   Search01Icon,
   ArrowUp01Icon,
   ArrowDown01Icon,
+  Delete02Icon,
 } from "@hugeicons/core-free-icons";
 import { TabNavigation } from "../components/TabNavigation";
 import { OTARoomCard } from "../components/card/OTARoomCard";
@@ -14,23 +15,33 @@ import { selectBusinessId } from "../service/businessSlice";
 import { useDispatch, useSelector } from "react-redux";
 import {
   changeInventoryMode,
+  deleteRoomForOta,
   getOTARecord,
   getOTARoom,
   manageOTARoom,
   otaManagementSelector,
+  reopenRoomForOta,
 } from "../service/otaManagementSlice";
 import { Link } from "react-router-dom";
-import { Button, Divider, message, Radio } from "antd";
+import { Button, Divider, message, Radio, Tag } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import _ from "lodash";
 import { INVENTORY_MODE } from "../variables/constants";
 import AddRoomModalForOTA from "../components/modal/AddRoomModalForOTA";
 import OTARoomCloseModal from "../components/modal/OTARoomCloseModal";
+import DeleteConfirmModal from "../components/modal/DeleteConfirmModal";
+import ReopenModal from "../components/modal/ReopenModal";
 
 export default function OTAManagement() {
   const [activeTab, setActiveTab] = useState("rooms");
   const [collapsedGroups, setCollapsedGroups] = useState({});
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const [isReopenModal, setIsReopenModal] = useState(false);
+  const [isReopen, setIsReopen] = useState(false);
 
   const [isAddRoomOpen, setIsAddRoomOpen] = useState(false);
   const [selectedRoomType, setSelectedRoomType] = useState(null);
@@ -95,6 +106,7 @@ export default function OTAManagement() {
     { label: "OTA Only", value: "room_type_count" },
     { label: "OTA+PMS", value: "physical_room" },
   ];
+
   return (
     <div className="min-h-screen font-sans text-neutral-800 bg-neutral-50/50">
       <div className="flex justify-between items-center">
@@ -250,10 +262,48 @@ export default function OTAManagement() {
                           {roomType.room_type_name}
                         </h2>
                         <div className="flex justify-between items-center text-sm text-neutral-600">
-                          <div>OTA Room : {roomType?.available_rooms}</div>
+                          <div>OTA Room : {roomType?.total_ota_rooms}</div>
                           <div>Booking : {roomType?.booked_rooms}</div>
                         </div>
+                        {roomType?.closed_rooms > 0 && (
+                          <div>
+                            <div className=" mt-2 text-xs flex justify-between items-center">
+                              <div>
+                                Close Condition: {roomType?.closed_rooms}{" "}
+                                Rooms{" "}
+                              </div>
+                              <Tag color="red" variant="solid">
+                                Close
+                              </Tag>
+                            </div>
+                            <div className=" flex justify-between items-center mt-3">
+                              <button
+                                className=" text-green-800 font-bold cursor-pointer underline"
+                                onClick={() => {
+                                  setSelectedRoomType(roomType);
+                                  setIsReopenModal(true);
+                                }}
+                              >
+                                Reopen
+                              </button>
+
+                              <button
+                                className=" text-green-800 font-bold cursor-pointer"
+                                onClick={() => {
+                                  setSelectedRoomType(roomType);
+                                  setIsModalOpen(true);
+                                }}
+                              >
+                                <HugeiconsIcon
+                                  icon={Delete02Icon}
+                                  className=" text-red-800"
+                                />
+                              </button>
+                            </div>
+                          </div>
+                        )}
                         <Divider className="border-neutral-300! my-2" />
+
                         <div className="flex justify-end items-center">
                           <button
                             onClick={() => {
@@ -316,15 +366,15 @@ export default function OTAManagement() {
           </div>
         )}
       </main>
+
       <OTARoomCloseModal
         isOpen={isCloseModalOpen}
         onClose={() => setIsCloseModalOpen(false)}
         roomTypeId={selectedRoomType?.room_type_id}
         maxAvailableRooms={selectedRoomType?.available_rooms}
-        onSave={(payload) => {
-          console.log("Submitted Data:", payload);
-        }}
+        roomTypeName={selectedRoomType?.room_type_name}
       />
+
       <AddRoomModalForOTA
         isOpen={isAddRoomOpen}
         onClose={() => setIsAddRoomOpen(false)}
@@ -354,6 +404,72 @@ export default function OTAManagement() {
             }
           });
         }}
+      />
+
+      <DeleteConfirmModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={() => {
+          setIsDeleting(true);
+          dispatch(
+            deleteRoomForOta({
+              id: selectedRoomType?.close_conditions?.[0]?.id,
+              business_id: businessId,
+            }),
+          )
+            .then((response) => {
+              if (_.endsWith(response.type, "fulfilled")) {
+                message.success("Success");
+                setIsModalOpen(false);
+                dispatch(
+                  getOTARoom({
+                    business_id: businessId,
+                    timeline_status: "all",
+                  }),
+                );
+              } else {
+                message.error("Error");
+              }
+            })
+            .finally(() => {
+              setIsDeleting(false);
+            });
+        }}
+        loading={isDeleting}
+        title={`Delete ${selectedRoomType?.room_type_name || ""} ?`}
+      />
+
+      <ReopenModal
+        open={isReopenModal}
+        onClose={() => setIsReopenModal(false)}
+        onConfirm={() => {
+          setIsReopen(true);
+          dispatch(
+            reopenRoomForOta({
+              id: selectedRoomType?.close_conditions?.[0]?.id,
+              business_id: businessId,
+            }),
+          )
+            .then((response) => {
+              if (_.endsWith(response.type, "fulfilled")) {
+                message.success("Success");
+                setIsReopenModal(false);
+                dispatch(
+                  getOTARoom({
+                    business_id: businessId,
+                    timeline_status: "all",
+                  }),
+                );
+              } else {
+                message.error("Error");
+              }
+            })
+            .finally(() => {
+              setIsReopen(false);
+            });
+        }}
+        loading={isReopen}
+        title={`Reopen ${selectedRoomType?.room_type_name || ""} ?`}
       />
     </div>
   );

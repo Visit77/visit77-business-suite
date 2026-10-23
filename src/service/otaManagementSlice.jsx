@@ -171,6 +171,50 @@ export const closeRoomForOta = createAsyncThunk(
   },
 );
 
+export const reopenRoomForOta = createAsyncThunk(
+  "otaManagement/reopenRoomForOta",
+  async ({ id, business_id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(
+        `/api/v1/admin/ota-inventory-closures/${id}/reopen/`,
+        data,
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
+export const deleteRoomForOta = createAsyncThunk(
+  "otaManagement/deleteRoomForOta",
+  async ({ id, business_id }, { rejectWithValue }) => {
+    try {
+      const response = await api.delete(
+        `/api/v1/admin/ota-inventory-closures/${id}/`,
+
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
 const otaManagementSlice = createSlice({
   name: "otaManagement",
   initialState,
