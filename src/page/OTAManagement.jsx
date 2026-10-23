@@ -95,7 +95,6 @@ export default function OTAManagement() {
     { label: "OTA Only", value: "room_type_count" },
     { label: "OTA+PMS", value: "physical_room" },
   ];
-
   return (
     <div className="min-h-screen font-sans text-neutral-800 bg-neutral-50/50">
       <div className="flex justify-between items-center">
@@ -266,7 +265,10 @@ export default function OTAManagement() {
                             Add Room
                           </button>
                           <button
-                            onClick={() => setIsCloseModalOpen(true)}
+                            onClick={() => {
+                              setSelectedRoomType(roomType);
+                              setIsCloseModalOpen(true);
+                            }}
                             className="text-red-700 font-medium border-2 border-red-200 rounded-lg px-3 py-1 hover:bg-red-50 transition"
                           >
                             Close
@@ -317,7 +319,7 @@ export default function OTAManagement() {
       <OTARoomCloseModal
         isOpen={isCloseModalOpen}
         onClose={() => setIsCloseModalOpen(false)}
-        roomType={{ room_type_name: "Dulux", room_type_id: 1 }}
+        roomTypeId={selectedRoomType?.room_type_id}
         onSave={(payload) => {
           console.log("Submitted Data:", payload);
         }}

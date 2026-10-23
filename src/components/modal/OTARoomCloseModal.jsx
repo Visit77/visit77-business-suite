@@ -1,74 +1,91 @@
-import React, { useState } from "react";
-import {
-  Modal,
-  Form,
-  Radio,
-  DatePicker,
-  Button,
-  ConfigProvider,
-  message,
-} from "antd";
+import React, { useState, useEffect } from "react";
+import { Modal, Form, Radio, DatePicker, Button, Input, message } from "antd";
 import {
   CalendarOutlined,
   MinusOutlined,
   PlusOutlined,
-  LockOutlined,
 } from "@ant-design/icons";
+import dayjs from "dayjs";
+import { useDispatch, useSelector } from "react-redux";
+import { closeRoomForOta } from "../../service/otaManagementSlice";
+import { selectBusinessId } from "../../service/businessSlice";
+import _ from "lodash";
 
-const CloseRoomModal = ({ isOpen, onClose }) => {
+const CloseRoomModal = ({ isOpen, onClose, roomTypeId }) => {
   const [form] = Form.useForm();
 
-  // State management for form selections
-  const [closeType, setCloseType] = useState("all"); // 'all' | 'specific'
   const [roomCount, setRoomCount] = useState(0);
-  const [periodType, setPeriodType] = useState("range"); // 'now' | 'range'
-  const [selectedDates, setSelectedDates] = useState(null);
 
-  // Reset form states
+  const closeType = Form.useWatch("closeType", form) || "all";
+  const periodType = Form.useWatch("periodType", form) || "now";
+
+  const businessId = useSelector(selectBusinessId);
+  const dispatch = useDispatch();
   const resetForm = () => {
-    setCloseType("all");
-    setRoomCount(0);
-    setPeriodType("range");
-    setSelectedDates(null);
     form.resetFields();
+    setRoomCount(0);
+  };
+
+  const handleCloseModal = () => {
+    resetForm();
+    onClose();
   };
 
   const handleIncrement = () => {
-    setRoomCount((prev) => prev + 1);
-    if (closeType !== "specific") {
-      setCloseType("specific");
-    }
+    const nextCount = roomCount + 1;
+    setRoomCount(nextCount);
+    form.setFieldsValue({
+      rooms_to_close: nextCount,
+      closeType: "specific",
+    });
   };
 
   const handleDecrement = () => {
-    setRoomCount((prev) => Math.max(0, prev - 1));
-    if (closeType !== "specific") {
-      setCloseType("specific");
-    }
+    const nextCount = Math.max(0, roomCount - 1);
+    setRoomCount(nextCount);
+    form.setFieldsValue({
+      rooms_to_close: nextCount,
+      closeType: "specific",
+    });
   };
 
-  // Form Submission
   const handleSubmit = () => {
     form
       .validateFields()
-      .then(() => {
+      .then((values) => {
+        const dateRange = values.dateRange;
         const payload = {
-          closeType,
-          roomCount: closeType === "specific" ? roomCount : "All",
-          periodType,
-          dateRange: periodType === "range" ? selectedDates : "Now",
+          room_type: roomTypeId,
+          closure_mode: values.periodType === "now" ? "close_now" : "scheduled",
+          start_date:
+            values.periodType === "scheduled" && dateRange && dateRange[0]
+              ? dayjs(dateRange[0]).format("YYYY-MM-DD")
+              : null,
+          end_date:
+            values.periodType === "scheduled" && dateRange && dateRange[1]
+              ? dayjs(dateRange[1]).format("YYYY-MM-DD")
+              : null,
+          close_all: values.closeType === "all",
+          rooms_to_close: values.closeType === "specific" ? roomCount : 0,
+          note: values.note || "",
         };
-        console.log("payload", payload);
-        message.success({
-          content: `Successfully submitted! ${
-            closeType === "all"
-              ? "Close All Dulux selected"
-              : `Close ${roomCount} room(s) selected`
-          }`,
-          duration: 3,
-        });
 
-        onClose();
+        console.log("payload", payload);
+        dispatch(
+          closeRoomForOta({
+            business_id: businessId,
+            data: {
+              ...payload,
+            },
+          }),
+        ).then((response) => {
+          if (_.endsWith(response.type, "fulfilled")) {
+            message.success("Success");
+            handleCloseModal();
+          } else {
+            message.error("Error");
+          }
+        });
       })
       .catch((err) => {
         console.error("Validation failed:", err);
@@ -78,7 +95,7 @@ const CloseRoomModal = ({ isOpen, onClose }) => {
   return (
     <Modal
       open={isOpen}
-      onCancel={onClose}
+      onCancel={handleCloseModal}
       footer={null}
       centered
       width={440}
@@ -90,134 +107,155 @@ const CloseRoomModal = ({ isOpen, onClose }) => {
     >
       <div className="flex flex-col select-none overflow-hidden rounded-3xl">
         {/* Modal Form Body */}
-        <Form form={form} layout="vertical" className="p-6">
+        <Form
+          form={form}
+          layout="vertical"
+          className="p-6"
+          initialValues={{
+            closeType: "all",
+            rooms_to_close: 0,
+            periodType: "now",
+          }}
+        >
           {/* SECTION 1: Close Room */}
           <section className="mb-6">
             <h3 className="text-base font-bold text-slate-900 mb-4">
               Close Room
             </h3>
 
-            <Radio.Group
-              value={closeType}
-              onChange={(e) => setCloseType(e.target.value)}
-              className="w-full space-y-4 flex flex-col"
-            >
-              {/* Option 1: Close All Dulux */}
-              <div className="flex items-center">
-                <Radio
-                  value="all"
-                  className="text-slate-800 font-semibold text-base"
-                >
-                  Close All Dulux
-                </Radio>
-              </div>
-
-              {/* Option 2: Close + Counter */}
-              <div className="flex items-center space-x-3">
-                <Radio
-                  value="specific"
-                  className="text-slate-800 font-semibold text-base"
-                >
-                  Close
-                </Radio>
-
-                {/* Counter Widget */}
-                <div
-                  onClick={() => setCloseType("specific")}
-                  className={`inline-flex items-center bg-[#ebf1ff] rounded-xl px-3 py-1.5 space-x-4 cursor-pointer transition-all duration-200 ${
-                    closeType === "specific"
-                      ? "ring-2 ring-blue-500/40 bg-[#e4edff]"
-                      : "hover:bg-[#e4edff]"
-                  }`}
-                >
-                  {/* Decrement (-) */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDecrement();
-                    }}
-                    aria-label="Decrease room count"
-                    className="text-blue-600 hover:text-blue-800 active:scale-90 transition-transform p-1 text-xs font-bold focus:outline-none"
+            <Form.Item name="closeType" className="mb-0">
+              <Radio.Group className="w-full space-y-4 flex flex-col">
+                {/* Option 1: Close All Dulux */}
+                <div className="flex items-center">
+                  <Radio
+                    value="all"
+                    className="text-slate-800 font-semibold text-base"
                   >
-                    <MinusOutlined />
-                  </button>
-
-                  {/* Display Count */}
-                  <span className="font-bold text-slate-800 min-w-4.5 text-center text-base select-none">
-                    {roomCount}
-                  </span>
-
-                  {/* Increment (+) */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleIncrement();
-                    }}
-                    aria-label="Increase room count"
-                    className="text-blue-600 hover:text-blue-800 active:scale-90 transition-transform p-1 text-xs font-bold focus:outline-none"
-                  >
-                    <PlusOutlined />
-                  </button>
+                    Close All Dulux
+                  </Radio>
                 </div>
-              </div>
-            </Radio.Group>
+
+                {/* Option 2: Close + Counter */}
+                <div className="flex items-center space-x-3">
+                  <Radio
+                    value="specific"
+                    className="text-slate-800 font-semibold text-base"
+                  >
+                    Close
+                  </Radio>
+
+                  {/* Counter Widget */}
+                  <div
+                    onClick={() =>
+                      form.setFieldsValue({ closeType: "specific" })
+                    }
+                    className={`inline-flex items-center bg-[#ebf1ff] rounded-xl px-3 py-1.5 space-x-4 cursor-pointer transition-all duration-200 ${
+                      closeType === "specific"
+                        ? "ring-2 ring-blue-500/40 bg-[#e4edff]"
+                        : "hover:bg-[#e4edff]"
+                    }`}
+                  >
+                    {/* Decrement (-) */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDecrement();
+                      }}
+                      aria-label="Decrease room count"
+                      className="text-blue-600 hover:text-blue-800 active:scale-90 transition-transform p-1 text-xs font-bold focus:outline-none"
+                    >
+                      <MinusOutlined />
+                    </button>
+
+                    {/* Display Count */}
+                    <span className="font-bold text-slate-800 min-w-4.5 text-center text-base select-none">
+                      {roomCount}
+                    </span>
+
+                    {/* Increment (+) */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleIncrement();
+                      }}
+                      aria-label="Increase room count"
+                      className="text-blue-600 hover:text-blue-800 active:scale-90 transition-transform p-1 text-xs font-bold focus:outline-none"
+                    >
+                      <PlusOutlined />
+                    </button>
+                  </div>
+                </div>
+              </Radio.Group>
+            </Form.Item>
           </section>
 
           <hr className="border-gray-100 my-5" />
 
           {/* SECTION 2: Closing Period */}
-          <section className="mb-2">
+          <section className="mb-6">
             <h3 className="text-base font-bold text-slate-900 mb-4">
               Closing Period
             </h3>
 
-            <Radio.Group
-              value={periodType}
-              onChange={(e) => setPeriodType(e.target.value)}
-              className="w-full space-y-4 flex flex-col"
-            >
-              <div className="flex items-center">
-                <Radio
-                  value="now"
-                  className="text-slate-800 font-semibold text-base"
-                >
-                  Close Now
-                </Radio>
-              </div>
+            <Form.Item name="periodType" className="mb-4">
+              <Radio.Group className="w-full space-y-4 flex flex-col">
+                <div className="flex items-center">
+                  <Radio
+                    value="now"
+                    className="text-slate-800 font-semibold text-base"
+                  >
+                    Close Now
+                  </Radio>
+                </div>
 
-              <div className="flex items-center">
-                <Radio
-                  value="range"
-                  className="text-slate-800 font-semibold text-base"
-                >
-                  Select Date Range
-                </Radio>
-              </div>
-            </Radio.Group>
+                <div className="flex items-center">
+                  <Radio
+                    value="scheduled"
+                    className="text-slate-800 font-semibold text-base"
+                  >
+                    Select Date Range (Scheduled)
+                  </Radio>
+                </div>
+              </Radio.Group>
+            </Form.Item>
 
             {/* Range Picker */}
-            {periodType === "range" && (
-              <div className="mt-4">
+            {periodType === "scheduled" && (
+              <Form.Item name="dateRange" className="mb-0">
                 <DatePicker.RangePicker
                   className="w-full py-3 px-4 rounded-xl border border-indigo-100 bg-[#f0f4ff] hover:border-blue-400 focus:border-blue-600 transition-all shadow-sm"
                   suffixIcon={
                     <CalendarOutlined className="text-blue-600 text-lg" />
                   }
-                  onChange={(dates) => setSelectedDates(dates)}
                   placeholder={["Start Date", "End Date"]}
                 />
-              </div>
+              </Form.Item>
             )}
           </section>
+
+          <hr className="border-gray-100 my-5" />
+
+          {/* SECTION 3: Note */}
+          <section className="mb-2">
+            <h3 className="text-base font-bold text-slate-900 mb-2">Note</h3>
+            <Form.Item name="note" className="mb-0">
+              <Input.TextArea
+                rows={3}
+                placeholder="Enter note (e.g., Maintenance)"
+                className="rounded-xl border-indigo-100 bg-[#f0f4ff] p-3"
+              />
+            </Form.Item>
+          </section>
         </Form>
+
         {/* Modal Footer Actions */}
         <footer className="px-6 py-4 border-t border-gray-100 grid grid-cols-2 gap-3 bg-white">
           <Button
             type="text"
             size="large"
-            onClick={onClose}
+            onClick={handleCloseModal}
             className="bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 font-bold rounded-xl h-12 border-none transition-all"
           >
             Cancel

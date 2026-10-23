@@ -149,6 +149,28 @@ export const changeInventoryMode = createAsyncThunk(
   },
 );
 
+export const closeRoomForOta = createAsyncThunk(
+  "otaManagement/closeRoomForOta",
+  async ({ business_id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(
+        `/api/v1/admin/ota-inventory-closures/`,
+        data,
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
 const otaManagementSlice = createSlice({
   name: "otaManagement",
   initialState,
