@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Modal, Form, Radio, DatePicker, Button, Input, message } from "antd";
 import {
   CalendarOutlined,
@@ -6,21 +6,28 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
-import { useDispatch, useSelector } from "react-redux";
 import { closeRoomForOta } from "../../service/otaManagementSlice";
+import { useDispatch, useSelector } from "react-redux";
 import { selectBusinessId } from "../../service/businessSlice";
-import _ from "lodash";
 
-const CloseRoomModal = ({ isOpen, onClose, roomTypeId }) => {
+const CloseRoomModal = ({
+  isOpen,
+  onClose,
+  roomTypeId,
+
+  maxAvailableRooms,
+}) => {
   const [form] = Form.useForm();
 
+  // Local state for room count
   const [roomCount, setRoomCount] = useState(0);
 
+  // Watch form values to control dynamic UI rendering
   const closeType = Form.useWatch("closeType", form) || "all";
   const periodType = Form.useWatch("periodType", form) || "now";
-
   const businessId = useSelector(selectBusinessId);
   const dispatch = useDispatch();
+  // Reset form states
   const resetForm = () => {
     form.resetFields();
     setRoomCount(0);
@@ -31,15 +38,23 @@ const CloseRoomModal = ({ isOpen, onClose, roomTypeId }) => {
     onClose();
   };
 
+  // Increment with max limit validation
   const handleIncrement = () => {
-    const nextCount = roomCount + 1;
-    setRoomCount(nextCount);
-    form.setFieldsValue({
-      rooms_to_close: nextCount,
-      closeType: "specific",
-    });
+    if (roomCount < maxAvailableRooms) {
+      const nextCount = roomCount + 1;
+      setRoomCount(nextCount);
+      form.setFieldsValue({
+        rooms_to_close: nextCount,
+        closeType: "specific",
+      });
+    } else {
+      message.warning(
+        `Available rooms ထက် ကျော်လွန်၍မရပါ (အများဆုံး: ${maxAvailableRooms})`,
+      );
+    }
   };
 
+  // Decrement
   const handleDecrement = () => {
     const nextCount = Math.max(0, roomCount - 1);
     setRoomCount(nextCount);
@@ -49,6 +64,7 @@ const CloseRoomModal = ({ isOpen, onClose, roomTypeId }) => {
     });
   };
 
+  // Form Submission
   const handleSubmit = () => {
     form
       .validateFields()
@@ -57,20 +73,25 @@ const CloseRoomModal = ({ isOpen, onClose, roomTypeId }) => {
         const payload = {
           room_type: roomTypeId,
           closure_mode: values.periodType === "now" ? "close_now" : "scheduled",
-          start_date:
-            values.periodType === "scheduled" && dateRange && dateRange[0]
-              ? dayjs(dateRange[0]).format("YYYY-MM-DD")
-              : null,
-          end_date:
-            values.periodType === "scheduled" && dateRange && dateRange[1]
-              ? dayjs(dateRange[1]).format("YYYY-MM-DD")
-              : null,
           close_all: values.closeType === "all",
           rooms_to_close: values.closeType === "specific" ? roomCount : 0,
           note: values.note || "",
         };
 
-        console.log("payload", payload);
+        if (
+          values.periodType === "scheduled" &&
+          dateRange &&
+          dateRange[0] &&
+          dateRange[1]
+        ) {
+          payload.start_date = dayjs(dateRange[0]).format("YYYY-MM-DD");
+          payload.end_date = dayjs(dateRange[1]).format("YYYY-MM-DD");
+        }
+
+        message.success({
+          content: "Successfully submitted room closure!",
+          duration: 3,
+        });
         dispatch(
           closeRoomForOta({
             business_id: businessId,
@@ -86,6 +107,7 @@ const CloseRoomModal = ({ isOpen, onClose, roomTypeId }) => {
             message.error("Error");
           }
         });
+        handleCloseModal();
       })
       .catch((err) => {
         console.error("Validation failed:", err);
@@ -98,12 +120,7 @@ const CloseRoomModal = ({ isOpen, onClose, roomTypeId }) => {
       onCancel={handleCloseModal}
       footer={null}
       centered
-      width={440}
-      closeIcon={
-        <span className="text-slate-400 hover:text-slate-700 text-base font-bold transition-colors">
-          ✕
-        </span>
-      }
+      // width={440}
     >
       <div className="flex flex-col select-none overflow-hidden rounded-3xl">
         {/* Modal Form Body */}
@@ -118,10 +135,15 @@ const CloseRoomModal = ({ isOpen, onClose, roomTypeId }) => {
           }}
         >
           {/* SECTION 1: Close Room */}
-          <section className="mb-6">
-            <h3 className="text-base font-bold text-slate-900 mb-4">
-              Close Room
-            </h3>
+          <section className="mb-6 mt-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-base font-bold text-slate-900 m-0">
+                Close Room
+              </h3>
+              <span className="text-xs text-slate-500 font-medium">
+                Available: {maxAvailableRooms} rooms
+              </span>
+            </div>
 
             <Form.Item name="closeType" className="mb-0">
               <Radio.Group className="w-full space-y-4 flex flex-col">
@@ -181,7 +203,11 @@ const CloseRoomModal = ({ isOpen, onClose, roomTypeId }) => {
                         handleIncrement();
                       }}
                       aria-label="Increase room count"
-                      className="text-blue-600 hover:text-blue-800 active:scale-90 transition-transform p-1 text-xs font-bold focus:outline-none"
+                      className={`p-1 text-xs font-bold focus:outline-none transition-transform ${
+                        roomCount >= maxAvailableRooms
+                          ? "text-slate-300 cursor-not-allowed"
+                          : "text-blue-600 hover:text-blue-800 active:scale-90"
+                      }`}
                     >
                       <PlusOutlined />
                     </button>

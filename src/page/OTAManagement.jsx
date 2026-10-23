@@ -320,6 +320,7 @@ export default function OTAManagement() {
         isOpen={isCloseModalOpen}
         onClose={() => setIsCloseModalOpen(false)}
         roomTypeId={selectedRoomType?.room_type_id}
+        maxAvailableRooms={selectedRoomType?.available_rooms}
         onSave={(payload) => {
           console.log("Submitted Data:", payload);
         }}
