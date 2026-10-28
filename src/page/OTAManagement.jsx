@@ -242,80 +242,194 @@ export default function OTAManagement() {
                   })}
                 </>
               ) : (
-                <div className="grid grid-cols-3 gap-3">
+                // <div className="grid grid-cols-3 gap-3">
+                //   {otaManagement?.room_types?.map((roomType) => {
+                //     const groupId =
+                //       roomType.room_type_id || roomType.room_type_name;
+
+                //     return (
+                //       <div
+                //         className="border rounded-lg p-2 border-neutral-200 shadow bg-white"
+                //         key={groupId}
+                //       >
+                //         <h2 className="text-base sm:text-lg font-bold text-neutral-800">
+                //           {roomType.room_type_name}
+                //         </h2>
+                //         <div className="flex justify-between items-center text-sm text-neutral-600">
+                //           <div>OTA Room : {roomType?.total_ota_rooms}</div>
+                //           <div>Booking : {roomType?.booked_rooms}</div>
+                //         </div>
+                //         {roomType?.closed_rooms > 0 && (
+                //           <div>
+                //             <div className=" mt-2 text-xs flex justify-between items-center">
+                //               <div>
+                //                 Close Condition: {roomType?.closed_rooms}{" "}
+                //                 Rooms{" "}
+                //               </div>
+                //               <Tag color="red" variant="solid">
+                //                 Close
+                //               </Tag>
+                //             </div>
+                //             <div className=" flex justify-between items-center mt-3">
+                //               <button
+                //                 className=" text-green-800 font-bold cursor-pointer underline"
+                //                 onClick={() => {
+                //                   setSelectedRoomType(roomType);
+                //                   setIsReopenModal(true);
+                //                 }}
+                //               >
+                //                 Reopen
+                //               </button>
+
+                //               <button
+                //                 className=" text-green-800 font-bold cursor-pointer"
+                //                 onClick={() => {
+                //                   setSelectedRoomType(roomType);
+                //                   setIsModalOpen(true);
+                //                 }}
+                //               >
+                //                 <HugeiconsIcon
+                //                   icon={Delete02Icon}
+                //                   className=" text-red-800"
+                //                 />
+                //               </button>
+                //             </div>
+                //           </div>
+                //         )}
+                //         <Divider className="border-neutral-300! my-2" />
+
+                //         <div className="flex justify-end items-center">
+                //           <button
+                //             onClick={() => {
+                //               setSelectedRoomType(roomType);
+                //               setIsAddRoomOpen(true);
+                //             }}
+                //             className="text-blue-600 font-medium border-2 border-blue-200 rounded-lg px-3 py-1 mr-2 hover:bg-blue-50 transition"
+                //           >
+                //             Add Room
+                //           </button>
+                //           <button
+                //             onClick={() => {
+                //               setSelectedRoomType(roomType);
+                //               setIsCloseModalOpen(true);
+                //             }}
+                //             className="text-red-700 font-medium border-2 border-red-200 rounded-lg px-3 py-1 hover:bg-red-50 transition"
+                //           >
+                //             Close
+                //           </button>
+                //         </div>
+                //       </div>
+                //     );
+                //   })}
+                // </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                   {otaManagement?.room_types?.map((roomType) => {
                     const groupId =
                       roomType.room_type_id || roomType.room_type_name;
+                    const hasCloseCondition = roomType?.closed_rooms > 0;
 
                     return (
                       <div
-                        className="border rounded-lg p-2 border-neutral-200 shadow bg-white"
                         key={groupId}
+                        className="bg-white rounded-2xl border border-neutral-200 shadow-sm hover:shadow-md transition-all duration-200 p-5 flex flex-col justify-between"
                       >
-                        <h2 className="text-base sm:text-lg font-bold text-neutral-800">
-                          {roomType.room_type_name}
-                        </h2>
-                        <div className="flex justify-between items-center text-sm text-neutral-600">
-                          <div>OTA Room : {roomType?.total_ota_rooms}</div>
-                          <div>Booking : {roomType?.booked_rooms}</div>
-                        </div>
-                        {roomType?.closed_rooms > 0 && (
-                          <div>
-                            <div className=" mt-2 text-xs flex justify-between items-center">
-                              <div>
-                                Close Condition: {roomType?.closed_rooms}{" "}
-                                Rooms{" "}
-                              </div>
-                              <Tag color="red" variant="solid">
-                                Close
-                              </Tag>
-                            </div>
-                            <div className=" flex justify-between items-center mt-3">
-                              <button
-                                className=" text-green-800 font-bold cursor-pointer underline"
-                                onClick={() => {
-                                  setSelectedRoomType(roomType);
-                                  setIsReopenModal(true);
-                                }}
-                              >
-                                Reopen
-                              </button>
+                        {/* Header & Stats Section */}
+                        <div className="space-y-3">
+                          {/* Room Title */}
+                          <h2 className="text-lg font-bold text-neutral-800 tracking-tight">
+                            {roomType.room_type_name}
+                          </h2>
 
-                              <button
-                                className=" text-green-800 font-bold cursor-pointer"
-                                onClick={() => {
-                                  setSelectedRoomType(roomType);
-                                  setIsModalOpen(true);
-                                }}
-                              >
-                                <HugeiconsIcon
-                                  icon={Delete02Icon}
-                                  className=" text-red-800"
-                                />
-                              </button>
+                          {/* Counts Info Badges */}
+                          <div className="flex items-center gap-4 text-xs font-medium text-neutral-600 bg-neutral-50 p-2.5 rounded-xl border border-neutral-100">
+                            <div className="flex-1">
+                              <span className="text-neutral-400 block text-[10px] uppercase font-bold tracking-wider">
+                                OTA Room
+                              </span>
+                              <span className="text-neutral-800 font-semibold text-sm">
+                                {roomType?.total_ota_rooms || 0}
+                              </span>
+                            </div>
+                            <div className="w-px h-6 bg-neutral-200" />
+                            <div className="flex-1">
+                              <span className="text-neutral-400 block text-[10px] uppercase font-bold tracking-wider">
+                                Booking
+                              </span>
+                              <span className="text-blue-600 font-semibold text-sm">
+                                {roomType?.booked_rooms || 0}
+                              </span>
                             </div>
                           </div>
-                        )}
-                        <Divider className="border-neutral-300! my-2" />
 
-                        <div className="flex justify-end items-center">
+                          {/* Close Condition Status Alert Box */}
+                          {hasCloseCondition && (
+                            <div className="mt-3 p-3 bg-red-50/70 border border-red-100 rounded-xl space-y-2">
+                              <div className="flex justify-between items-center">
+                                <span className="text-xs font-medium text-red-700">
+                                  Close Condition:{" "}
+                                  <strong className="font-bold">
+                                    {roomType?.closed_rooms} Rooms
+                                  </strong>
+                                </span>
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-600 text-white shadow-xs">
+                                  Closed
+                                </span>
+                              </div>
+
+                              {/* Action Links for Closed State */}
+                              <div className="flex items-center justify-between pt-1 border-t border-red-100/60">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedRoomType(roomType);
+                                    setIsReopenModal(true);
+                                  }}
+                                  className="text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:underline transition-colors cursor-pointer"
+                                >
+                                  Reopen
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedRoomType(roomType);
+                                    setIsModalOpen(true);
+                                  }}
+                                  className="p-1 text-red-500 hover:text-red-700 hover:bg-red-100/50 rounded-lg transition-colors cursor-pointer"
+                                  title="Delete condition"
+                                >
+                                  <HugeiconsIcon
+                                    icon={Delete02Icon}
+                                    size={16}
+                                  />
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Card Footer Actions */}
+                        <div className="pt-4 mt-4 border-t border-neutral-100 flex items-center justify-end gap-2">
                           <button
+                            type="button"
                             onClick={() => {
                               setSelectedRoomType(roomType);
                               setIsAddRoomOpen(true);
                             }}
-                            className="text-blue-600 font-medium border-2 border-blue-200 rounded-lg px-3 py-1 mr-2 hover:bg-blue-50 transition"
+                            className="flex-1 sm:flex-none px-4 py-2 text-xs font-semibold text-blue-600 bg-blue-50/80 hover:bg-blue-100/80 border border-blue-200/60 rounded-xl transition-all cursor-pointer text-center"
                           >
-                            Add Room
+                            + Add Room
                           </button>
+
                           <button
+                            type="button"
                             onClick={() => {
                               setSelectedRoomType(roomType);
                               setIsCloseModalOpen(true);
                             }}
-                            className="text-red-700 font-medium border-2 border-red-200 rounded-lg px-3 py-1 hover:bg-red-50 transition"
+                            className="flex-1 sm:flex-none px-4 py-2 text-xs font-semibold text-rose-600 bg-rose-50/80 hover:bg-rose-100/80 border border-rose-200/60 rounded-xl transition-all cursor-pointer text-center"
                           >
-                            Close
+                            Close Room
                           </button>
                         </div>
                       </div>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import { Card, DatePicker, Table, Tag, Pagination, Spin, Alert } from "antd";
+import { DatePicker, Tag, Pagination, Spin, Alert } from "antd";
 import { getOtaRevenue, otaRevenueSelector } from "../service/otaRevenueSlice";
 import { selectBusinessId } from "../service/businessSlice";
 
@@ -90,7 +89,7 @@ export default function OtaRevenueTable() {
     { key: "all", label: "All" },
     { key: "available", label: "Available" },
     { key: "held", label: "Held Fund" },
-    { key: "remittance", label: "Remittance" },
+    // { key: "remittance", label: "Remittance" },
   ];
 
   return (
