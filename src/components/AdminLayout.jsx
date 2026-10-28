@@ -25,13 +25,13 @@ import LanguageSelect from "./LanguageSelect";
 const { Sider, Content, Header } = Layout;
 
 const ROUTE_CONFIG = [
-  {
-    path: "/dashboard",
-    key: "/dashboard",
-    label: "Dashboard",
-    breadcrumb: "Dashboard",
-    icon: <HugeiconsIcon icon={DashboardSquare01Icon} />,
-  },
+  // {
+  //   path: "/dashboard",
+  //   key: "/dashboard",
+  //   label: "Dashboard",
+  //   breadcrumb: "Dashboard",
+  //   icon: <HugeiconsIcon icon={DashboardSquare01Icon} />,
+  // },
 
   {
     path: "/rooms-board",
