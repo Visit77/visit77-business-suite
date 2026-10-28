@@ -40,7 +40,7 @@ const OTAManagement = lazy(() => import("./page/OTAManagement"));
 const Reserved = lazy(() => import("./page/Reserved"));
 const HotelFacility = lazy(() => import("./page/HotelFacility"));
 const EditRoomType = lazy(() => import("./page/EditRoomType"));
-const Dashboard = lazy(() => import("./page/Dashboard"));
+// const Dashboard = lazy(() => import("./page/Dashboard"));
 const Room = lazy(() => import("./page/Room"));
 const RoomDetail = lazy(() => import("./page/RoomDetail"));
 const CreateRoomType = lazy(() => import("./page/CreateRoomType"));
@@ -83,7 +83,7 @@ function App() {
             <Route path="/select-business" element={<SelectBusiness />} />
             <Route element={<BusinessGate />}>
               <Route element={<AdminLayout />}>
-                <Route path="/dashboard" element={<Dashboard />} />
+                {/* <Route path="/dashboard" element={<Dashboard />} /> */}
                 <Route path="/hotel-facility" element={<HotelFacility />} />
                 <Route path="/rooms" element={<Room />} />
                 <Route path="/room-create/" element={<CreateRoomType />} />
@@ -176,7 +176,7 @@ function App() {
           </Route>
 
           {/* Fallback Route */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/rooms-board" replace />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
