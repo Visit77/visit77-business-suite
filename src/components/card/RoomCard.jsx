@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { Button, Tooltip, message, Dropdown } from "antd";
+import { Button, Tooltip, message, Dropdown, Carousel, Image } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
   PlusOutlined,
   EllipsisOutlined,
+  LeftOutlined,
+  RightOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { API_URL } from "../../variables/constants";
@@ -57,26 +59,50 @@ const RoomCard = ({ room }) => {
     setSelectedRoom(null);
   };
 
-  const mainImage =
+  const formattedImages =
     room?.photos && room.photos.length > 0
-      ? room.photos[0].image?.startsWith("http")
-        ? room.photos[0].image
-        : `${API_URL}${room.photos[0].image}`
-      : "https://via.placeholder.com/100?text=No+Image";
+      ? room.photos.map((photo) =>
+          photo.image?.startsWith("http")
+            ? photo.image
+            : `${API_URL}${photo.image}`,
+        )
+      : ["https://via.placeholder.com/300x200?text=No+Image"];
 
   return (
     <div className="bg-white rounded-2xl p-4 sm:p-6 border border-neutral-200/80 shadow-xs space-y-4 sm:space-y-5">
       {/* 1. Top Section */}
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
         {/* Left Info Side */}
-        <div className="flex flex-col sm:flex-row items-start gap-4">
-          {/* Room Image */}
-          <div className="relative shrink-0 w-full sm:w-24 h-48 sm:h-24 rounded-xl overflow-hidden bg-neutral-100">
-            <img
-              src={mainImage}
-              alt={room?.name || "Room Image"}
-              className="w-full h-full object-cover"
-            />
+        <div className="flex flex-col sm:flex-row items-start gap-4 w-full">
+          <div className="relative shrink-0 w-full sm:w-40 h-48 sm:h-36 rounded-xl overflow-hidden bg-neutral-100 group [&_.slick-slider]:h-full [&_.slick-list]:h-full [&_.slick-track]:h-full [&_.slick-slide]:h-full [&_.slick-slide>div]:h-full">
+            <Image.PreviewGroup>
+              <Carousel
+                arrows
+                prevArrow={<LeftOutlined />}
+                nextArrow={<RightOutlined />}
+                dots={{ className: "custom-dots" }}
+                className="w-full! h-full!"
+              >
+                {formattedImages.map((imgSrc, index) => (
+                  <div
+                    key={index}
+                    className="w-full! h-full! flex items-center justify-center"
+                  >
+                    <Image
+                      src={imgSrc}
+                      alt={room?.name || `Room Image ${index + 1}`}
+                      className=" object-cover! sm:w-40 h-48! sm:h-36!"
+                      wrapperClassName="w-full! h-full! block!"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                      }}
+                    />
+                  </div>
+                ))}
+              </Carousel>
+            </Image.PreviewGroup>
           </div>
 
           {/* Details */}
@@ -95,8 +121,14 @@ const RoomCard = ({ room }) => {
                 Capacity: {room?.max_occupancy}{" "}
                 <span className="hidden sm:inline mx-1.5">•</span>
                 {room?.max_adults && `${room?.max_adults} Adults`}{" "}
-                <span className="hidden sm:inline mx-1.5">•</span>
-                {room?.max_children && ` ${room?.max_children} Child`}
+                {room?.max_children ? (
+                  <>
+                    <span className="hidden sm:inline mx-1.5">•</span>
+                    {room?.max_children} Child
+                  </>
+                ) : (
+                  ""
+                )}
               </span>
               <span className="hidden sm:inline mx-1.5">•</span>
               <br className="sm:hidden" />
@@ -104,13 +136,15 @@ const RoomCard = ({ room }) => {
                 Nightly Rate:{" "}
                 <strong className="text-neutral-900 font-bold">
                   {room?.local_base_currency || "MMK"}{" "}
-                  {room?.local_base_price?.toLocaleString() || "300,000"}
+                  {room?.local_base_price?.toLocaleString()}
                 </strong>
-                {room?.foreign_usd_display_price && (
+                {room?.foreign_usd_display_price ? (
                   <span className="text-neutral-900 font-bold">
                     {" "}
                     / ${room?.foreign_usd_display_price} USD
                   </span>
+                ) : (
+                  ""
                 )}
               </span>
             </div>

@@ -224,7 +224,7 @@ const RoomStep1Form = ({ fileList, setFileList, isEdit }) => {
         onChange={({ fileList }) => setFileList(fileList)}
         accept="image/*"
         className="w-full block"
-        onRemove={handleRemove} // <= Image delete လုပ်ရင် console ထုတ်ပေးရန် ထည့်သွင်းထားသည်
+        onRemove={handleRemove}
       >
         <Button
           type="primary"
