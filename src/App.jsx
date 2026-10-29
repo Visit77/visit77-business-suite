@@ -28,6 +28,7 @@ import PMSChargeSetup from "./page/PMSChargeSetup";
 import DocumentIDSetUp from "./page/DocumentIDSetUp";
 import EditDocumentIDSetUp from "./page/EditDocumentIDSetUp";
 import CancellationPolicy from "./page/CancellationPolicy";
+import BookingDetails from "./page/BookingDetails";
 
 const CreateBuildingAndArea = lazy(
   () => import("./page/CreateBuildingAndArea"),
@@ -170,6 +171,11 @@ function App() {
                 <Route
                   path="/cancellation-policy"
                   element={<CancellationPolicy />}
+                />
+
+                <Route
+                  path="/booking-details/:id/"
+                  element={<BookingDetails />}
                 />
               </Route>
             </Route>

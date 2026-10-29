@@ -7,6 +7,7 @@ const initialState = {
   hasError: false,
   data: [],
   record: [],
+  details: {},
   count: 0,
 };
 
@@ -107,6 +108,7 @@ export const manageOTARoom = createAsyncThunk(
     }
   },
 );
+
 export const getOTARoomType = createAsyncThunk(
   "otaManagement/getOTARoomType",
   async (params, { rejectWithValue }) => {
@@ -120,6 +122,29 @@ export const getOTARoomType = createAsyncThunk(
           "X-Booking-Business-ID": business_id,
         },
       });
+      return { data, headers };
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
+export const getBookingDetails = createAsyncThunk(
+  "otaManagement/getBookingDetails",
+  async (params, { rejectWithValue }) => {
+    const { business_id, booking_id, ...queryParams } = params;
+    try {
+      const { data, headers } = await api.get(
+        `/api/v1/superadmin/ota-bookings/${booking_id}`,
+        {
+          baseURL: BOOKING_URL,
+          params: queryParams,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
       return { data, headers };
     } catch (error) {
       return rejectWithValue(error);
@@ -297,6 +322,17 @@ const otaManagementSlice = createSlice({
       .addCase(changeInventoryMode.rejected, (state) => {
         state.isPending = false;
         state.hasError = true;
+      })
+      .addCase(getBookingDetails.pending, (state) => {
+        state.isPending = true;
+      })
+      .addCase(getBookingDetails.fulfilled, (state, action) => {
+        state.isPending = false;
+        state.details = action.payload.data.data;
+      })
+      .addCase(getBookingDetails.rejected, (state, action) => {
+        state.isPending = false;
+        state.error = action.payload;
       });
   },
 });

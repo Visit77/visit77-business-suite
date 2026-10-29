@@ -22,7 +22,7 @@ import {
   otaManagementSelector,
   reopenRoomForOta,
 } from "../service/otaManagementSlice";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button, Divider, message, Radio, Tag } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import _ from "lodash";
@@ -49,6 +49,7 @@ export default function OTAManagement() {
   const [inventoryMode, setInventoryMode] = useState(
     () => localStorage.getItem(INVENTORY_MODE) || "physical_room",
   );
+  const navigate = useNavigate();
 
   const {
     data: otaManagement,
@@ -326,7 +327,6 @@ export default function OTAManagement() {
                   {otaManagement?.room_types?.map((roomType) => {
                     const groupId =
                       roomType.room_type_id || roomType.room_type_name;
-                    const hasCloseCondition = roomType?.closed_rooms > 0;
 
                     return (
                       <div
@@ -362,49 +362,55 @@ export default function OTAManagement() {
                           </div>
 
                           {/* Close Condition Status Alert Box */}
-                          {hasCloseCondition && (
-                            <div className="mt-3 p-3 bg-red-50/70 border border-red-100 rounded-xl space-y-2">
-                              <div className="flex justify-between items-center">
-                                <span className="text-xs font-medium text-red-700">
-                                  Close Condition:{" "}
-                                  <strong className="font-bold">
-                                    {roomType?.closed_rooms} Rooms
-                                  </strong>
-                                </span>
-                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-600 text-white shadow-xs">
-                                  Closed
-                                </span>
-                              </div>
+                          {roomType?.close_conditions?.length > 0 && (
+                            <>
+                              {roomType?.close_conditions?.map((condition) => {
+                                return (
+                                  <div className="mt-3 p-3 bg-red-50/70 border border-red-100 rounded-xl space-y-2">
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-xs font-medium text-red-700">
+                                        Close Condition:{" "}
+                                        <strong className="font-bold">
+                                          {condition?.closed_room_count} Rooms
+                                        </strong>
+                                      </span>
+                                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-red-600 text-white shadow-xs">
+                                        Closed
+                                      </span>
+                                    </div>
 
-                              {/* Action Links for Closed State */}
-                              <div className="flex items-center justify-between pt-1 border-t border-red-100/60">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedRoomType(roomType);
-                                    setIsReopenModal(true);
-                                  }}
-                                  className="text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:underline transition-colors cursor-pointer"
-                                >
-                                  Reopen
-                                </button>
+                                    {/* Action Links for Closed State */}
+                                    <div className="flex items-center justify-between pt-1 border-t border-red-100/60">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setSelectedRoomType(roomType);
+                                          setIsReopenModal(true);
+                                        }}
+                                        className="text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:underline transition-colors cursor-pointer"
+                                      >
+                                        Reopen
+                                      </button>
 
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setSelectedRoomType(roomType);
-                                    setIsModalOpen(true);
-                                  }}
-                                  className="p-1 text-red-500 hover:text-red-700 hover:bg-red-100/50 rounded-lg transition-colors cursor-pointer"
-                                  title="Delete condition"
-                                >
-                                  <HugeiconsIcon
-                                    icon={Delete02Icon}
-                                    size={16}
-                                  />
-                                </button>
-                              </div>
-                            </div>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setSelectedRoomType(roomType);
+                                          setIsModalOpen(true);
+                                        }}
+                                        className="p-1 text-red-500 hover:text-red-700 hover:bg-red-100/50 rounded-lg transition-colors cursor-pointer"
+                                        title="Delete condition"
+                                      >
+                                        <HugeiconsIcon
+                                          icon={Delete02Icon}
+                                          size={16}
+                                        />
+                                      </button>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </>
                           )}
                         </div>
 
@@ -465,7 +471,20 @@ export default function OTAManagement() {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {group?.rooms?.map((room) => (
-                      <OTABookingCard key={room?.id} booking={room} />
+                      <div
+                        key={room?.id}
+                        onClick={() => {
+                          navigate(`/booking-details/${room?.booking_id}`, {
+                            state: {
+                              values: {
+                                ...room,
+                              },
+                            },
+                          });
+                        }}
+                      >
+                        <OTABookingCard booking={room} />
+                      </div>
                     ))}
                   </div>
                 </div>
