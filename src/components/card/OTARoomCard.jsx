@@ -13,11 +13,12 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { selectBusinessId } from "../../service/businessSlice";
 import _ from "lodash";
+import { useNavigate } from "react-router-dom";
 
 export const OTARoomCard = ({ room }) => {
   const businessId = useSelector(selectBusinessId);
   const dispatch = useDispatch();
-
+  const navigate = useNavigate();
   const otaCount = room?.ota_records?.filter(
     (item) =>
       item.booking_status === "checked_in" ||
@@ -132,7 +133,12 @@ export const OTARoomCard = ({ room }) => {
         >
           All OTA: {otaCount || 0}
         </span>
-        <button className="text-blue-600 font-bold hover:underline shrink-0">
+        <button
+          className="text-blue-600 font-bold hover:underline shrink-0"
+          onClick={() => {
+            navigate(`/ota-room-history/${room?.physical_room_id}`);
+          }}
+        >
           View All History
         </button>
       </div>

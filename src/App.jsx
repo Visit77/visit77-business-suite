@@ -29,6 +29,7 @@ import DocumentIDSetUp from "./page/DocumentIDSetUp";
 import EditDocumentIDSetUp from "./page/EditDocumentIDSetUp";
 import CancellationPolicy from "./page/CancellationPolicy";
 import BookingDetails from "./page/BookingDetails";
+import OTARoomHistory from "./page/OTARoomHistory";
 
 const CreateBuildingAndArea = lazy(
   () => import("./page/CreateBuildingAndArea"),
@@ -176,6 +177,11 @@ function App() {
                 <Route
                   path="/booking-details/:id/"
                   element={<BookingDetails />}
+                />
+
+                <Route
+                  path="/ota-room-history/:id/"
+                  element={<OTARoomHistory />}
                 />
               </Route>
             </Route>

@@ -109,6 +109,18 @@ const ROUTE_CONFIG = [
     breadcrumb: "Booking Cancellation",
     icon: <HugeiconsIcon icon={TaskEdit01Icon} />,
   },
+  {
+    path: "/booking-details/:id/",
+    key: "/booking-details/:id/",
+    label: "Booking Detail",
+    breadcrumb: "Booking Detail",
+  },
+  {
+    path: "/ota-room-history/:id/",
+    key: "/ota-room-history/:id/",
+    label: "OTA Room Histroy",
+    breadcrumb: "OTA Room Histroy",
+  },
 ];
 
 const AdminLayout = () => {

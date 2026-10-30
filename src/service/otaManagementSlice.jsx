@@ -8,6 +8,7 @@ const initialState = {
   data: [],
   record: [],
   details: {},
+  history: [],
   count: 0,
 };
 
@@ -21,6 +22,28 @@ export const getOTARoom = createAsyncThunk(
         {
           baseURL: BOOKING_URL,
           params: queryParams,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return { data, headers };
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
+export const getOTARoomHistory = createAsyncThunk(
+  "otaManagement/getOTARoomHistory",
+  async (params, { rejectWithValue }) => {
+    const { business_id, room_id } = params;
+    try {
+      const { data, headers } = await api.get(
+        `/api/v1/admin/ota-rooms/${room_id}/history/`,
+        {
+          baseURL: BOOKING_URL,
           headers: {
             "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
             "X-Booking-Business-ID": business_id,
@@ -260,6 +283,20 @@ const otaManagementSlice = createSlice({
         state.isPending = false;
         state.hasError = true;
       })
+      .addCase(getOTARoomHistory.pending, (state) => {
+        state.isPending = true;
+        state.hasError = false;
+      })
+      .addCase(getOTARoomHistory.fulfilled, (state, { payload }) => {
+        state.isPending = false;
+        state.history = payload.data?.data;
+        state.count = payload.count || state.count;
+      })
+      .addCase(getOTARoomHistory.rejected, (state) => {
+        state.isPending = false;
+        state.hasError = true;
+      })
+
       .addCase(getOTARecord.pending, (state) => {
         state.isPending = true;
         state.hasError = false;
