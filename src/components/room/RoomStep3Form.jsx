@@ -101,13 +101,13 @@ const RoomStep3Form = ({ form, businessId }) => {
         {/* For Foreigner */}
         <div className="space-y-3">
           <span className="text-xs font-semibold text-slate-700">
-            For Foreigner <span className="text-red-500">*</span>
+            For Foreigner
           </span>
           <div className="space-y-2">
             <Form.Item
               name="foreign_base_price"
               className="mb-0"
-              rules={[{ required: true, message: "Required" }]}
+              // rules={[{ required: true, message: "Required" }]}
             >
               <Input
                 placeholder="Type ..."
@@ -210,14 +210,10 @@ const RoomStep3Form = ({ form, businessId }) => {
 
             <div className="space-y-3">
               <span className="text-xs font-semibold text-slate-700">
-                For Foreigner <span className="text-red-500">*</span>
+                For Foreigner
               </span>
               <div className="space-y-2">
-                <Form.Item
-                  name="extra_bed_foreign_base_price"
-                  className="mb-0"
-                  rules={[{ required: true, message: "Required" }]}
-                >
+                <Form.Item name="extra_bed_foreign_base_price" className="mb-0">
                   <Input
                     placeholder="Type ..."
                     addonBefore={
