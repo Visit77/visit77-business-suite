@@ -171,7 +171,7 @@ const RoomStep2Form = ({ form }) => {
 
         {/* Views */}
         <div className="space-y-2">
-          <span className="text-xs font-bold text-slate-800">Views</span>
+          <span className="text-xs font-bold text-slate-800">Room Views</span>
           <Form.Item
             name="view_options"
             className="mb-0! mt-3!"
@@ -207,7 +207,9 @@ const RoomStep2Form = ({ form }) => {
 
         {/* Bath Types */}
         <div className="space-y-2">
-          <span className="text-xs font-bold text-slate-800">Bath Types</span>
+          <span className="text-xs font-bold text-slate-800">
+            Bathroom Amenities
+          </span>
           <Form.Item
             name="bath_options"
             className="mb-0! mt-3!"
@@ -294,14 +296,16 @@ const RoomStep2Form = ({ form }) => {
           <Input />
         </Form.Item>
 
-        <Button
-          type="primary"
-          onClick={handleOpenPoliciesModal}
-          icon={<PlusOutlined />}
-          className="w-full h-11 bg-blue-600 hover:bg-blue-700 rounded-xl font-semibold text-xs flex items-center justify-center space-x-1"
-        >
-          Add Room Policies
-        </Button>
+        {filteredPolicies?.length > 0 && (
+          <Button
+            type="primary"
+            onClick={handleOpenPoliciesModal}
+            icon={<PlusOutlined />}
+            className="w-full h-11 bg-blue-600 hover:bg-blue-700 rounded-xl font-semibold text-xs flex items-center justify-center space-x-1"
+          >
+            Add Room Policies
+          </Button>
+        )}
 
         {/* Selected Policies Chips */}
         <div className="flex flex-wrap gap-2 pt-2">

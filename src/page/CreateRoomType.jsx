@@ -38,8 +38,8 @@ const CreateRoomType = () => {
   }, [dispatch]);
 
   const stepItems = [
-    { title: "Basic Informations" },
-    { title: "Guest Set Up" },
+    { title: "Room Description" },
+    { title: "Room Option" },
     { title: "Pricing" },
   ];
 
@@ -170,6 +170,7 @@ const CreateRoomType = () => {
           description: "",
           max_adults: "2",
           max_children: "0",
+          area_unit: "sqft",
         }}
         className="space-y-4"
       >
