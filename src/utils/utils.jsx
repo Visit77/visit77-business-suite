@@ -1,7 +1,6 @@
 import _ from "lodash";
-import { API_URL, TOKEN_LABEL, WEB_URL } from "../variables/constants";
+import { TOKEN_LABEL } from "../variables/constants";
 import { jwtDecode } from "jwt-decode";
-import api from "../api/axiosInstance";
 import dayjs from "dayjs";
 
 export const decodeToken = (initialState) => {

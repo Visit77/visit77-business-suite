@@ -112,13 +112,11 @@ const ROUTE_CONFIG = [
   {
     path: "/booking-details/:id/",
     key: "/booking-details/:id/",
-    label: "Booking Detail",
     breadcrumb: "Booking Detail",
   },
   {
     path: "/ota-room-history/:id/",
     key: "/ota-room-history/:id/",
-    label: "OTA Room Histroy",
     breadcrumb: "OTA Room Histroy",
   },
 ];

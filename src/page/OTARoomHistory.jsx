@@ -44,7 +44,7 @@ const OTARoomHistory = () => {
         <p className=" font-semibold">
           #{history?.physical_room?.room_number} &nbsp;
           <span className=" text-green-500">
-            Active OTA: {history?.physical_room?.active_ota_bookings}
+            Active OTA : {history?.physical_room?.active_ota_bookings}
           </span>
         </p>
         <p className=" text-neutral-400 font-medium text-sm mt-3">
@@ -58,7 +58,10 @@ const OTARoomHistory = () => {
         <>
           {history?.ota_records?.map((record) => {
             return (
-              <div className=" bg-neutral-200 p-3 rounded-md">
+              <div
+                className=" bg-neutral-200 p-3 rounded-md"
+                key={record?.assignment_id}
+              >
                 <div className=" flex justify-between items-center">
                   <div className=" font-semibold">
                     {record?.invoices?.[0]?.invoice_number}{" "}
