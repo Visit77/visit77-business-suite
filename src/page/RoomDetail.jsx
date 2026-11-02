@@ -1,9 +1,4 @@
 import React, { useEffect, useState } from "react";
-import {
-  ArrowLeftOutlined,
-  LeftOutlined,
-  RightOutlined,
-} from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Carousel, Image, Empty } from "antd";
@@ -58,23 +53,17 @@ const RoomDetail = () => {
   const roomImages = roomType?.photos || [];
 
   return (
-    <div className="max-w-2xl mx-auto bg-slate-50 min-h-screen p-4 font-sans text-slate-800 space-y-4">
+    <div className="mx-auto  min-h-screen p-4 font-sans text-neutral-800 space-y-4">
       {/* Navigation Header */}
-      <div className="flex items-center space-x-3 text-slate-700 py-1">
-        <button onClick={() => navigate(-1)} className="hover:opacity-75">
-          <ArrowLeftOutlined className="text-base" />
-        </button>
-        <span className="font-semibold text-base">Room Details</span>
-      </div>
 
       {/* Room Title & Tag Header */}
       <div className="space-y-1">
         <div className="flex items-center space-x-2">
-          <h1 className="text-xl font-bold text-slate-900">
+          <h1 className="text-xl font-bold text-neutral-900">
             #{renderValue(room?.room_no)}
           </h1>
         </div>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-neutral-500">
           {renderValue(room?.room_type?.name)}
           &nbsp;
           {room?.bath_types?.length > 0 && "• "}
@@ -100,7 +89,7 @@ const RoomDetail = () => {
       </div>
 
       {/* 🖼️ IMAGE CAROUSEL SECTION - Added above Basic Info */}
-      <div className="bg-white rounded-2xl p-2 shadow-xs border border-slate-100 overflow-hidden">
+      <div className="bg-white rounded-2xl p-2 shadow-xs border border-neutral-100 overflow-hidden">
         {roomImages.length > 0 ? (
           <Image.PreviewGroup>
             <Carousel {...carouselSettings} className="room-detail-carousel">
@@ -120,39 +109,39 @@ const RoomDetail = () => {
             </Carousel>
           </Image.PreviewGroup>
         ) : (
-          <div className="flex aspect-auto items-center justify-center bg-slate-100 rounded-xl">
+          <div className="flex aspect-auto items-center justify-center bg-neutral-100 rounded-xl">
             <Empty description="No images available" />
           </div>
         )}
       </div>
 
       {/* 1. Basic Info Card */}
-      <div className="bg-white rounded-2xl p-4 shadow-xs border border-slate-100">
-        <h2 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-3">
+      <div className="bg-white rounded-2xl p-4 shadow-xs border border-neutral-100">
+        <h2 className="text-sm font-bold text-neutral-800 border-b border-neutral-100 pb-2 mb-3">
           Basic Info
         </h2>
         <div className="space-y-2.5 text-xs">
           <div className="flex justify-between items-center">
-            <span className="text-slate-500">Room Standard :</span>
-            <span className="font-medium text-slate-800">
+            <span className="text-neutral-500">Room Standard :</span>
+            <span className="font-medium text-neutral-800">
               {renderValue(room?.room_type?.room_standard?.name)}
             </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-slate-500">Room Build Type :</span>
-            <span className="font-medium text-slate-800">
+            <span className="text-neutral-500">Room Build Type :</span>
+            <span className="font-medium text-neutral-800">
               {renderValue(room?.room_type?.room_build_type?.name)}
             </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-slate-500">Building & Floor:</span>
-            <span className="font-medium text-slate-800">
+            <span className="text-neutral-500">Building & Floor:</span>
+            <span className="font-medium text-neutral-800">
               {renderValue(room?.building)}
             </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-slate-500">Room View:</span>
-            <span className="font-medium text-slate-800">
+            <span className="text-neutral-500">Room View:</span>
+            <span className="font-medium text-neutral-800">
               {room?.room_views?.map((view, index) => {
                 return (
                   <span key={index}>
@@ -164,8 +153,8 @@ const RoomDetail = () => {
             </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-slate-500">Bath Type:</span>
-            <span className="font-medium text-slate-800">
+            <span className="text-neutral-500">Bath Type:</span>
+            <span className="font-medium text-neutral-800">
               {room?.bath_types?.map((bath, index) => {
                 return (
                   <span key={index}>
@@ -180,14 +169,14 @@ const RoomDetail = () => {
       </div>
 
       {/* 2. Bed Configuration Card */}
-      <div className="bg-white rounded-2xl p-4 shadow-xs border border-slate-100">
-        <h2 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-3">
+      <div className="bg-white rounded-2xl p-4 shadow-xs border border-neutral-100">
+        <h2 className="text-sm font-bold text-neutral-800 border-b border-neutral-100 pb-2 mb-3">
           Bed Configuration
         </h2>
         <div className="space-y-2.5 text-xs">
           <div className="flex justify-between items-center">
-            <span className="text-slate-500">Bed Type:</span>
-            <span className="font-medium text-slate-800 text-right">
+            <span className="text-neutral-500">Bed Type:</span>
+            <span className="font-medium text-neutral-800 text-right">
               {room?.beds?.length > 0
                 ? room?.beds?.map((bed, index) => {
                     return (
@@ -202,8 +191,8 @@ const RoomDetail = () => {
           </div>
 
           <div className="flex justify-between items-center">
-            <span className="text-slate-500">Extra Bed:</span>
-            <span className="font-medium text-slate-800">
+            <span className="text-neutral-500">Extra Bed:</span>
+            <span className="font-medium text-neutral-800">
               {room?.extra_bed_available === true ? (
                 <span className="text-green-600">Available</span>
               ) : (
@@ -216,20 +205,20 @@ const RoomDetail = () => {
       </div>
 
       {/* 3. Occupancy Limits Card */}
-      <div className="bg-white rounded-2xl p-4 shadow-xs border border-slate-100">
-        <h2 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-3">
+      <div className="bg-white rounded-2xl p-4 shadow-xs border border-neutral-100">
+        <h2 className="text-sm font-bold text-neutral-800 border-b border-neutral-100 pb-2 mb-3">
           Occupancy Limits
         </h2>
         <div className="space-y-2.5 text-xs">
           <div className="flex justify-between items-center">
-            <span className="text-slate-500">Maximum Adults:</span>
-            <span className="font-medium text-slate-800">
+            <span className="text-neutral-500">Maximum Adults:</span>
+            <span className="font-medium text-neutral-800">
               {renderValue(room?.room_type?.max_adults)}
             </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-slate-500">Maximum Children:</span>
-            <span className="font-medium text-slate-800">
+            <span className="text-neutral-500">Maximum Children:</span>
+            <span className="font-medium text-neutral-800">
               {renderValue(room?.room_type?.max_children)}
             </span>
           </div>
@@ -237,37 +226,37 @@ const RoomDetail = () => {
       </div>
 
       {/* 4. Pricing Card */}
-      <div className="bg-white rounded-2xl p-4 shadow-xs border border-slate-100">
-        <h2 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-3">
+      <div className="bg-white rounded-2xl p-4 shadow-xs border border-neutral-100">
+        <h2 className="text-sm font-bold text-neutral-800 border-b border-neutral-100 pb-2 mb-3">
           Pricing
         </h2>
         <div className="space-y-3 text-xs">
           <div>
-            <p className="text-slate-500 mb-1">Local Standard Rate:</p>
-            <p className="font-bold text-slate-800 text-base">
+            <p className="text-neutral-500 mb-1">Local Standard Rate:</p>
+            <p className="font-bold text-neutral-800 text-base">
               {room?.room_type?.local_base_price
                 ? `${
                     room?.room_type?.local_base_currency
                   } ${room?.room_type?.local_base_price.toLocaleString()}`
                 : "-"}
             </p>
-            <p className="font-bold text-slate-800 text-base">
+            <p className="font-bold text-neutral-800 text-base">
               {room?.room_type?.local_usd_display_price
                 ? `USD ${room?.room_type?.local_usd_display_price.toLocaleString()}`
                 : "-"}
             </p>
           </div>
-          <hr className="border-slate-100" />
+          <hr className="border-neutral-100" />
           <div>
-            <p className="text-slate-500 mb-1">Foreign Standard Rate:</p>
-            <p className="font-bold text-slate-800 text-base">
+            <p className="text-neutral-500 mb-1">Foreign Standard Rate:</p>
+            <p className="font-bold text-neutral-800 text-base">
               {room?.room_type?.foreign_base_price
                 ? `${
                     room?.room_type?.foreign_base_currency
                   } ${room?.room_type?.foreign_base_price.toLocaleString()}`
                 : "-"}
             </p>
-            <p className="font-bold text-slate-800 text-base">
+            <p className="font-bold text-neutral-800 text-base">
               {room?.room_type?.foreign_usd_display_price
                 ? `USD ${room?.room_type?.foreign_usd_display_price.toLocaleString()}`
                 : "-"}
@@ -277,8 +266,8 @@ const RoomDetail = () => {
       </div>
 
       {/* 5. Amenities Card */}
-      <div className="bg-white rounded-2xl p-4 shadow-xs border border-slate-100">
-        <h2 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-3">
+      <div className="bg-white rounded-2xl p-4 shadow-xs border border-neutral-100">
+        <h2 className="text-sm font-bold text-neutral-800 border-b border-neutral-100 pb-2 mb-3">
           Amenities
         </h2>
         <div className="flex flex-wrap gap-2 pt-1">
@@ -286,20 +275,20 @@ const RoomDetail = () => {
             room?.room_type?.amenities.map((item, index) => (
               <span
                 key={item.id || index}
-                className="bg-slate-100 text-slate-700 text-xs px-3.5 py-2 rounded-full font-medium border border-slate-100"
+                className="bg-neutral-100 text-neutral-700 text-xs px-3.5 py-2 rounded-full font-medium border border-neutral-100"
               >
                 {renderValue(item)}
               </span>
             ))
           ) : (
-            <span className="text-xs text-slate-500 p-1">-</span>
+            <span className="text-xs text-neutral-500 p-1">-</span>
           )}
         </div>
       </div>
 
       {/* 6. Room Policies Card */}
-      <div className="bg-white rounded-2xl p-4 shadow-xs border border-slate-100">
-        <h2 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 mb-3">
+      <div className="bg-white rounded-2xl p-4 shadow-xs border border-neutral-100">
+        <h2 className="text-sm font-bold text-neutral-800 border-b border-neutral-100 pb-2 mb-3">
           Room Policies
         </h2>
         <div className="flex flex-wrap gap-2 pt-1">
@@ -307,13 +296,13 @@ const RoomDetail = () => {
             room.policies.map((policy, index) => (
               <span
                 key={policy.id || index}
-                className="bg-slate-100 text-slate-700 text-xs px-3.5 py-2 rounded-full font-medium border border-slate-100"
+                className="bg-neutral-100 text-neutral-700 text-xs px-3.5 py-2 rounded-full font-medium border border-neutral-100"
               >
                 {renderValue(policy)}
               </span>
             ))
           ) : (
-            <span className="text-xs text-slate-500 p-1">-</span>
+            <span className="text-xs text-neutral-500 p-1">-</span>
           )}
         </div>
       </div>
