@@ -9,28 +9,6 @@ import { getBookingDetails, bookingSelector } from "../service/bookingSlice";
 import PageLoading from "../components/PageLoading";
 
 const BookingDetails = () => {
-  const bookingData = {
-    roomNumber: "#G004",
-    status: "CHECKED_OUT",
-    guestName: "UN",
-    pricing: {
-      local: "MMK 50,000",
-      foreigner: "USD 25",
-    },
-    bookingId: "V77-HTL-26-000063",
-    checkIn: "14 Oct 2026",
-    checkOut: "15 Oct 2026",
-    nights: 1,
-    roomType: "Just Room",
-    occupancy: "2 Adult • 0 Children",
-    payment: {
-      roomTotal: "MMK 50,000",
-      paidAt: "14 Oct 2026, 09:37 AM",
-      method: "AYA",
-      status: "PAID",
-    },
-    specialRequest: "No special request",
-  };
   const location = useLocation();
   const { values } = location?.state || {};
 
@@ -144,11 +122,11 @@ const BookingDetails = () => {
             size={48}
             className="bg-blue-100 text-blue-600 font-bold shrink-0"
           >
-            {details?.guests[0]?.name}
+            {details?.guests?.[0]?.name}
           </Avatar>
           <div className="ml-3">
             <h4 className="font-bold text-gray-800 text-base m-0">
-              {details?.guests[0]?.name}
+              {details?.guests?.[0]?.name}
             </h4>
             <span className="text-xs text-gray-500 font-medium">
               {details.total_adults}&nbsp; Adult • {details.total_children}{" "}
