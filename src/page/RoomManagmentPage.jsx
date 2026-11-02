@@ -579,7 +579,7 @@ const RoomDetailsPage = () => {
                         <HugeiconsIcon
                           icon={SquareLockRemove01Icon}
                           className="text-primary-400"
-                        />111111111111111111111111111111111                           
+                        />
                         <span>Block</span>
                       </button>
                     )}
@@ -627,7 +627,7 @@ const RoomDetailsPage = () => {
         setIsCheckOutModalOpen={setIsCheckOutModalOpen}
         data={roomData}
       />
-    
+
       <CleanRoomModal
         isCleanModalOpen={isCleanModalOpen}
         setIsCleanModalOpen={setIsCleanModalOpen}
