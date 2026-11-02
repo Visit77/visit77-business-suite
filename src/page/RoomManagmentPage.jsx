@@ -93,7 +93,7 @@ const RoomDetailsPage = () => {
   );
 
   return (
-    <div className="min-h-screen  p-8">
+    <div className="min-h-screen">
       <div className="space-y-5">
         {/* 2. Top Banner: Room Info & Pricing */}
         <div className="bg-white rounded-2xl p-6 border border-neutral-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -579,7 +579,7 @@ const RoomDetailsPage = () => {
                         <HugeiconsIcon
                           icon={SquareLockRemove01Icon}
                           className="text-primary-400"
-                        />
+                        />111111111111111111111111111111111                           
                         <span>Block</span>
                       </button>
                     )}
@@ -627,7 +627,7 @@ const RoomDetailsPage = () => {
         setIsCheckOutModalOpen={setIsCheckOutModalOpen}
         data={roomData}
       />
-
+    
       <CleanRoomModal
         isCleanModalOpen={isCleanModalOpen}
         setIsCleanModalOpen={setIsCleanModalOpen}

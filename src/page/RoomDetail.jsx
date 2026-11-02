@@ -11,58 +11,6 @@ import { selectBusinessId } from "../service/businessSlice";
 import { getRoomDetails, roomSelector } from "../service/roomSlice";
 import { API_URL } from "../variables/constants";
 
-const SampleNextArrow = (props) => {
-  const { className, style, onClick } = props;
-  return (
-    <div
-      className={className}
-      style={{
-        ...style,
-        color: "#fff",
-        fontSize: "18px",
-        right: "10px",
-        zIndex: 10,
-        background: "rgba(0,0,0,0.3)",
-        borderRadius: "50%",
-        width: "30px",
-        height: "30px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-      onClick={onClick}
-    >
-      <RightOutlined />
-    </div>
-  );
-};
-
-const SamplePrevArrow = (props) => {
-  const { className, style, onClick } = props;
-  return (
-    <div
-      className={className}
-      style={{
-        ...style,
-        color: "#fff",
-        fontSize: "18px",
-        left: "10px",
-        zIndex: 10,
-        background: "rgba(0,0,0,0.3)",
-        borderRadius: "50%",
-        width: "30px",
-        height: "30px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-      onClick={onClick}
-    >
-      <LeftOutlined />
-    </div>
-  );
-};
-
 const RoomDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
