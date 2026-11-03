@@ -12,11 +12,21 @@ const initialState = {
 export const getOtaRevenue = createAsyncThunk(
   "otaRevenue/getOtaRevenue",
   async (params, { rejectWithValue }) => {
-    const { business_id, ...queryParams } = params;
+    const { business_id, status, ...queryParams } = params;
     try {
-      const { data, headers } = await api.get("/api/v1/admin/ota-revenue/", {
+      let endpoint = `/api/v1/admin/ota-revenue/${status}/`;
+      const finalParams = { ...queryParams };
+
+      if (status === "remittances") {
+        endpoint = `/api/v1/admin/remittances/`;
+      } else if (status === "all") {
+        endpoint = `/api/v1/admin/ota-revenue/`;
+        finalParams.status = "all";
+      }
+
+      const { data, headers } = await api.get(endpoint, {
         baseURL: BOOKING_URL,
-        params: queryParams,
+        params: finalParams,
         headers: {
           "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
           "X-Booking-Business-ID": business_id,
@@ -28,7 +38,6 @@ export const getOtaRevenue = createAsyncThunk(
     }
   },
 );
-
 const otaRevenueSlice = createSlice({
   name: "otaRevenue",
   initialState,
