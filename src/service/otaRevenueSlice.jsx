@@ -6,6 +6,8 @@ const initialState = {
   isPending: false,
   hasError: false,
   data: [],
+  remittanceFile: "",
+  remittanceDetails: {},
   count: 0,
 };
 
@@ -38,6 +40,48 @@ export const getOtaRevenue = createAsyncThunk(
     }
   },
 );
+
+export const getRemittanceFile = createAsyncThunk(
+  "otaRevenue/getRemittanceFile",
+  async (params, { rejectWithValue }) => {
+    const { business_id, url } = params;
+    try {
+      const { data, headers } = await api.get(`${url}`, {
+        baseURL: BOOKING_URL,
+        headers: {
+          "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+          "X-Booking-Business-ID": business_id,
+        },
+      });
+      return { data, headers };
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
+export const getRemittanceDetails = createAsyncThunk(
+  "otaRevenue/getRemittanceDetails",
+  async (params, { rejectWithValue }) => {
+    const { business_id, id } = params;
+    try {
+      const { data, headers } = await api.get(
+        `/api/v1/admin/remittances/${id}/`,
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return { data, headers };
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  },
+);
+
 const otaRevenueSlice = createSlice({
   name: "otaRevenue",
   initialState,
@@ -55,6 +99,30 @@ const otaRevenueSlice = createSlice({
         state.count = payload.count || state.count;
       })
       .addCase(getOtaRevenue.rejected, (state) => {
+        state.isPending = false;
+        state.hasError = true;
+      })
+      .addCase(getRemittanceFile.pending, (state) => {
+        state.isPending = true;
+        state.hasError = false;
+      })
+      .addCase(getRemittanceFile.fulfilled, (state, { payload }) => {
+        state.isPending = false;
+        state.remittanceFile = payload.data;
+      })
+      .addCase(getRemittanceFile.rejected, (state) => {
+        state.isPending = false;
+        state.hasError = true;
+      })
+      .addCase(getRemittanceDetails.pending, (state) => {
+        state.isPending = true;
+        state.hasError = false;
+      })
+      .addCase(getRemittanceDetails.fulfilled, (state, { payload }) => {
+        state.isPending = false;
+        state.remittanceDetails = payload.data?.data;
+      })
+      .addCase(getRemittanceDetails.rejected, (state) => {
         state.isPending = false;
         state.hasError = true;
       });

@@ -2,6 +2,7 @@ import _ from "lodash";
 import { TOKEN_LABEL } from "../variables/constants";
 import { jwtDecode } from "jwt-decode";
 import dayjs from "dayjs";
+import { message } from "antd";
 
 export const decodeToken = (initialState) => {
   const jwt = localStorage.getItem(TOKEN_LABEL);
@@ -319,4 +320,12 @@ export const parseTimeString = (timeStr, defaultTime) => {
   }
 
   return dayjs(timeStr, "HH:mm");
+};
+
+export const handleDownload = ({ url }) => {
+  if (url) {
+    window.open(`${url}`, "_blank");
+  } else {
+    message.warning("PDF url not available!");
+  }
 };

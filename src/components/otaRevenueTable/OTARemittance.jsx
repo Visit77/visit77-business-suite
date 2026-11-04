@@ -1,8 +1,12 @@
 import React, { useState } from "react";
-import { Button, Card, Input } from "antd";
+import { Button, Card, Input, message } from "antd";
 import { CheckCheckIcon, Download01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-
+import { handleDownload } from "../../utils/utils";
+import { getRemittanceFile } from "../../service/otaRevenueSlice";
+import _ from "lodash";
+import { useDispatch, useSelector } from "react-redux";
+import { selectBusinessId } from "../../service/businessSlice";
 const formatDate = (dateString) => {
   if (!dateString) return "";
   const date = new Date(dateString);
@@ -19,6 +23,9 @@ export default function OTARemittance({ data }) {
   const filteredData = data?.results?.filter((item) =>
     item.reference.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+
+  const dispatch = useDispatch();
+  const businessId = useSelector(selectBusinessId);
 
   return (
     <div className="px-4 space-y-4">
@@ -90,31 +97,66 @@ export default function OTARemittance({ data }) {
           {/* Action Buttons */}
           <div className="flex items-center gap-2 mb-4">
             {item.can_view_remittance_pdf && (
-              <a
-                href={item.hotel_statement_pdf_url}
-                target="_blank"
-                rel="noreferrer"
-                className="flex-1"
+              <Button
+                onClick={() =>
+                  dispatch(
+                    getRemittanceFile({
+                      business_id: businessId,
+                      url: item?.hotel_statement_pdf_url,
+                    }),
+                  ).then((response) => {
+                    if (_.endsWith(response.type, "fulfilled")) {
+                      const pdfData = response.payload.data;
+                      message.success("Success");
+                      const blob = new Blob([pdfData], {
+                        type: "application/pdf",
+                      });
+                      const blobUrl = URL.createObjectURL(blob);
+
+                      window.open(blobUrl, "_blank");
+
+                      //direct download
+
+                      // const blob = new Blob([pdfData], {
+                      //   type: "application/pdf",
+                      // });
+                      // const blobUrl = URL.createObjectURL(blob);
+
+                      // const link = document.createElement("a");
+                      // link.href = blobUrl;
+                      // link.download = "remittance-statement.pdf";
+                      // document.body.appendChild(link);
+                      // link.click();
+                      // document.body.removeChild(link);
+
+                      // Memory ရှင်းထုတ်ရန်
+                      // URL.revokeObjectURL(blobUrl);
+                    } else {
+                      message.error("Error");
+                    }
+                  })
+                }
+                className="w-full flex items-center justify-center gap-1.5 border-blue-900 text-blue-900 font-medium h-9 text-xs rounded-md"
               >
-                <Button className="w-full flex items-center justify-center gap-1.5 border-blue-900 text-blue-900 font-medium h-9 text-xs rounded-md">
-                  <HugeiconsIcon icon={Download01Icon} />
-                  Remittance
-                </Button>
-              </a>
-            )}
-            <a
-              href={item.superadmin_statement_pdf_url}
-              target="_blank"
-              rel="noreferrer"
-              className="flex-1"
-            >
-              <Button className="flex-1 flex items-center justify-center gap-1.5 border-blue-900 text-blue-900 font-medium h-9 text-xs rounded-md">
                 <HugeiconsIcon icon={Download01Icon} />
-                Bank Receipt
+                Remittance
               </Button>
-            </a>
+            )}
+
+            <Button
+              onClick={() =>
+                handleDownload({
+                  url: item.payment_receipt_url,
+                })
+              }
+              className="flex-1 flex items-center justify-center gap-1.5 border-blue-900 text-blue-900 font-medium h-9 text-xs rounded-md"
+            >
+              <HugeiconsIcon icon={Download01Icon} />
+              Bank Receipt
+            </Button>
+
             <a
-              href="#"
+              href={`/remittance-details/${item?.id}`}
               className="text-blue-900 font-semibold text-xs underline pl-1 hover:text-blue-700"
             >
               View Details

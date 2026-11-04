@@ -140,23 +140,6 @@ export default function OtaRevenueTable() {
       ),
     },
     {
-      key: "refunds",
-      label: "Refunds",
-      children: (
-        <RevenueTabContent
-          isPending={isPending}
-          hasError={hasError}
-          currency={currency}
-          groupedData={groupedData}
-          data={data}
-          formatTime={formatTime}
-          formatDateDisplay={formatDateDisplay}
-          statusFilter={statusFilter}
-          totals={totals}
-        />
-      ),
-    },
-    {
       key: "remittances",
       label: "Remittance",
       children: (

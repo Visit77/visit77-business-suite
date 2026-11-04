@@ -30,6 +30,7 @@ import EditDocumentIDSetUp from "./page/EditDocumentIDSetUp";
 import CancellationPolicy from "./page/CancellationPolicy";
 import BookingDetails from "./page/BookingDetails";
 import OTARoomHistory from "./page/OTARoomHistory";
+import RemittanceDetails from "./page/RemittanceDetails";
 
 const CreateBuildingAndArea = lazy(
   () => import("./page/CreateBuildingAndArea"),
@@ -182,6 +183,11 @@ function App() {
                 <Route
                   path="/ota-room-history/:id/"
                   element={<OTARoomHistory />}
+                />
+
+                <Route
+                  path="/remittance-details/:id/"
+                  element={<RemittanceDetails />}
                 />
               </Route>
             </Route>
