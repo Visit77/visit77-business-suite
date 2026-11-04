@@ -127,7 +127,6 @@ const CancellationPolicy = () => {
       is_general_condition: false,
       rank: 2,
     };
-    console.log("Saved Data:", saveData);
 
     dispatch(
       updatePolicy({

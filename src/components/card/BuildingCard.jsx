@@ -24,9 +24,9 @@ const BuildingCard = ({ building }) => {
   const dispatch = useDispatch();
 
   return (
-    <div className="bg-white rounded-3xl p-4 border border-slate-100 shadow-2xs space-y-4">
+    <div className="bg-white rounded-3xl p-4 border border-neutral-100 shadow-2xs space-y-4">
       {/* Image Thumbnail / Placeholder */}
-      <div className="w-full h-44 rounded-2xl bg-slate-50 flex items-center justify-center overflow-hidden border border-slate-100">
+      <div className="w-full h-44 rounded-2xl bg-neutral-50 flex items-center justify-center overflow-hidden border border-neutral-100">
         {building?.imageUrl ? (
           <img
             src={building.imageUrl}
@@ -41,10 +41,10 @@ const BuildingCard = ({ building }) => {
       {/* Building Details & Actions */}
       <div className="flex items-end justify-between pt-1">
         <div>
-          <h2 className="text-base font-bold text-slate-900 m-0">
+          <h2 className="text-base font-bold text-neutral-900 m-0">
             {building?.name}
           </h2>
-          <div className="flex items-center space-x-3 text-xs font-medium text-slate-400 mt-1.5">
+          <div className="flex items-center space-x-3 text-xs font-medium text-neutral-400 mt-1.5">
             <span>{building?.floors?.length} Floors</span>
             <span>{building?.room_count} Rooms</span>
           </div>
@@ -57,7 +57,7 @@ const BuildingCard = ({ building }) => {
               onClick={() => {
                 navigate(`/building-and-area/${building?.id}/edit`);
               }}
-              className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors border-none cursor-pointer"
+              className="w-9 h-9 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center transition-colors border-none cursor-pointer"
             >
               <HugeiconsIcon icon={Edit04Icon} />
             </button>
