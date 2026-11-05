@@ -22,7 +22,7 @@ export default function OTARemittance({ data }) {
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredData = data?.results?.filter((item) =>
-    item.reference.toLowerCase().includes(searchTerm.toLowerCase()),
+    item?.reference?.toLowerCase().includes(searchTerm?.toLowerCase()),
   );
 
   const dispatch = useDispatch();
