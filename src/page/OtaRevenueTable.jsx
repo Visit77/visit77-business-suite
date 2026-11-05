@@ -145,29 +145,34 @@ export default function OtaRevenueTable() {
   return (
     <div className="w-full">
       {/* Date Filters Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-        <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">
-            From Date
-          </label>
-          <DatePicker
-            className="w-full"
-            onChange={handleFromDateChange}
-            format="YYYY-MM-DD"
-          />
-        </div>
+      {statusFilter == "all" || statusFilter == "remittances" ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">
+              From Date
+            </label>
+            <DatePicker
+              className="w-full"
+              onChange={handleFromDateChange}
+              format="YYYY-MM-DD"
+            />
+          </div>
 
-        <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1">
-            To Date
-          </label>
-          <DatePicker
-            className="w-full"
-            onChange={handleToDateChange}
-            format="YYYY-MM-DD"
-          />
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 mb-1">
+              To Date
+            </label>
+            <DatePicker
+              className="w-full"
+              onChange={handleToDateChange}
+              format="YYYY-MM-DD"
+            />
+          </div>
         </div>
-      </div>
+      ) : (
+        ""
+      )}
+
       {/* Ant Design Tabs Navigation */}
       <Tabs
         activeKey={statusFilter}
