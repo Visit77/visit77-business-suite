@@ -238,7 +238,7 @@ export const nrcTownships = {
 
 export const ratingOption = [
   {
-    label: "Hotal",
+    label: "Hotel",
     value: "zero",
   },
   {

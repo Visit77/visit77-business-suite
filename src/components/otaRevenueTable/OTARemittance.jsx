@@ -7,6 +7,7 @@ import { getRemittanceFile } from "../../service/otaRevenueSlice";
 import _ from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { selectBusinessId } from "../../service/businessSlice";
+import CheckerPayeeModals from "../modal/CheckerPayeeModals";
 
 const formatDate = (dateString) => {
   if (!dateString) return "";
@@ -20,6 +21,8 @@ const formatDate = (dateString) => {
 
 export default function OTARemittance({ data }) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSelectCheckerOpen, setIsSelectCheckerOpen] = useState(false);
+  const [selectedRemittance, setSelectedRemittance] = useState({});
 
   const filteredData = data?.results?.filter((item) =>
     item?.reference?.toLowerCase().includes(searchTerm?.toLowerCase()),
@@ -194,12 +197,21 @@ export default function OTARemittance({ data }) {
               type="primary"
               block
               className="bg-blue-600 h-10 rounded-lg font-medium"
+              onClick={() => {
+                setIsSelectCheckerOpen(true);
+                setSelectedRemittance(item);
+              }}
             >
               Confirm Receipt
             </Button>
           )}
         </Card>
       ))}
+      <CheckerPayeeModals
+        isSelectCheckerOpen={isSelectCheckerOpen}
+        setIsSelectCheckerOpen={setIsSelectCheckerOpen}
+        remittance={selectedRemittance}
+      />
     </div>
   );
 }

@@ -82,6 +82,28 @@ export const getRemittanceDetails = createAsyncThunk(
   },
 );
 
+export const confirmReceive = createAsyncThunk(
+  "otaRevenue/confirmReceive",
+  async ({ business_id, id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(
+        `/api/v1/admin/remittances/${id}/receive/`,
+        { ...data },
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
 const otaRevenueSlice = createSlice({
   name: "otaRevenue",
   initialState,
