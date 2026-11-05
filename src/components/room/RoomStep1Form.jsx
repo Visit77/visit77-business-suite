@@ -7,10 +7,12 @@ import { roomStandardSelector } from "../../service/roomStandardSlice";
 import { useParams } from "react-router-dom";
 import { bulkDeleteImage } from "../../service/roomTypeSlice";
 import _ from "lodash";
+import heic2any from "heic2any";
 
 const { TextArea } = Input;
 
 const RoomStep1Form = ({ fileList, setFileList, isEdit }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const { id } = useParams();
   const { data: buildTypes, isPending } = useSelector(roomBuildTypesSelector);
   const { data: standards, isPending: isStandardPending } =
@@ -47,6 +49,59 @@ const RoomStep1Form = ({ fileList, setFileList, isEdit }) => {
       });
     }
     return true;
+  };
+
+  const handleChange = async ({ fileList: newFileList }) => {
+    setIsLoading(true);
+
+    try {
+      const processedFiles = await Promise.all(
+        newFileList.map(async (file) => {
+          const isHeic =
+            file.originFileObj &&
+            (file.type === "image/heic" ||
+              file.type === "image/heif" ||
+              file.name.toLowerCase().endsWith(".heic") ||
+              file.name.toLowerCase().endsWith(".heif"));
+
+          if (isHeic) {
+            try {
+              // heic2any သုံးပြီး jpeg ကိုပြောင်းခြင်း
+              const convertedBlob = await heic2any({
+                blob: file.originFileObj,
+                toType: "image/jpeg",
+                quality: 0.8,
+              });
+
+              // Convert ဖြစ်သွားတဲ့ blob ကို File အသစ်တစ်ခု ပြန်ဆောက်
+              const convertedFile = new File(
+                [convertedBlob],
+                file.name.replace(/\.[^/.]+$/, "") + ".jpg",
+                { type: "image/jpeg" },
+              );
+
+              return {
+                ...file,
+                originFileObj: convertedFile,
+                thumbUrl: URL.createObjectURL(convertedBlob), // Preview ပေါ်လာအောင် လုပ်ပေးတာပါ
+                type: "image/jpeg",
+                name: file.name.replace(/\.[^/.]+$/, "") + ".jpg", //  .jpg ပြောင်း
+              };
+            } catch (error) {
+              console.error("HEIC conversion failed:", error);
+              message.error(`${file.name} ကို convert လုပ်လို့ မရပါ။`);
+              return file;
+            }
+          }
+
+          return file;
+        }),
+      );
+
+      setFileList(processedFiles);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -221,14 +276,16 @@ const RoomStep1Form = ({ fileList, setFileList, isEdit }) => {
         listType="picture"
         fileList={fileList}
         beforeUpload={() => false}
-        onChange={({ fileList }) => setFileList(fileList)}
+        // onChange={({ fileList }) => setFileList(fileList)}
         accept="image/*"
         className="w-full block"
+        onChange={handleChange}
         onRemove={handleRemove}
       >
         <Button
           type="primary"
           icon={<PlusOutlined />}
+          loading={isLoading}
           className="w-full h-11 bg-blue-600 hover:bg-blue-700 rounded-xl font-semibold text-xs flex items-center justify-center space-x-1"
         >
           Upload Images
