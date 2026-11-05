@@ -2,15 +2,18 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { DatePicker, Pagination, Tabs } from "antd";
 import { getOtaRevenue, otaRevenueSelector } from "../service/otaRevenueSlice";
-import { selectBusinessId } from "../service/businessSlice";
+import { businessSelector, selectBusinessId } from "../service/businessSlice";
 import { RevenueTabContent } from "../components/otaRevenueTable/RevenueTabContent";
 import OTARemittance from "../components/otaRevenueTable/OTARemittance";
+import OTAAvailableAndHeldFund from "../components/otaRevenueTable/OTAAvailable";
 
 export default function OtaRevenueTable() {
   const dispatch = useDispatch();
   const businessId = useSelector(selectBusinessId);
 
   const { isPending, hasError, data } = useSelector(otaRevenueSelector);
+  const { details } = useSelector(businessSelector);
+  const refund_policy = details?.refund_policy?.type;
 
   const [statusFilter, setStatusFilter] = useState("all");
   const [fromDate, setFromDate] = useState("");
@@ -108,37 +111,18 @@ export default function OtaRevenueTable() {
     {
       key: "available",
       label: "Available",
-      children: (
-        <RevenueTabContent
-          isPending={isPending}
-          hasError={hasError}
-          currency={currency}
-          groupedData={groupedData}
-          data={data}
-          formatTime={formatTime}
-          formatDateDisplay={formatDateDisplay}
-          statusFilter={statusFilter}
-          totals={totals}
-        />
-      ),
+      children: <OTAAvailableAndHeldFund />,
     },
-    {
-      key: "held-funds",
-      label: "Held Fund",
-      children: (
-        <RevenueTabContent
-          isPending={isPending}
-          hasError={hasError}
-          currency={currency}
-          groupedData={groupedData}
-          data={data}
-          formatTime={formatTime}
-          formatDateDisplay={formatDateDisplay}
-          statusFilter={statusFilter}
-          totals={totals}
-        />
-      ),
-    },
+
+    ...(refund_policy != "non_refundable"
+      ? [
+          {
+            key: "held-funds",
+            label: "Held Fund",
+            children: <OTAAvailableAndHeldFund type={"held-funds"} />,
+          },
+        ]
+      : []),
     {
       key: "remittances",
       label: "Remittance",

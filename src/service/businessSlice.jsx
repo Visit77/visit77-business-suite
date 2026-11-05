@@ -8,7 +8,6 @@ const initialState = {
   hasError: false,
   data: [],
   details: {},
-
   count: 0,
 };
 
@@ -157,11 +156,15 @@ const businessSlice = createSlice({
       state.data = [];
     },
     selectedBusiness: (state, action) => {
+      state.isPending = true;
+
       state.details = action?.payload;
       localStorage.setItem(
         BUSINESS_LABEL,
         base64UrlEncode(action?.payload?.id),
       );
+
+      state.isPending = false;
     },
   },
   extraReducers: (builder) => {
@@ -233,6 +236,7 @@ const businessSlice = createSlice({
 export const { clearBusiness, selectedBusiness } = businessSlice.actions;
 export default businessSlice.reducer;
 export const businessSelector = (state) => state.business;
-export const selectBusinessDetails = (state) => state.business.details;
-export const selectBusinessId = (state) => state.business.details?.id;
-export const selectIsBusinessReady = (state) => Boolean(state.business.details?.id);
+export const selectBusinessDetails = (state) => state.businessdetails;
+export const selectBusinessId = (state) => state.business?.details?.id;
+export const selectIsBusinessReady = (state) =>
+  Boolean(state.business?.details?.id);

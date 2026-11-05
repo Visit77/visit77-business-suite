@@ -8,10 +8,11 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   businessSelector,
   getBusiness,
+  getOneBusiness,
   selectedBusiness,
 } from "../service/businessSlice";
 import { authSelector } from "../service/authSlice";
-
+import _ from "lodash";
 const SelectBusiness = () => {
   const navigate = useNavigate();
   const { user } = useSelector(authSelector);
@@ -28,16 +29,22 @@ const SelectBusiness = () => {
     const chosenBusiness = business.find((b) => b.id === id);
     if (!chosenBusiness) return;
 
-    dispatch(selectedBusiness(chosenBusiness));
+    dispatch(getOneBusiness(id)).then((response) => {
+      if (_.endsWith(response.type, "fulfilled")) {
+        dispatch(selectedBusiness(response?.payload?.data?.data));
 
-    setTimeout(() => {
-      message.success({
-        content: ` The choice of ${chosenBusiness.name_1} is successful.`,
-        key: "business-select",
-        duration: 2,
-      });
-      navigate("/dashboard");
-    }, 1200);
+        setTimeout(() => {
+          message.success({
+            content: ` The choice of ${chosenBusiness.name_1} is successful.`,
+            key: "business-select",
+            duration: 2,
+          });
+          navigate("/rooms-board");
+        }, 1200);
+      } else {
+        message.error("Error");
+      }
+    });
   };
 
   if (isPending) {

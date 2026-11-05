@@ -5,7 +5,7 @@ import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { API_URL, BUSINESS_LABEL, TOKEN_LABEL } from "../variables/constants";
 import logo from "../assets/v77_logo.png";
-import { selectBusinessDetails } from "../service/businessSlice";
+import { businessSelector } from "../service/businessSlice";
 import LogoutModal from "./modal/LogoutModal";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -126,7 +126,7 @@ const AdminLayout = () => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const details = useSelector(selectBusinessDetails);
+  const { details } = useSelector(businessSelector);
 
   const currentRoute = [...ROUTE_CONFIG]
     .sort((a, b) => b.path.length - a.path.length)

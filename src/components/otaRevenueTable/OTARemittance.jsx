@@ -7,6 +7,7 @@ import { getRemittanceFile } from "../../service/otaRevenueSlice";
 import _ from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { selectBusinessId } from "../../service/businessSlice";
+
 const formatDate = (dateString) => {
   if (!dateString) return "";
   const date = new Date(dateString);
@@ -72,6 +73,14 @@ export default function OTARemittance({ data }) {
                 {item.currency} {item.booking_collection}
               </span>
             </div>
+            {item?.released_held_funds > 0 && (
+              <div className="flex justify-between items-center">
+                <span>Release of Held Refunds</span>
+                <span className="font-medium text-neutral-800">
+                  {item.currency} {item.released_held_funds}
+                </span>
+              </div>
+            )}
             <div className="flex justify-between items-center">
               <span>Tax (Excluded form Comission)</span>
               <span className="font-medium text-neutral-800">

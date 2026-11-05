@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  businessSelector,
   getOneBusiness,
-  selectBusinessDetails,
   updateBusiness,
 } from "../service/businessSlice";
 import { CheckIcon, Edit02Icon, StarIcon } from "@hugeicons/core-free-icons";
@@ -14,7 +14,7 @@ import { ratingOption } from "../utils/utils";
 import RatingSelectModal from "../components/modal/RatingSelectModal";
 
 const HotelFacility = () => {
-  const details = useSelector(selectBusinessDetails);
+  const { details } = useSelector(businessSelector);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
   const [selectedFacilityIds, setSelectedFacilityIds] = useState(
