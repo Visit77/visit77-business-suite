@@ -3,14 +3,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectBusinessId } from "../service/businessSlice";
 import {
   getRemittanceDetails,
+  getRemittanceFile,
   otaRevenueSelector,
 } from "../service/otaRevenueSlice";
 import { useParams } from "react-router-dom";
-import { Table, Button } from "antd";
+import { Table, Button, message } from "antd";
 
 import PageLoading from "../components/PageLoading";
 import { FileDownloadIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import _ from "lodash";
 
 const RemittanceDetails = () => {
   const dispatch = useDispatch();
@@ -44,6 +46,36 @@ const RemittanceDetails = () => {
               icon={FileDownloadIcon}
               className="w-5 h-5 text-emerald-600"
             />
+          }
+          onClick={() =>
+            // excel export
+            dispatch(
+              getRemittanceFile({
+                business_id: businessId,
+                url: `api/v1/admin/remittances/${id}/export/`,
+              }),
+            ).then((response) => {
+              if (_.endsWith(response.type, "fulfilled")) {
+                const data = response.payload.data;
+
+                const blob = new Blob([data], {
+                  type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                });
+
+                const blobUrl = URL.createObjectURL(blob);
+
+                const link = document.createElement("a");
+                link.href = blobUrl;
+                link.download = `remittance-${remittance?.reference}.xlsx`;
+                document.body.appendChild(link);
+                link.click();
+
+                document.body.removeChild(link);
+                URL.revokeObjectURL(blobUrl);
+              } else {
+                message.error("Error");
+              }
+            })
           }
         >
           Export Excel File

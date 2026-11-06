@@ -52,6 +52,7 @@ export const getRemittanceFile = createAsyncThunk(
           "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
           "X-Booking-Business-ID": business_id,
         },
+        responseType: "blob",
       });
       return { data, headers };
     } catch (error) {
