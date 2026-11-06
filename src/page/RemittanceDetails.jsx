@@ -28,12 +28,16 @@ const RemittanceDetails = () => {
   if (isPending) {
     return <PageLoading />;
   }
+  console.log("remittance", remittance);
   return (
     <div className="bg-neutral-50 min-h-screen p-4">
       {/* Export Button */}
-      <div className="my-4">
+
+      <div className="my-4 flex justify-between items-center">
+        <div className=" font-medium text-lg">
+          Details ( {remittance?.reference} )
+        </div>
         <Button
-          block
           size="large"
           className="flex items-center justify-center gap-2 text-emerald-600 border-emerald-500 hover:text-emerald-700 hover:border-emerald-600 font-medium h-12 rounded-lg"
           icon={
