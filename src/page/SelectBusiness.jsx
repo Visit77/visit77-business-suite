@@ -33,14 +33,12 @@ const SelectBusiness = () => {
       if (_.endsWith(response.type, "fulfilled")) {
         dispatch(selectedBusiness(response?.payload?.data?.data));
 
-        setTimeout(() => {
-          message.success({
-            content: ` The choice of ${chosenBusiness.name_1} is successful.`,
-            key: "business-select",
-            duration: 2,
-          });
-          navigate("/rooms-board");
-        }, 1200);
+        message.success({
+          content: ` The choice of ${chosenBusiness.name_1} is successful.`,
+          key: "business-select",
+          duration: 2,
+        });
+        navigate("/rooms-board");
       } else {
         message.error("Error");
       }
