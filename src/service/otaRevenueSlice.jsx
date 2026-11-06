@@ -147,6 +147,21 @@ const otaRevenueSlice = createSlice({
       .addCase(getRemittanceDetails.rejected, (state) => {
         state.isPending = false;
         state.hasError = true;
+      })
+      .addCase(confirmReceive.fulfilled, (state, { payload }) => {
+        if (payload?.data?.remittance) {
+          const index = state.data?.results?.findIndex(
+            (remittance) => remittance.id === payload?.data?.remittance?.id,
+          );
+
+          if (index !== -1) {
+            state.data.results = [
+              ...state.data.results.slice(0, index),
+              { ...state.data[index], ...payload.data?.remittance },
+              ...state.data.results.slice(index + 1),
+            ];
+          }
+        }
       });
   },
 });
