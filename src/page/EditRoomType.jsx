@@ -34,6 +34,7 @@ const EditRoomType = () => {
   const [formData, setFormData] = useState({});
   const [fileList, setFileList] = useState([]);
   const [form] = Form.useForm();
+  const [isImageLoading, setIsImageLoading] = useState(false);
 
   const businessId = useSelector(selectBusinessId);
   const { details: roomTypeData, isPending: isLoadingRoomType } =
@@ -107,22 +108,23 @@ const EditRoomType = () => {
         policy_ids: selectedPolicies,
 
         // Step 3: Prices (Matched with JSON keys)
-        local_base_price: roomTypeData?.local_base_price || 0,
-        local_usd_display_price: roomTypeData?.local_usd_display_price || 0,
-        foreign_base_price: roomTypeData?.foreign_base_price || 0,
-        foreign_usd_display_price: roomTypeData?.foreign_usd_display_price || 0,
+        local_base_price: roomTypeData?.local_base_price || null,
+        local_usd_display_price: roomTypeData?.local_usd_display_price || null,
+        foreign_base_price: roomTypeData?.foreign_base_price || null,
+        foreign_usd_display_price:
+          roomTypeData?.foreign_usd_display_price || null,
 
         // Extra Bed Setup
         extra_bed_available: roomTypeData?.extra_bed_available || false,
         extra_bed_quantity: String(roomTypeData?.extra_bed_quantity ?? "1"),
         extra_bed_local_base_price:
-          roomTypeData?.extra_bed_local_base_price || 0,
+          roomTypeData?.extra_bed_local_base_price || null,
         extra_bed_local_usd_display_price:
-          roomTypeData?.extra_bed_local_usd_display_price || 0,
+          roomTypeData?.extra_bed_local_usd_display_price || null,
         extra_bed_foreign_base_price:
-          roomTypeData?.extra_bed_foreign_base_price || 0,
+          roomTypeData?.extra_bed_foreign_base_price || null,
         extra_bed_foreign_usd_display_price:
-          roomTypeData?.extra_bed_foreign_usd_display_price || 0,
+          roomTypeData?.extra_bed_foreign_usd_display_price || null,
 
         // Meal Plan Setup
         breakfast_plan_type: breakfastPlanType,
@@ -130,13 +132,13 @@ const EditRoomType = () => {
         breakfast_pricing_type: breakfastPricingType,
 
         breakfast_custom_local_base_price:
-          roomTypeData?.breakfast_custom_local_base_price || 0,
+          roomTypeData?.breakfast_custom_local_base_price || null,
         breakfast_custom_local_usd_display_price:
-          roomTypeData?.breakfast_custom_local_usd_display_price || 0,
+          roomTypeData?.breakfast_custom_local_usd_display_price || null,
         breakfast_custom_foreign_base_price:
-          roomTypeData?.breakfast_custom_foreign_base_price || 0,
+          roomTypeData?.breakfast_custom_foreign_base_price || null,
         breakfast_custom_foreign_usd_display_price:
-          roomTypeData?.breakfast_custom_foreign_usd_display_price || 0,
+          roomTypeData?.breakfast_custom_foreign_usd_display_price || null,
       });
 
       // Existing Photos Pre-load into Upload Component
@@ -284,6 +286,8 @@ const EditRoomType = () => {
             fileList={fileList}
             setFileList={setFileList}
             isEdit={true}
+            isLoading={isImageLoading}
+            setIsLoading={setIsImageLoading}
           />
         )}
 
@@ -309,6 +313,7 @@ const EditRoomType = () => {
             <Button
               type="link"
               onClick={handleNext}
+              disabled={isImageLoading}
               className="flex items-center space-x-1 text-blue-600 font-bold text-sm hover:text-blue-700"
             >
               <span>Next</span>
@@ -317,6 +322,7 @@ const EditRoomType = () => {
           ) : (
             <Button
               type="primary"
+              loading={isLoadingRoomType}
               onClick={handleSubmit}
               className="bg-emerald-600 hover:bg-emerald-700 rounded-xl px-6 h-10 font-semibold text-xs text-white"
             >

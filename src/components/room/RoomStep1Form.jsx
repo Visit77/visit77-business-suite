@@ -11,8 +11,13 @@ import heic2any from "heic2any";
 
 const { TextArea } = Input;
 
-const RoomStep1Form = ({ fileList, setFileList, isEdit }) => {
-  const [isLoading, setIsLoading] = useState(false);
+const RoomStep1Form = ({
+  fileList,
+  setFileList,
+  isEdit,
+  isLoading,
+  setIsLoading,
+}) => {
   const { id } = useParams();
   const { data: buildTypes, isPending } = useSelector(roomBuildTypesSelector);
   const { data: standards, isPending: isStandardPending } =

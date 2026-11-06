@@ -13,7 +13,11 @@ import { getBedTypes } from "../service/bedTypeSlice";
 import { getBathTypes } from "../service/bathTypeSlice";
 import { getRoomAmenity } from "../service/roomAmenitySlice";
 import { getRoomPolicies } from "../service/roomPoliciesSlice";
-import { createRoomType, uploadRoomTypeImage } from "../service/roomTypeSlice";
+import {
+  createRoomType,
+  roomTypeSelector,
+  uploadRoomTypeImage,
+} from "../service/roomTypeSlice";
 import _ from "lodash";
 import { useNavigate } from "react-router-dom";
 
@@ -22,6 +26,8 @@ const CreateRoomType = () => {
   const [formData, setFormData] = useState({});
   const [fileList, setFileList] = useState([]);
   const [form] = Form.useForm();
+  const [isImageLoading, setIsImageLoading] = useState(false);
+  const { isPending: isLoadingRoomType } = useSelector(roomTypeSelector);
 
   const businessId = useSelector(selectBusinessId);
   const dispatch = useDispatch();
@@ -112,7 +118,6 @@ const CreateRoomType = () => {
 
       dispatch(createRoomType({ data: finalPayload })).then((res) => {
         if (_.endsWith(res.type, "fulfilled")) {
-          message.success("Room Type Create Successful.");
           const { payload } = res;
 
           const submitData = new FormData();
@@ -130,7 +135,7 @@ const CreateRoomType = () => {
               }),
             ).then((res) => {
               if (_.endsWith(res.type, "fulfilled")) {
-                message.success("Room Type Image Successful.");
+                message.success("Room Type Create Successful.");
                 navigate(-1);
               }
             });
@@ -143,6 +148,14 @@ const CreateRoomType = () => {
       console.log("Validation Failed:", error);
     }
   };
+
+  if (isLoadingRoomType) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto bg-slate-50 min-h-screen p-4 font-sans text-slate-800 space-y-4">
@@ -176,7 +189,12 @@ const CreateRoomType = () => {
       >
         {/* STEP 1: BASIC INFORMATION */}
         {currentStep === 0 && (
-          <RoomStep1Form fileList={fileList} setFileList={setFileList} />
+          <RoomStep1Form
+            fileList={fileList}
+            setFileList={setFileList}
+            isLoading={isImageLoading}
+            setIsLoading={setIsImageLoading}
+          />
         )}
 
         {/* STEP 2: GUEST SET UP */}
@@ -204,6 +222,7 @@ const CreateRoomType = () => {
             <Button
               type="link"
               onClick={handleNext}
+              disabled={isImageLoading}
               className="flex items-center space-x-1 text-blue-600 font-bold text-sm hover:text-blue-700"
             >
               <span>Next</span>
@@ -213,6 +232,7 @@ const CreateRoomType = () => {
             <Button
               type="primary"
               onClick={handleSubmit}
+              loading={isLoadingRoomType}
               className="bg-emerald-600 hover:bg-emerald-700 rounded-xl px-6 h-10 font-semibold text-xs text-white"
             >
               Submit

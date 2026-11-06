@@ -100,10 +100,6 @@ const CheckerPayeeModals = ({
       return;
     }
 
-    // console.log("Selected Checker:", selectedChecker);
-    // console.log("Entered Passcode:", enteredPasscode);
-
-    // message.success("Passcode verified successfully!");
     dispatch(
       confirmReceive({
         business_id: businessId,

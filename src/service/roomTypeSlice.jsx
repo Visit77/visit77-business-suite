@@ -104,7 +104,7 @@ const roomTypeSlice = createSlice({
   initialState: {
     data: [],
     total: 0,
-    loading: false,
+    isPending: false,
     error: null,
     details: {},
   },
@@ -112,15 +112,15 @@ const roomTypeSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getRoomType.pending, (state) => {
-        state.loading = true;
+        state.isPending = true;
       })
       .addCase(getRoomType.fulfilled, (state, action) => {
-        state.loading = false;
         state.data = action.payload.data;
         state.total = action.payload.total;
+        state.isPending = false;
       })
       .addCase(getRoomType.rejected, (state, action) => {
-        state.loading = false;
+        state.isPending = false;
         state.error = action.payload;
       })
       .addCase(deleteRoomType.fulfilled, (state, action) => {
@@ -136,6 +136,39 @@ const roomTypeSlice = createSlice({
         state.details = payload.data?.data;
       })
       .addCase(getOneRoomType.rejected, (state) => {
+        state.isPending = false;
+        state.hasError = true;
+      })
+      .addCase(createRoomType.pending, (state) => {
+        state.isPending = true;
+        state.hasError = false;
+      })
+      .addCase(createRoomType.fulfilled, (state, { payload }) => {
+        state.isPending = false;
+      })
+      .addCase(createRoomType.rejected, (state) => {
+        state.isPending = false;
+        state.hasError = true;
+      })
+      .addCase(uploadRoomTypeImage.pending, (state) => {
+        state.isPending = true;
+        state.hasError = false;
+      })
+      .addCase(uploadRoomTypeImage.fulfilled, (state, { payload }) => {
+        state.isPending = false;
+      })
+      .addCase(uploadRoomTypeImage.rejected, (state) => {
+        state.isPending = false;
+        state.hasError = true;
+      })
+      .addCase(updateRoomType.pending, (state) => {
+        state.isPending = true;
+        state.hasError = false;
+      })
+      .addCase(updateRoomType.fulfilled, (state, { payload }) => {
+        state.isPending = false;
+      })
+      .addCase(updateRoomType.rejected, (state) => {
         state.isPending = false;
         state.hasError = true;
       });
