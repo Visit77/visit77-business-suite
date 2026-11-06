@@ -28,7 +28,6 @@ const RemittanceDetails = () => {
   if (isPending) {
     return <PageLoading />;
   }
-  console.log("remittance", remittance);
   return (
     <div className="bg-neutral-50 min-h-screen p-4">
       {/* Export Button */}
