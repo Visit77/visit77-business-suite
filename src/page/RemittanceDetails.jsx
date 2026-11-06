@@ -40,11 +40,11 @@ const RemittanceDetails = () => {
         </div>
         <Button
           size="large"
-          className="flex items-center justify-center gap-2 text-emerald-600 border-emerald-500 hover:text-emerald-700 hover:border-emerald-600 font-medium h-12 rounded-lg"
+          className="flex items-center justify-center gap-2 text-emerald-600! border-emerald-500! hover:text-emerald-700! hover:border-emerald-600! font-medium h-12 rounded-lg"
           icon={
             <HugeiconsIcon
               icon={FileDownloadIcon}
-              className="w-5 h-5 text-emerald-600"
+              className="w-5 h-5 text-emerald-600!"
             />
           }
           onClick={() =>
