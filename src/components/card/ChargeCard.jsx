@@ -14,8 +14,8 @@ import { selectBusinessId } from "../../service/businessSlice";
 const ChargeCard = ({ title, type, value, onEdit, item, content }) => {
   const getSubtext = () => {
     if (type === "included") return "Included";
-    if (type === "percentage") return `${value}% `;
-    if (type === "fixed") return `${value} MMK`;
+    if (type === "percentage") return `${Math.floor(Number(value))}% `;
+    if (type === "fixed") return `${Math.floor(Number(value))} MMK`;
     return "";
   };
   const [isModalOpen, setIsModalOpen] = useState(false);

@@ -13,7 +13,7 @@ const OtherChargeModal = ({ visible, onClose, onSave, title, initialData }) => {
         form.setFieldsValue({
           title: initialData.title || "",
           mode: initialData.mode || "percentage",
-          value: initialData.value || "0",
+          value: Math.floor(Number(initialData.value)) || "0",
           calculation_basis:
             initialData.calculation_basis || "per_booking_per_night",
         });

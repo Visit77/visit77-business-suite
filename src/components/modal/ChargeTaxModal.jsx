@@ -19,7 +19,7 @@ const ChargeTaxModal = ({
       if (initialData) {
         form.setFieldsValue({
           mode: initialData.mode || "included",
-          value: initialData.value || "0",
+          value: Math.floor(Number(initialData.value)) || "0",
         });
       } else {
         form.setFieldsValue({
