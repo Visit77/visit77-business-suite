@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Steps, Form, Button, message } from "antd";
+import { Steps, Form, Button, message, Spin } from "antd";
 import { ArrowRightOutlined } from "@ant-design/icons";
 import { selectBusinessId } from "../service/businessSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -46,7 +46,7 @@ const CreateRoomType = () => {
   const stepItems = [
     { title: "Room Description" },
     { title: "Room Option" },
-    { title: "Pricing" },
+    // { title: "Pricing" },
   ];
 
   const handleNext = async () => {
@@ -67,7 +67,7 @@ const CreateRoomType = () => {
     try {
       const values = await form.validateFields();
 
-      const beds = formData?.beds?.map((bed) => {
+      const beds = values?.beds?.map((bed) => {
         return {
           bed_type_id: bed,
           quantity: 1,
@@ -76,7 +76,7 @@ const CreateRoomType = () => {
         };
       });
 
-      const baths = formData?.bath_options?.map((bath) => {
+      const baths = values?.bath_options?.map((bath) => {
         return {
           bath_type_id: bath,
           is_guest_selectable: true,
@@ -84,7 +84,7 @@ const CreateRoomType = () => {
         };
       });
 
-      const views = formData?.view_options?.map((view) => {
+      const views = values?.view_options?.map((view) => {
         return {
           room_view_id: view,
           is_guest_selectable: true,
@@ -97,11 +97,11 @@ const CreateRoomType = () => {
         ...values,
         bath_options: baths,
         view_options: views,
-
+        beds,
         is_active: true,
         rank: 1,
         business_id: businessId,
-        beds,
+
         base_occupancy: 2,
         max_occupancy: formData?.max_adults + formData?.max_children,
         allow_guest_bed_preference: true,
@@ -201,9 +201,9 @@ const CreateRoomType = () => {
         {currentStep === 1 && <RoomStep2Form form={form} />}
 
         {/* STEP 3: PRICING */}
-        {currentStep === 2 && (
+        {/* {currentStep === 2 && (
           <RoomStep3Form form={form} businessId={businessId} />
-        )}
+        )} */}
 
         {/* NAVIGATION BUTTONS (Previous, Next, Submit) */}
         <div className="flex items-center justify-between pt-4">

@@ -108,37 +108,37 @@ const EditRoomType = () => {
         policy_ids: selectedPolicies,
 
         // Step 3: Prices (Matched with JSON keys)
-        local_base_price: roomTypeData?.local_base_price || null,
-        local_usd_display_price: roomTypeData?.local_usd_display_price || null,
-        foreign_base_price: roomTypeData?.foreign_base_price || null,
-        foreign_usd_display_price:
-          roomTypeData?.foreign_usd_display_price || null,
+        // local_base_price: roomTypeData?.local_base_price || null,
+        // local_usd_display_price: roomTypeData?.local_usd_display_price || null,
+        // foreign_base_price: roomTypeData?.foreign_base_price || null,
+        // foreign_usd_display_price:
+        //   roomTypeData?.foreign_usd_display_price || null,
 
         // Extra Bed Setup
-        extra_bed_available: roomTypeData?.extra_bed_available || false,
-        extra_bed_quantity: String(roomTypeData?.extra_bed_quantity ?? "1"),
-        extra_bed_local_base_price:
-          roomTypeData?.extra_bed_local_base_price || null,
-        extra_bed_local_usd_display_price:
-          roomTypeData?.extra_bed_local_usd_display_price || null,
-        extra_bed_foreign_base_price:
-          roomTypeData?.extra_bed_foreign_base_price || null,
-        extra_bed_foreign_usd_display_price:
-          roomTypeData?.extra_bed_foreign_usd_display_price || null,
+        // extra_bed_available: roomTypeData?.extra_bed_available || false,
+        // extra_bed_quantity: String(roomTypeData?.extra_bed_quantity ?? "1"),
+        // extra_bed_local_base_price:
+        //   roomTypeData?.extra_bed_local_base_price || null,
+        // extra_bed_local_usd_display_price:
+        //   roomTypeData?.extra_bed_local_usd_display_price || null,
+        // extra_bed_foreign_base_price:
+        //   roomTypeData?.extra_bed_foreign_base_price || null,
+        // extra_bed_foreign_usd_display_price:
+        //   roomTypeData?.extra_bed_foreign_usd_display_price || null,
 
         // Meal Plan Setup
-        breakfast_plan_type: breakfastPlanType,
+        // breakfast_plan_type: breakfastPlanType,
 
-        breakfast_pricing_type: breakfastPricingType,
+        // breakfast_pricing_type: breakfastPricingType,
 
-        breakfast_custom_local_base_price:
-          roomTypeData?.breakfast_custom_local_base_price || null,
-        breakfast_custom_local_usd_display_price:
-          roomTypeData?.breakfast_custom_local_usd_display_price || null,
-        breakfast_custom_foreign_base_price:
-          roomTypeData?.breakfast_custom_foreign_base_price || null,
-        breakfast_custom_foreign_usd_display_price:
-          roomTypeData?.breakfast_custom_foreign_usd_display_price || null,
+        // breakfast_custom_local_base_price:
+        //   roomTypeData?.breakfast_custom_local_base_price || null,
+        // breakfast_custom_local_usd_display_price:
+        //   roomTypeData?.breakfast_custom_local_usd_display_price || null,
+        // breakfast_custom_foreign_base_price:
+        //   roomTypeData?.breakfast_custom_foreign_base_price || null,
+        // breakfast_custom_foreign_usd_display_price:
+        //   roomTypeData?.breakfast_custom_foreign_usd_display_price || null,
       });
 
       // Existing Photos Pre-load into Upload Component
@@ -157,9 +157,9 @@ const EditRoomType = () => {
   }, [roomTypeData, form]);
 
   const stepItems = [
-    { title: "Basic Information" },
-    { title: "Guest Set Up" },
-    { title: "Pricing" },
+    { title: "Room Description" },
+    { title: "Room Option" },
+    // { title: "Pricing" },
   ];
 
   const handleNext = async () => {
@@ -180,20 +180,20 @@ const EditRoomType = () => {
     try {
       const values = await form.validateFields();
 
-      const beds = formData?.beds?.map((bed) => ({
+      const beds = values?.beds?.map((bed) => ({
         bed_type_id: bed,
         quantity: 1,
         is_guest_selectable: true,
         rank: 1,
       }));
 
-      const baths = formData?.bath_options?.map((bath) => ({
+      const baths = values?.bath_options?.map((bath) => ({
         bath_type_id: bath,
         is_guest_selectable: true,
         rank: 1,
       }));
 
-      const views = formData?.view_options?.map((view) => ({
+      const views = values?.view_options?.map((view) => ({
         room_view_id: view,
         is_guest_selectable: true,
         rank: 1,
@@ -293,9 +293,9 @@ const EditRoomType = () => {
 
         {currentStep === 1 && <RoomStep2Form form={form} />}
 
-        {currentStep === 2 && (
+        {/* {currentStep === 2 && (
           <RoomStep3Form form={form} businessId={businessId} />
-        )}
+        )} */}
 
         <div className="flex items-center justify-between pt-4">
           {currentStep > 0 ? (
