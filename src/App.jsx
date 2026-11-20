@@ -19,7 +19,6 @@ import { useLanguage } from "./context/LanguageContext";
 import { getLanguage } from "./service/languageSlice";
 import ScrollToTop from "./components/ScrollToTop";
 import EditMealPlan from "./page/EditMealPlan";
-import MealPlanPackageForm from "./components/form/MealPlanPackageForm";
 import CreateMealPlanPackage from "./page/CreateMealPlanPackage";
 import EditMealPlanPackage from "./page/EditMealPlanPackage";
 import OTAChargeSetup from "./page/OTAChargeSetup";
@@ -53,6 +52,7 @@ const EditRoomNumber = lazy(() => import("./page/EditRoomNumber"));
 const AddOTARoom = lazy(() => import("./page/AddOTARoom"));
 const CreateMealPlan = lazy(() => import("./page/CreateMealPlan"));
 const MealPlanList = lazy(() => import("./page/MealPlanList"));
+const RoomPriceList = lazy(() => import("./page/RoomPriceList"));
 
 function App() {
   const dispatch = useDispatch();
@@ -189,6 +189,8 @@ function App() {
                   path="/remittance-details/:id/"
                   element={<RemittanceDetails />}
                 />
+
+                <Route path="/room-price" element={<RoomPriceList />} />
               </Route>
             </Route>
           </Route>

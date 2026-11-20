@@ -27,6 +27,7 @@ import bookingReducer from "../service/bookingSlice.jsx";
 import invoiceChargeReducer from "../service/invoiceChargeSlice.jsx";
 import policyReducer from "../service/policySlice.jsx";
 import hotelCheckerReducer from "../service/hotelCheckerSlice.jsx";
+import bookingRoomTypeReducer from "../service/bookingRoomTypeSlice.jsx";
 
 const appReducer = combineReducers({
   auth: authReducer,
@@ -57,6 +58,7 @@ const appReducer = combineReducers({
   invoiceCharge: invoiceChargeReducer,
   policy: policyReducer,
   hotelChecker: hotelCheckerReducer,
+  bookingRoomType: bookingRoomTypeReducer,
 });
 
 const rootReducer = (state, action) => {

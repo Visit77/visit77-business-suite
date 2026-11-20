@@ -14,7 +14,7 @@ import {
   CoinsDollarIcon,
   ConciergeBellIcon,
   Coupon01Icon,
-  DashboardSquare01Icon,
+  DollarSignIcon,
   Door01Icon,
   MeetingRoomIcon,
   Restaurant01Icon,
@@ -47,7 +47,13 @@ const ROUTE_CONFIG = [
     breadcrumb: "Room Type Management",
     icon: <HugeiconsIcon icon={BedSingle02Icon} />,
   },
-
+  {
+    path: "/room-price",
+    key: "/room-price",
+    label: "Room Price",
+    breadcrumb: "Room Price",
+    icon: <HugeiconsIcon icon={DollarSignIcon} />,
+  },
   {
     path: "/ota-revenue",
     key: "/ota-revenue",

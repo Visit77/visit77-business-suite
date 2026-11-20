@@ -18,7 +18,6 @@ const MealPlanPackageForm = ({
   const { data: mealPlansData = [], isPending: mealPlanPending } =
     useSelector(mealPlanSelector);
 
-  // Form ထဲက isSetNewPrice တန်ဖိုးကို တိုက်ရိုက် စောင့်ကြည့်မည်
   const isSetNewPrice = Form.useWatch("isSetNewPrice", form);
 
   useEffect(() => {
