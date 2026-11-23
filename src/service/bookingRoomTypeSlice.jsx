@@ -23,6 +23,50 @@ export const getBookingRoomType = createAsyncThunk(
   },
 );
 
+export const createRoomPrice = createAsyncThunk(
+  "room/createRoomPrice",
+  async ({ business_id, id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.patch(
+        `/api/v1/admin/room-types/${id}/room-price/`,
+        { ...data },
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
+export const createSeasonalRate = createAsyncThunk(
+  "room/createSeasonalRate",
+  async ({ business_id, id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(
+        `/api/v1/admin/room-types/${id}/seasonal-rates/`,
+        { ...data },
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
 const bookingRoomTypeSlice = createSlice({
   name: "data",
   initialState: {
