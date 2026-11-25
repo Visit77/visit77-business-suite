@@ -111,6 +111,72 @@ export const endSeasonalRate = createAsyncThunk(
   },
 );
 
+export const createDiscountRate = createAsyncThunk(
+  "room/createDiscountRate",
+  async ({ business_id, id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(
+        `/api/v1/admin/room-types/${id}/discounts/`,
+        { ...data },
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
+export const updateDiscountRate = createAsyncThunk(
+  "room/updateDiscountRate",
+  async ({ business_id, id, discount_id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.patch(
+        `/api/v1/admin/room-types/${id}/discounts/${discount_id}/`,
+        { ...data },
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
+export const endDiscountRate = createAsyncThunk(
+  "room/endDiscountRate",
+  async ({ business_id, id, discount_id }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(
+        `/api/v1/admin/room-types/${id}/discounts/${discount_id}/end/`,
+        {},
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
 const bookingRoomTypeSlice = createSlice({
   name: "data",
   initialState: {

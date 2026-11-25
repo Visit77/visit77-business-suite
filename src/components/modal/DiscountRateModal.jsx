@@ -125,7 +125,7 @@ const DiscountRoomRateModal = ({
     const startDate =
       isScheduled && values.date_range?.[0]
         ? dayjs(values.date_range[0]).format("YYYY-MM-DD")
-        : null;
+        : dayjs().format("YYYY-MM-DD");
     const endDate =
       isScheduled && values.date_range?.[1]
         ? dayjs(values.date_range[1]).format("YYYY-MM-DD")
@@ -138,14 +138,14 @@ const DiscountRoomRateModal = ({
       ...(initialData?.discount_id
         ? { discount_id: initialData.discount_id }
         : {}),
-      schedule_type: values.schedule_type || "manual",
+      timing_mode: values.schedule_type || "manual",
       start_date: startDate,
       end_date: endDate,
 
-      local_base_price: localBaseOff,
-      local_usd_price: localUsdOff,
-      foreign_base_price: foreignBaseOff,
-      foreign_usd_price: foreignUsdOff,
+      local_base_price: values.discount_local_base_price,
+      local_usd_price: values.discount_local_usd_price,
+      foreign_base_price: values.discount_foreign_base_price,
+      foreign_usd_price: values.discount_foreign_usd_price,
     };
 
     onSubmit?.(payload, isEditMode ? "update" : "create");

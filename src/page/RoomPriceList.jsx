@@ -8,8 +8,11 @@ import {
   getBookingRoomType,
   createSeasonalRate,
   endSeasonalRate,
+  updateSeasonalRate,
   // Discount thunk များကို slice ထဲမှ import လုပ်ရန် (နာမည်တူရင် အောက်ပါအတိုင်း သုံးပါ)
-  // createDiscountRate,
+  createDiscountRate,
+  updateDiscountRate,
+  endDiscountRate,
   // endDiscountRate,
 } from "../service/bookingRoomTypeSlice";
 import { RoomPriceCard } from "../components/card/RoomPriceCard";
@@ -147,21 +150,34 @@ const RoomPriceList = () => {
     setSeasonalInitialData(null);
   };
 
-  const handleSeasonalModalSubmit = async (payload) => {
+  const handleSeasonalModalSubmit = async (payload, mode) => {
     setIsSeasonalSubmitting(true);
+    const targetId =
+      seasonalInitialData?.id ?? seasonalInitialData?.room_type_id;
+
+    console.log("modalInitialData", modalInitialData);
     try {
-      const targetId =
-        seasonalInitialData?.id ?? seasonalInitialData?.room_type_id;
+      if (mode === "update") {
+        await dispatch(
+          updateSeasonalRate({
+            data: payload,
+            id: payload?.id,
+            rate_id: payload?.seasonal_id,
+            business_id: businessId,
+          }),
+        ).unwrap();
+        message.success("Seasonal Price update Successful.");
+      } else {
+        await dispatch(
+          createSeasonalRate({
+            data: payload,
+            id: targetId,
+            business_id: businessId,
+          }),
+        ).unwrap();
+        message.success("Seasonal Price create Successful.");
+      }
 
-      await dispatch(
-        createSeasonalRate({
-          data: payload,
-          id: targetId,
-          business_id: businessId,
-        }),
-      ).unwrap();
-
-      message.success("Seasonal Room Rate saved successfully.");
       setSeasonalModalOpened(false);
       setSeasonalInitialData(null);
       await refreshRoomTypes();
@@ -229,28 +245,34 @@ const RoomPriceList = () => {
     setDiscountInitialData(null);
   };
 
-  const handleDiscountModalSubmit = async (payload) => {
+  const handleDiscountModalSubmit = async (payload, mode) => {
     setIsDiscountSubmitting(true);
+    console.log("discount", discountInitialData);
     try {
       const targetId =
         discountInitialData?.id ?? discountInitialData?.room_type_id;
+      console.log("payload", payload);
+      if (mode === "update") {
+        await dispatch(
+          updateDiscountRate({
+            data: payload,
+            id: payload?.id,
+            discount_id: payload?.discount_id,
+            business_id: businessId,
+          }),
+        ).unwrap();
+        message.success("Room Price update Successful.");
+      } else {
+        await dispatch(
+          createDiscountRate({
+            data: payload,
+            id: targetId,
+            business_id: businessId,
+          }),
+        ).unwrap();
+        message.success("Room Discount Price create Successful.");
+      }
 
-      // bookingRoomTypeSlice ထဲက discount create/update thunk ကို ဤနေရာတွင် ခေါ်ပါ
-      // await dispatch(
-      //   createDiscountRate({
-      //     data: payload,
-      //     id: targetId,
-      //     business_id: businessId,
-      //   }),
-      // ).unwrap();
-
-      console.log("Discount submit payload:", {
-        targetId,
-        businessId,
-        payload,
-      });
-
-      message.success("Discount Room Rate saved successfully.");
       setDiscountModalOpened(false);
       setDiscountInitialData(null);
       await refreshRoomTypes();
@@ -289,7 +311,6 @@ const RoomPriceList = () => {
 
   const handleConfirmDelete = async () => {
     if (!deleteTarget?.rateItem?.id) return;
-
     setIsDeleting(true);
     try {
       if (deleteTarget.type === "seasonal") {
@@ -302,14 +323,13 @@ const RoomPriceList = () => {
         ).unwrap();
         message.success("Seasonal Rate ended successfully.");
       } else if (deleteTarget.type === "discount") {
-        // bookingRoomTypeSlice ထဲက discount end/delete thunk ကို ဤနေရာတွင် ခေါ်ပါ
-        // await dispatch(
-        //   endDiscountRate({
-        //     id: deleteTarget?.roomItem?.id,
-        //     discount_id: deleteTarget?.rateItem?.id,
-        //     business_id: businessId,
-        //   }),
-        // ).unwrap();
+        await dispatch(
+          endDiscountRate({
+            id: deleteTarget?.roomItem?.id,
+            discount_id: deleteTarget?.rateItem?.id,
+            business_id: businessId,
+          }),
+        ).unwrap();
 
         console.log("End discount payload:", {
           id: deleteTarget?.roomItem?.id,
