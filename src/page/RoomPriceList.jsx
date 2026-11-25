@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { message } from "antd";
 import { selectBusinessId } from "../service/businessSlice";
 import {
   bookingRoomTypeSelector,
@@ -7,32 +8,40 @@ import {
   getBookingRoomType,
   createSeasonalRate,
   endSeasonalRate,
-  updateSeasonalRate,
+  // Discount thunk များကို slice ထဲမှ import လုပ်ရန် (နာမည်တူရင် အောက်ပါအတိုင်း သုံးပါ)
+  // createDiscountRate,
+  // endDiscountRate,
 } from "../service/bookingRoomTypeSlice";
 import { RoomPriceCard } from "../components/card/RoomPriceCard";
 import RoomRangeModal from "../components/modal/RoomRangeModal";
 import SeasonalRoomRangeModal from "../components/modal/SeasonalRoomRangeModal";
 import DeleteConfirmModal from "../components/modal/DeleteConfirmModal";
-import { message } from "antd";
+import DiscountRoomRateModal from "../components/modal/DiscountRateModal";
 
 const RoomPriceList = () => {
   const businessId = useSelector(selectBusinessId);
   const dispatch = useDispatch();
 
-  // Regular Room Range Modal States
+  // 1. Regular Room Price Modal States
   const [modalOpened, setModalOpened] = useState(false);
   const [modalInitialData, setModalInitialData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Seasonal Room Range Modal States
+  // 2. Seasonal Room Rate Modal States
   const [seasonalModalOpened, setSeasonalModalOpened] = useState(false);
   const [seasonalInitialData, setSeasonalInitialData] = useState(null);
   const [isSeasonalSubmitting, setIsSeasonalSubmitting] = useState(false);
 
-  // End Seasonal Rate Delete Confirm Modal States
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // 3. Discount Room Rate Modal States
+  const [discountModalOpened, setDiscountModalOpened] = useState(false);
+  const [discountInitialData, setDiscountInitialData] = useState(null);
+  const [isDiscountSubmitting, setIsDiscountSubmitting] = useState(false);
+
+  // 4. Delete / End Confirm Modal States (Seasonal & Discount နှစ်မျိုးလုံးအတွက်)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [endTarget, setEndTarget] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  // deleteTarget shape: { type: "seasonal" | "discount", roomItem, rateItem }
 
   useEffect(() => {
     if (businessId) {
@@ -42,6 +51,13 @@ const RoomPriceList = () => {
 
   const { data, isPending } = useSelector(bookingRoomTypeSelector);
 
+  const refreshRoomTypes = async () => {
+    if (businessId) {
+      await dispatch(getBookingRoomType({ business_id: businessId }));
+    }
+  };
+
+  // ---------------- Regular Rate Handlers ----------------
   const handleOpenCreate = (roomItem) => {
     setModalInitialData({ room_type_id: roomItem?.id ?? null });
     setModalOpened(true);
@@ -58,6 +74,41 @@ const RoomPriceList = () => {
     setModalInitialData(null);
   };
 
+  const handleModalSubmit = async (payload, mode) => {
+    setIsSubmitting(true);
+    try {
+      if (mode === "update") {
+        await dispatch(
+          createRoomPrice({
+            data: payload,
+            id: modalInitialData?.id,
+            business_id: businessId,
+          }),
+        ).unwrap();
+        message.success("Room Price update Successful.");
+      } else {
+        await dispatch(
+          createRoomPrice({
+            data: payload,
+            id: modalInitialData?.room_type_id,
+            business_id: businessId,
+          }),
+        ).unwrap();
+        message.success("Room Price create Successful.");
+      }
+
+      setModalOpened(false);
+      setModalInitialData(null);
+      await refreshRoomTypes();
+    } catch (error) {
+      console.error("Submit error:", error);
+      message.error(error?.message || "Something went wrong.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // ---------------- Seasonal Rate Handlers ----------------
   const handleOpenSeasonal = (roomItem, seasonalItem = null) => {
     setSeasonalInitialData({
       id: roomItem?.id ?? null,
@@ -96,80 +147,24 @@ const RoomPriceList = () => {
     setSeasonalInitialData(null);
   };
 
-  const handleModalSubmit = async (payload, mode) => {
-    setIsSubmitting(true);
-    try {
-      const formattedValues = {
-        ...payload,
-      };
-
-      if (mode === "update") {
-        await dispatch(
-          createRoomPrice({
-            data: formattedValues,
-            id: modalInitialData?.id,
-            business_id: businessId,
-          }),
-        ).unwrap();
-        message.success("Room Price update Successful.");
-      } else {
-        await dispatch(
-          createRoomPrice({
-            data: formattedValues,
-            id: modalInitialData?.room_type_id,
-            business_id: businessId,
-          }),
-        ).unwrap();
-        message.success("Room Price create Successful.");
-      }
-
-      setModalOpened(false);
-      setModalInitialData(null);
-
-      if (businessId) {
-        await dispatch(getBookingRoomType({ business_id: businessId }));
-      }
-    } catch (error) {
-      console.error("Submit error:", error);
-      message.error(error?.message || "Something went wrong.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleSeasonalModalSubmit = async (payload, mode) => {
+  const handleSeasonalModalSubmit = async (payload) => {
     setIsSeasonalSubmitting(true);
     try {
       const targetId =
         seasonalInitialData?.id ?? seasonalInitialData?.room_type_id;
 
-      if (mode === "update") {
-        await dispatch(
-          updateSeasonalRate({
-            data: payload,
-            id: payload?.id,
-            rate_id: payload?.seasonal_id,
-            business_id: businessId,
-          }),
-        ).unwrap();
-        message.success("Seasonal Room Price update Successful.");
-      } else {
-        await dispatch(
-          createSeasonalRate({
-            data: payload,
-            id: targetId,
-            business_id: businessId,
-          }),
-        ).unwrap();
-        message.success("Seasonal Price create Successful.");
-      }
+      await dispatch(
+        createSeasonalRate({
+          data: payload,
+          id: targetId,
+          business_id: businessId,
+        }),
+      ).unwrap();
 
+      message.success("Seasonal Room Rate saved successfully.");
       setSeasonalModalOpened(false);
       setSeasonalInitialData(null);
-
-      if (businessId) {
-        await dispatch(getBookingRoomType({ business_id: businessId }));
-      }
+      await refreshRoomTypes();
     } catch (error) {
       console.error("Seasonal submit error:", error);
       message.error(error?.message || "Something went wrong.");
@@ -178,50 +173,167 @@ const RoomPriceList = () => {
     }
   };
 
+  // ---------------- Discount Rate Handlers ----------------
+  const handleOpenDiscount = (roomItem, discountItem = null) => {
+    setDiscountInitialData({
+      id: roomItem?.id ?? null,
+      room_type_id: roomItem?.id ?? null,
+      local_base_price: roomItem?.local_base_price ?? null,
+      local_usd_price: roomItem?.local_usd_price ?? null,
+      foreign_base_price: roomItem?.foreign_base_price ?? null,
+      foreign_usd_price: roomItem?.foreign_usd_price ?? null,
+      ...(discountItem
+        ? {
+            discount_id: discountItem.id ?? null,
+            start_date: discountItem.start_date ?? null,
+            end_date: discountItem.end_date ?? null,
+            schedule_type:
+              discountItem.schedule_type ||
+              (discountItem.start_date && discountItem.end_date
+                ? "scheduled"
+                : "manual"),
+            discount_local_base_price:
+              discountItem.discount_local_base_price ??
+              discountItem.local_base_price ??
+              null,
+            discount_local_usd_price:
+              discountItem.discount_local_usd_price ??
+              discountItem.local_usd_price ??
+              null,
+            discount_foreign_base_price:
+              discountItem.discount_foreign_base_price ??
+              discountItem.foreign_base_price ??
+              null,
+            discount_foreign_usd_price:
+              discountItem.discount_foreign_usd_price ??
+              discountItem.foreign_usd_price ??
+              null,
+          }
+        : {
+            discount_id: null,
+            start_date: null,
+            end_date: null,
+            schedule_type: "manual",
+            discount_local_base_price: null,
+            discount_local_usd_price: null,
+            discount_foreign_base_price: null,
+            discount_foreign_usd_price: null,
+          }),
+    });
+    setDiscountModalOpened(true);
+  };
+
+  const handleCloseDiscountModal = () => {
+    if (isDiscountSubmitting) return;
+    setDiscountModalOpened(false);
+    setDiscountInitialData(null);
+  };
+
+  const handleDiscountModalSubmit = async (payload) => {
+    setIsDiscountSubmitting(true);
+    try {
+      const targetId =
+        discountInitialData?.id ?? discountInitialData?.room_type_id;
+
+      // bookingRoomTypeSlice ထဲက discount create/update thunk ကို ဤနေရာတွင် ခေါ်ပါ
+      // await dispatch(
+      //   createDiscountRate({
+      //     data: payload,
+      //     id: targetId,
+      //     business_id: businessId,
+      //   }),
+      // ).unwrap();
+
+      console.log("Discount submit payload:", {
+        targetId,
+        businessId,
+        payload,
+      });
+
+      message.success("Discount Room Rate saved successfully.");
+      setDiscountModalOpened(false);
+      setDiscountInitialData(null);
+      await refreshRoomTypes();
+    } catch (error) {
+      console.error("Discount submit error:", error);
+      message.error(error?.message || "Something went wrong.");
+    } finally {
+      setIsDiscountSubmitting(false);
+    }
+  };
+
+  // ---------------- End Seasonal / Discount Handlers ----------------
   const handleEndSeasonalRate = (roomItem, seasonalItem) => {
-    setEndTarget({ roomItem, seasonalItem });
-    setIsModalOpen(true);
+    setDeleteTarget({
+      type: "seasonal",
+      roomItem,
+      rateItem: seasonalItem,
+    });
+    setDeleteModalOpen(true);
   };
 
-  const handleCloseEndModal = () => {
+  const handleEndDiscountRate = (roomItem, discountItem) => {
+    setDeleteTarget({
+      type: "discount",
+      roomItem,
+      rateItem: discountItem,
+    });
+    setDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
     if (isDeleting) return;
-    setIsModalOpen(false);
-    setEndTarget(null);
+    setDeleteModalOpen(false);
+    setDeleteTarget(null);
   };
 
-  const handleConfirmEndSeasonal = async () => {
-    if (!endTarget?.seasonalItem?.id) return;
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget?.rateItem?.id) return;
 
     setIsDeleting(true);
     try {
-      await dispatch(
-        endSeasonalRate({
-          id: endTarget?.roomItem?.id,
-          rate_id: endTarget?.seasonalItem?.id,
+      if (deleteTarget.type === "seasonal") {
+        await dispatch(
+          endSeasonalRate({
+            id: deleteTarget?.roomItem?.id,
+            rate_id: deleteTarget?.rateItem?.id,
+            business_id: businessId,
+          }),
+        ).unwrap();
+        message.success("Seasonal Rate ended successfully.");
+      } else if (deleteTarget.type === "discount") {
+        // bookingRoomTypeSlice ထဲက discount end/delete thunk ကို ဤနေရာတွင် ခေါ်ပါ
+        // await dispatch(
+        //   endDiscountRate({
+        //     id: deleteTarget?.roomItem?.id,
+        //     discount_id: deleteTarget?.rateItem?.id,
+        //     business_id: businessId,
+        //   }),
+        // ).unwrap();
+
+        console.log("End discount payload:", {
+          id: deleteTarget?.roomItem?.id,
+          discount_id: deleteTarget?.rateItem?.id,
           business_id: businessId,
-        }),
-      ).unwrap();
-
-      message.success("Seasonal Rate ended successfully.");
-      setIsModalOpen(false);
-      setEndTarget(null);
-
-      if (businessId) {
-        await dispatch(getBookingRoomType({ business_id: businessId }));
+        });
+        message.success("Discount Rate ended successfully.");
       }
+
+      setDeleteModalOpen(false);
+      setDeleteTarget(null);
+      await refreshRoomTypes();
     } catch (error) {
-      console.error("End seasonal rate error:", error);
-      message.error(error?.message || "Failed to end seasonal rate.");
+      console.error("End rate error:", error);
+      message.error(error?.message || "Something went wrong.");
     } finally {
       setIsDeleting(false);
     }
   };
 
-  const seasonalLabel =
-    endTarget?.seasonalItem?.name ||
-    (endTarget?.seasonalItem?.start_date && endTarget?.seasonalItem?.end_date
-      ? `${endTarget.seasonalItem.start_date} to ${endTarget.seasonalItem.end_date}`
-      : "Seasonal Rate");
+  const isSeasonalDelete = deleteTarget?.type === "seasonal";
+  const rateTitle =
+    deleteTarget?.rateItem?.name ||
+    (isSeasonalDelete ? "Seasonal Rate" : "Discount Rate");
 
   return (
     <div>
@@ -234,11 +346,21 @@ const RoomPriceList = () => {
             onOpenEdit={handleOpenEdit}
             onOpenSeasonal={handleOpenSeasonal}
             onEndSeasonal={handleEndSeasonalRate}
-            endingSeasonalId={isDeleting ? endTarget?.seasonalItem?.id : null}
+            endingSeasonalId={
+              isDeleting && isSeasonalDelete ? deleteTarget?.rateItem?.id : null
+            }
+            onOpenDiscount={handleOpenDiscount}
+            onEndDiscount={handleEndDiscountRate}
+            endingDiscountId={
+              isDeleting && !isSeasonalDelete
+                ? deleteTarget?.rateItem?.id
+                : null
+            }
           />
         ))}
       </div>
 
+      {/* Regular Price Modal */}
       <RoomRangeModal
         opened={modalOpened}
         onClose={handleCloseModal}
@@ -247,6 +369,7 @@ const RoomPriceList = () => {
         isLoading={isSubmitting}
       />
 
+      {/* Seasonal Rate Modal */}
       <SeasonalRoomRangeModal
         opened={seasonalModalOpened}
         onClose={handleCloseSeasonalModal}
@@ -255,14 +378,28 @@ const RoomPriceList = () => {
         isLoading={isSeasonalSubmitting}
       />
 
+      {/* Discount Rate Modal */}
+      <DiscountRoomRateModal
+        opened={discountModalOpened}
+        onClose={handleCloseDiscountModal}
+        initialData={discountInitialData}
+        onSubmit={handleDiscountModalSubmit}
+        isLoading={isDiscountSubmitting}
+      />
+
+      {/* Delete / End Confirm Modal */}
       <DeleteConfirmModal
-        open={isModalOpen}
-        onClose={handleCloseEndModal}
-        onConfirm={handleConfirmEndSeasonal}
+        open={deleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
         loading={isDeleting}
-        title={`End ${seasonalLabel} ?`}
-        description={`Are you sure you want to end this seasonal rate${
-          endTarget?.roomItem?.name ? ` for ${endTarget.roomItem.name}` : ""
+        title={`End ${rateTitle} ?`}
+        description={`Are you sure you want to end this ${
+          isSeasonalDelete ? "seasonal rate" : "discount rate"
+        }${
+          deleteTarget?.roomItem?.name
+            ? ` for ${deleteTarget.roomItem.name}`
+            : ""
         }? This action cannot be undone.`}
       />
     </div>
