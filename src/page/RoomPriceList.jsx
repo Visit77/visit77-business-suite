@@ -6,10 +6,12 @@ import {
   createRoomPrice,
   getBookingRoomType,
   createSeasonalRate,
+  endSeasonalRate,
 } from "../service/bookingRoomTypeSlice";
 import { RoomPriceCard } from "../components/card/RoomPriceCard";
 import RoomRangeModal from "../components/modal/RoomRangeModal";
 import SeasonalRoomRangeModal from "../components/modal/SeasonalRoomRangeModal";
+import DeleteConfirmModal from "../components/modal/DeleteConfirmModal";
 import { message } from "antd";
 
 const RoomPriceList = () => {
@@ -25,6 +27,11 @@ const RoomPriceList = () => {
   const [seasonalModalOpened, setSeasonalModalOpened] = useState(false);
   const [seasonalInitialData, setSeasonalInitialData] = useState(null);
   const [isSeasonalSubmitting, setIsSeasonalSubmitting] = useState(false);
+
+  // End Seasonal Rate Delete Confirm Modal States
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [endTarget, setEndTarget] = useState(null);
 
   useEffect(() => {
     if (businessId) {
@@ -50,25 +57,34 @@ const RoomPriceList = () => {
     setModalInitialData(null);
   };
 
-  const handleOpenSeasonal = (roomItem) => {
-    const firstSeasonal = Array.isArray(roomItem?.seasonal_rates)
-      ? roomItem.seasonal_rates[0]
-      : null;
-
+  const handleOpenSeasonal = (roomItem, seasonalItem = null) => {
     setSeasonalInitialData({
-      ...roomItem,
-      ...(firstSeasonal
+      id: roomItem?.id ?? null,
+      room_type_id: roomItem?.id ?? null,
+      local_base_price: roomItem?.local_base_price ?? null,
+      local_usd_price: roomItem?.local_usd_price ?? null,
+      foreign_base_price: roomItem?.foreign_base_price ?? null,
+      foreign_usd_price: roomItem?.foreign_usd_price ?? null,
+      ...(seasonalItem
         ? {
-            seasonal_id: firstSeasonal.id,
-            start_date: firstSeasonal.start_date ?? null,
-            end_date: firstSeasonal.end_date ?? null,
-            seasonal_local_base_price: firstSeasonal.local_base_price ?? null,
-            seasonal_local_usd_price: firstSeasonal.local_usd_price ?? null,
+            seasonal_id: seasonalItem.id ?? null,
+            start_date: seasonalItem.start_date ?? null,
+            end_date: seasonalItem.end_date ?? null,
+            seasonal_local_base_price: seasonalItem.local_base_price ?? null,
+            seasonal_local_usd_price: seasonalItem.local_usd_price ?? null,
             seasonal_foreign_base_price:
-              firstSeasonal.foreign_base_price ?? null,
-            seasonal_foreign_usd_price: firstSeasonal.foreign_usd_price ?? null,
+              seasonalItem.foreign_base_price ?? null,
+            seasonal_foreign_usd_price: seasonalItem.foreign_usd_price ?? null,
           }
-        : {}),
+        : {
+            seasonal_id: null,
+            start_date: null,
+            end_date: null,
+            seasonal_local_base_price: null,
+            seasonal_local_usd_price: null,
+            seasonal_foreign_base_price: null,
+            seasonal_foreign_usd_price: null,
+          }),
     });
     setSeasonalModalOpened(true);
   };
@@ -149,6 +165,51 @@ const RoomPriceList = () => {
     }
   };
 
+  const handleEndSeasonalRate = (roomItem, seasonalItem) => {
+    setEndTarget({ roomItem, seasonalItem });
+    setIsModalOpen(true);
+  };
+
+  const handleCloseEndModal = () => {
+    if (isDeleting) return;
+    setIsModalOpen(false);
+    setEndTarget(null);
+  };
+
+  const handleConfirmEndSeasonal = async () => {
+    if (!endTarget?.seasonalItem?.id) return;
+
+    setIsDeleting(true);
+    try {
+      await dispatch(
+        endSeasonalRate({
+          id: endTarget?.roomItem?.id,
+          rate_id: endTarget?.seasonalItem?.id,
+          business_id: businessId,
+        }),
+      ).unwrap();
+
+      message.success("Seasonal Rate ended successfully.");
+      setIsModalOpen(false);
+      setEndTarget(null);
+
+      if (businessId) {
+        await dispatch(getBookingRoomType({ business_id: businessId }));
+      }
+    } catch (error) {
+      console.error("End seasonal rate error:", error);
+      message.error(error?.message || "Failed to end seasonal rate.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const seasonalLabel =
+    endTarget?.seasonalItem?.name ||
+    (endTarget?.seasonalItem?.start_date && endTarget?.seasonalItem?.end_date
+      ? `${endTarget.seasonalItem.start_date} to ${endTarget.seasonalItem.end_date}`
+      : "Seasonal Rate");
+
   return (
     <div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -159,6 +220,8 @@ const RoomPriceList = () => {
             onOpenCreate={handleOpenCreate}
             onOpenEdit={handleOpenEdit}
             onOpenSeasonal={handleOpenSeasonal}
+            onEndSeasonal={handleEndSeasonalRate}
+            endingSeasonalId={isDeleting ? endTarget?.seasonalItem?.id : null}
           />
         ))}
       </div>
@@ -177,6 +240,17 @@ const RoomPriceList = () => {
         initialData={seasonalInitialData}
         onSubmit={handleSeasonalModalSubmit}
         isLoading={isSeasonalSubmitting}
+      />
+
+      <DeleteConfirmModal
+        open={isModalOpen}
+        onClose={handleCloseEndModal}
+        onConfirm={handleConfirmEndSeasonal}
+        loading={isDeleting}
+        title={`End ${seasonalLabel} ?`}
+        description={`Are you sure you want to end this seasonal rate${
+          endTarget?.roomItem?.name ? ` for ${endTarget.roomItem.name}` : ""
+        }? This action cannot be undone.`}
       />
     </div>
   );

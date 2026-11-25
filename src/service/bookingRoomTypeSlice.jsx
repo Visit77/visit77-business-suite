@@ -67,6 +67,28 @@ export const createSeasonalRate = createAsyncThunk(
   },
 );
 
+export const endSeasonalRate = createAsyncThunk(
+  "room/endSeasonalRate",
+  async ({ business_id, id, rate_id }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(
+        `/api/v1/admin/room-types/${id}/seasonal-rates/${rate_id}/end/`,
+        {},
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
 const bookingRoomTypeSlice = createSlice({
   name: "data",
   initialState: {

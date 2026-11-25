@@ -12,36 +12,42 @@ const SeasonalRoomRangeModal = ({
   isLoading = false,
 }) => {
   const [form] = Form.useForm();
-  const isEditMode = Boolean(initialData?.id || initialData?.seasonal_id);
+  const isEditMode = Boolean(initialData?.seasonal_id);
 
   const dateRange = Form.useWatch("date_range", form);
-  const localBasePrice = Form.useWatch("local_base_price", form);
-  const localUsdPrice = Form.useWatch("local_usd_price", form);
+  const seasonalLocalBasePrice = Form.useWatch(
+    "seasonal_local_base_price",
+    form,
+  );
+  const seasonalLocalUsdPrice = Form.useWatch("seasonal_local_usd_price", form);
+  const seasonalForeignBasePrice = Form.useWatch(
+    "seasonal_foreign_base_price",
+    form,
+  );
+  const seasonalForeignUsdPrice = Form.useWatch(
+    "seasonal_foreign_usd_price",
+    form,
+  );
+
+  const hasValue = (val) => val !== null && val !== undefined && val !== "";
 
   const hasDateRange =
     Array.isArray(dateRange) && Boolean(dateRange[0]) && Boolean(dateRange[1]);
 
-  const hasLocalPrice =
-    (localBasePrice !== null &&
-      localBasePrice !== undefined &&
-      localBasePrice !== "") ||
-    (localUsdPrice !== null &&
-      localUsdPrice !== undefined &&
-      localUsdPrice !== "");
+  const hasSeasonalPrice =
+    hasValue(seasonalLocalBasePrice) ||
+    hasValue(seasonalLocalUsdPrice) ||
+    hasValue(seasonalForeignBasePrice) ||
+    hasValue(seasonalForeignUsdPrice);
 
-  const isFormReady = hasDateRange || hasLocalPrice;
+  const isFormReady = hasDateRange && hasSeasonalPrice;
 
   useEffect(() => {
     if (!opened) return;
 
     if (initialData) {
-      const firstSeasonal = Array.isArray(initialData?.seasonal_rates)
-        ? initialData.seasonal_rates[0]
-        : null;
-
-      const rawStart =
-        initialData?.start_date ?? firstSeasonal?.start_date ?? null;
-      const rawEnd = initialData?.end_date ?? firstSeasonal?.end_date ?? null;
+      const rawStart = initialData?.start_date ?? null;
+      const rawEnd = initialData?.end_date ?? null;
 
       form.setFieldsValue({
         date_range:
@@ -51,21 +57,12 @@ const SeasonalRoomRangeModal = ({
         foreign_base_price: initialData?.foreign_base_price ?? null,
         foreign_usd_price: initialData?.foreign_usd_price ?? null,
         seasonal_local_base_price:
-          initialData?.seasonal_local_base_price ??
-          firstSeasonal?.local_base_price ??
-          null,
-        seasonal_local_usd_price:
-          initialData?.seasonal_local_usd_price ??
-          firstSeasonal?.local_usd_price ??
-          null,
+          initialData?.seasonal_local_base_price ?? null,
+        seasonal_local_usd_price: initialData?.seasonal_local_usd_price ?? null,
         seasonal_foreign_base_price:
-          initialData?.seasonal_foreign_base_price ??
-          firstSeasonal?.foreign_base_price ??
-          null,
+          initialData?.seasonal_foreign_base_price ?? null,
         seasonal_foreign_usd_price:
-          initialData?.seasonal_foreign_usd_price ??
-          firstSeasonal?.foreign_usd_price ??
-          null,
+          initialData?.seasonal_foreign_usd_price ?? null,
       });
     } else {
       form.resetFields();
@@ -86,28 +83,28 @@ const SeasonalRoomRangeModal = ({
       ? dayjs(values.date_range[1]).format("YYYY-MM-DD")
       : null;
 
+    const roomTypeId = initialData?.room_type_id ?? initialData?.id ?? null;
+
     const payload = {
-      ...(initialData?.id
-        ? { id: initialData.id, room_type_id: initialData.id }
+      ...(roomTypeId ? { id: roomTypeId, room_type_id: roomTypeId } : {}),
+      ...(initialData?.seasonal_id
+        ? { seasonal_id: initialData.seasonal_id }
         : {}),
       start_date: startDate,
       end_date: endDate,
-      local_base_price: values.local_base_price ?? null,
-      local_usd_price: values.local_usd_price ?? null,
-      foreign_base_price: values.foreign_base_price ?? null,
-      foreign_usd_price: values.foreign_usd_price ?? null,
-      seasonal_local_base_price: values.seasonal_local_base_price ?? null,
-      seasonal_local_usd_price: values.seasonal_local_usd_price ?? null,
-      seasonal_foreign_base_price: values.seasonal_foreign_base_price ?? null,
-      seasonal_foreign_usd_price: values.seasonal_foreign_usd_price ?? null,
+      local_base_price: values.seasonal_local_base_price ?? null,
+      local_usd_price: values.seasonal_local_usd_price ?? null,
+      foreign_base_price: values.seasonal_foreign_base_price ?? null,
+      foreign_usd_price: values.seasonal_foreign_usd_price ?? null,
     };
 
     onSubmit?.(payload, isEditMode ? "update" : "create");
   };
 
-  const renderNumberInput = (placeholder) => (
+  const renderNumberInput = (placeholder, disabled = false) => (
     <InputNumber
       placeholder={placeholder}
+      disabled={disabled}
       controls={false}
       min={0}
       formatter={(value) =>
@@ -151,11 +148,11 @@ const SeasonalRoomRangeModal = ({
                 <span className="text-sm text-slate-600 w-28 shrink-0">
                   Regular Price
                 </span>
-                <div className="w-16 h-11 flex items-center justify-center rounded-xl border border-slate-300 text-sm font-semibold text-blue-600 bg-white shrink-0">
+                <div className="w-16 h-11 flex items-center justify-center rounded-xl border border-slate-200 text-sm font-semibold text-blue-600 bg-slate-50 shrink-0">
                   MMK
                 </div>
                 <Form.Item name="local_base_price" className="flex-1 mb-0!">
-                  {renderNumberInput("Type ...")}
+                  {renderNumberInput("Regular", true)}
                 </Form.Item>
               </div>
 
@@ -188,11 +185,11 @@ const SeasonalRoomRangeModal = ({
                 <span className="text-sm text-slate-600 w-28 shrink-0">
                   Regular Price
                 </span>
-                <div className="w-16 h-11 flex items-center justify-center rounded-xl border border-slate-300 text-sm font-semibold text-blue-600 bg-white shrink-0">
+                <div className="w-16 h-11 flex items-center justify-center rounded-xl border border-slate-200 text-sm font-semibold text-blue-600 bg-slate-50 shrink-0">
                   USD
                 </div>
                 <Form.Item name="local_usd_price" className="flex-1 mb-0!">
-                  {renderNumberInput("Type ...")}
+                  {renderNumberInput("Regular", true)}
                 </Form.Item>
               </div>
 
@@ -225,11 +222,11 @@ const SeasonalRoomRangeModal = ({
                 <span className="text-sm text-slate-600 w-28 shrink-0">
                   Regular Price
                 </span>
-                <div className="w-16 h-11 flex items-center justify-center rounded-xl border border-slate-300 text-sm font-semibold text-blue-600 bg-white shrink-0">
+                <div className="w-16 h-11 flex items-center justify-center rounded-xl border border-slate-200 text-sm font-semibold text-blue-600 bg-slate-50 shrink-0">
                   MMK
                 </div>
                 <Form.Item name="foreign_base_price" className="flex-1 mb-0!">
-                  {renderNumberInput("Type ...")}
+                  {renderNumberInput("Regular", true)}
                 </Form.Item>
               </div>
 
@@ -262,11 +259,11 @@ const SeasonalRoomRangeModal = ({
                 <span className="text-sm text-slate-600 w-28 shrink-0">
                   Regular Price
                 </span>
-                <div className="w-16 h-11 flex items-center justify-center rounded-xl border border-slate-300 text-sm font-semibold text-blue-600 bg-white shrink-0">
+                <div className="w-16 h-11 flex items-center justify-center rounded-xl border border-slate-200 text-sm font-semibold text-blue-600 bg-slate-50 shrink-0">
                   USD
                 </div>
                 <Form.Item name="foreign_usd_price" className="flex-1 mb-0!">
-                  {renderNumberInput("Type ...")}
+                  {renderNumberInput("Regular", true)}
                 </Form.Item>
               </div>
 
