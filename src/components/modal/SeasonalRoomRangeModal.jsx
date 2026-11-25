@@ -121,7 +121,7 @@ const SeasonalRoomRangeModal = ({
       onCancel={handleClose}
       title={
         <span className="text-lg font-bold text-slate-800">
-          {isEditMode ? "Update Seasonal Room Rate" : "Seasonal Room Rate"}
+          {isEditMode ? `Update Seasonal Room Rate` : `Seasonal Room Rate`}
         </span>
       }
       centered

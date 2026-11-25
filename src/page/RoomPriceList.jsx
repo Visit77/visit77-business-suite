@@ -7,6 +7,7 @@ import {
   getBookingRoomType,
   createSeasonalRate,
   endSeasonalRate,
+  updateSeasonalRate,
 } from "../service/bookingRoomTypeSlice";
 import { RoomPriceCard } from "../components/card/RoomPriceCard";
 import RoomRangeModal from "../components/modal/RoomRangeModal";
@@ -136,21 +137,33 @@ const RoomPriceList = () => {
     }
   };
 
-  const handleSeasonalModalSubmit = async (payload) => {
+  const handleSeasonalModalSubmit = async (payload, mode) => {
     setIsSeasonalSubmitting(true);
     try {
       const targetId =
         seasonalInitialData?.id ?? seasonalInitialData?.room_type_id;
 
-      await dispatch(
-        createSeasonalRate({
-          data: payload,
-          id: targetId,
-          business_id: businessId,
-        }),
-      ).unwrap();
+      if (mode === "update") {
+        await dispatch(
+          updateSeasonalRate({
+            data: payload,
+            id: payload?.id,
+            rate_id: payload?.seasonal_id,
+            business_id: businessId,
+          }),
+        ).unwrap();
+        message.success("Seasonal Room Price update Successful.");
+      } else {
+        await dispatch(
+          createSeasonalRate({
+            data: payload,
+            id: targetId,
+            business_id: businessId,
+          }),
+        ).unwrap();
+        message.success("Seasonal Price create Successful.");
+      }
 
-      message.success("Seasonal Room Rate saved successfully.");
       setSeasonalModalOpened(false);
       setSeasonalInitialData(null);
 
