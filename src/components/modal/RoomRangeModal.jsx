@@ -227,7 +227,7 @@ const RoomRangeModal = ({
             disabled={!isLocalFilled}
             className={`flex-1 h-11 rounded-xl border-none font-semibold text-base ${
               isLocalFilled
-                ? "bg-slate-800! hover:bg-slate-900! text-white!"
+                ? "bg-indigo-600! hover:bg-indigo-700! text-white!"
                 : "bg-slate-300! text-white! cursor-not-allowed"
             }`}
           >
