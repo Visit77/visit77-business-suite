@@ -621,7 +621,10 @@ export const RoomPriceCard = ({
       </button>
 
       {/* Bottom Row Buttons */}
-      <div className="grid grid-cols-2 gap-3">
+
+      <div
+        className={`grid ${hasExtraBedData ? "grid-cols-1" : "grid-cols-2"} gap-3`}
+      >
         <button
           type="button"
           disabled={!hasPriceData}
@@ -636,21 +639,22 @@ export const RoomPriceCard = ({
           />
           <span className="truncate">Add Discount Room R...</span>
         </button>
-
-        <button
-          type="button"
-          disabled={!hasPriceData}
-          onClick={handleOpenExtraBedRate}
-          className={`w-full font-semibold py-3 px-3 rounded-xl flex justify-center items-center gap-1.5 text-sm transition-colors ${bottomOutlineButtonClass}`}
-        >
-          <HugeiconsIcon
-            icon={PlusSignIcon}
-            size={18}
-            strokeWidth={2}
-            className="shrink-0"
-          />
-          <span className="truncate">Add Extra Bed Rate</span>
-        </button>
+        {!hasExtraBedData && (
+          <button
+            type="button"
+            disabled={!hasPriceData}
+            onClick={handleOpenExtraBedRate}
+            className={`w-full font-semibold py-3 px-3 rounded-xl flex justify-center items-center gap-1.5 text-sm transition-colors ${bottomOutlineButtonClass}`}
+          >
+            <HugeiconsIcon
+              icon={PlusSignIcon}
+              size={18}
+              strokeWidth={2}
+              className="shrink-0"
+            />
+            <span className="truncate">Add Extra Bed Rate</span>
+          </button>
+        )}
       </div>
     </div>
   );
