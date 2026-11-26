@@ -177,6 +177,28 @@ export const endDiscountRate = createAsyncThunk(
   },
 );
 
+export const setExtraBedPrice = createAsyncThunk(
+  "room/setExtraBedPrice",
+  async ({ business_id, id, data }, { rejectWithValue }) => {
+    try {
+      const response = await api.patch(
+        `/api/v1/admin/room-types/${id}/extra-bed-price/`,
+        { ...data },
+        {
+          baseURL: BOOKING_URL,
+          headers: {
+            "X-Booking-Admin-Key": BOOKING_ADMIN_KEY,
+            "X-Booking-Business-ID": business_id,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "failed");
+    }
+  },
+);
+
 const bookingRoomTypeSlice = createSlice({
   name: "data",
   initialState: {

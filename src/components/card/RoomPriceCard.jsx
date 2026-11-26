@@ -47,12 +47,20 @@ export const RoomPriceCard = ({
   onOpenDiscount,
   onEndDiscount,
   endingDiscountId = null,
+  onOpenExtraBed,
 }) => {
   const hasPriceData = Boolean(
     hasValue(data?.local_base_price) ||
     hasValue(data?.local_usd_price) ||
     hasValue(data?.foreign_base_price) ||
     hasValue(data?.foreign_usd_price),
+  );
+
+  const hasExtraBedData = Boolean(
+    hasValue(data?.extra_bed_local_base_price) ||
+    hasValue(data?.extra_bed_local_usd_price) ||
+    hasValue(data?.extra_bed_foreign_base_price) ||
+    hasValue(data?.extra_bed_foreign_usd_price),
   );
 
   const seasonalRates = Array.isArray(data?.seasonal_rates)
@@ -62,12 +70,17 @@ export const RoomPriceCard = ({
   const discounts = Array.isArray(data?.discounts) ? data.discounts : [];
 
   const [isRegularOpen, setIsRegularOpen] = useState(hasPriceData);
+  const [isExtraBedOpen, setIsExtraBedOpen] = useState(hasExtraBedData);
   const [openSeasonalKeys, setOpenSeasonalKeys] = useState([]);
   const [openDiscountKeys, setOpenDiscountKeys] = useState([]);
 
   useEffect(() => {
     setIsRegularOpen(hasPriceData);
   }, [hasPriceData]);
+
+  useEffect(() => {
+    setIsExtraBedOpen(hasExtraBedData);
+  }, [hasExtraBedData]);
 
   useEffect(() => {
     const validKeys = new Set(
@@ -132,6 +145,12 @@ export const RoomPriceCard = ({
     e?.stopPropagation();
     if (!onEndDiscount) return;
     onEndDiscount(data, discountItem);
+  };
+
+  const handleOpenExtraBedRate = (e) => {
+    e?.stopPropagation();
+    if (!hasPriceData) return;
+    onOpenExtraBed?.(data);
   };
 
   return (
@@ -211,6 +230,71 @@ export const RoomPriceCard = ({
         </button>
       )}
 
+      {/* Extra Bed Rate Section */}
+      {hasExtraBedData && (
+        <Collapse
+          activeKey={isExtraBedOpen ? ["extra-bed-rate"] : []}
+          onChange={(keys) =>
+            setIsExtraBedOpen(Array.isArray(keys) && keys.length > 0)
+          }
+          expandIconPlacement="end"
+          className="mb-3! rounded-xl font-medium! overflow-hidden border border-amber-100 bg-white [&_.ant-collapse-header]:bg-amber-50/70! [&_.ant-collapse-header]:px-4! [&_.ant-collapse-header]:py-3! [&_.ant-collapse-content-box]:p-0!"
+          items={[
+            {
+              key: "extra-bed-rate",
+              label: (
+                <div className="flex items-center justify-between pr-2">
+                  <span className="font-semibold text-slate-800 text-sm">
+                    Extra Bed Rate
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleOpenExtraBedRate}
+                    className="text-sm font-semibold text-blue-600 hover:underline cursor-pointer"
+                  >
+                    Edit
+                  </button>
+                </div>
+              ),
+              children: (
+                <div className="divide-y divide-slate-100 text-sm">
+                  <div className="flex items-center justify-between px-4 py-3">
+                    <span className="text-slate-700">For Local (MMK)</span>
+                    <span className="font-semibold text-slate-800">
+                      {formatCurrency("MMK", data?.extra_bed_local_base_price)}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between px-4 py-3">
+                    <span className="text-slate-700">For Local (USD)</span>
+                    <span className="font-semibold text-slate-800">
+                      {formatCurrency("USD", data?.extra_bed_local_usd_price)}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between px-4 py-3">
+                    <span className="text-slate-700">For Foreigner (MMK)</span>
+                    <span className="font-semibold text-slate-800">
+                      {formatCurrency(
+                        "MMK",
+                        data?.extra_bed_foreign_base_price,
+                      )}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between px-4 py-3">
+                    <span className="text-slate-700">For Foreigner (USD)</span>
+                    <span className="font-semibold text-slate-800">
+                      {formatCurrency("USD", data?.extra_bed_foreign_usd_price)}
+                    </span>
+                  </div>
+                </div>
+              ),
+            },
+          ]}
+        />
+      )}
+
       {/* Seasonal Rates List (Array) */}
       {seasonalRates.length > 0 && (
         <div className="space-y-3 mb-3">
@@ -265,12 +349,6 @@ export const RoomPriceCard = ({
                     ),
                     children: (
                       <div className="space-y-3">
-                        {/* {dateRangeLabel && (
-                          <div className="rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-700">
-                            {dateRangeLabel}
-                          </div>
-                        )} */}
-
                         <div className="divide-y divide-slate-100 text-sm">
                           <div className="flex items-center justify-between py-2.5">
                             <span className="text-slate-700">
@@ -414,9 +492,20 @@ export const RoomPriceCard = ({
                     key: panelKey,
                     label: (
                       <div className="flex items-center justify-between pr-2">
-                        <span className="font-semibold text-slate-800 text-sm">
-                          {discountItem?.name || "Discount Rate"}
-                        </span>
+                        <div className="font-semibold text-slate-800 text-sm">
+                          <div>{"Discount Rate"}</div>
+                          <div>
+                            {dateRangeLabel ? (
+                              <div className="rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-700">
+                                {dateRangeLabel}
+                              </div>
+                            ) : (
+                              <div className="rounded-lg bg-slate-100 px-4 py-2 text-xs font-medium text-slate-600">
+                                Started manually (No end date)
+                              </div>
+                            )}
+                          </div>
+                        </div>
                         <button
                           type="button"
                           onClick={(e) =>
@@ -430,16 +519,6 @@ export const RoomPriceCard = ({
                     ),
                     children: (
                       <div className="space-y-3">
-                        {dateRangeLabel ? (
-                          <div className="rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-700">
-                            {dateRangeLabel}
-                          </div>
-                        ) : (
-                          <div className="rounded-lg bg-slate-100 px-4 py-2 text-xs font-medium text-slate-600">
-                            Started manually (No end date)
-                          </div>
-                        )}
-
                         <div className="divide-y divide-slate-100 text-sm">
                           <div className="py-2.5">
                             <div className="flex items-center justify-between">
@@ -559,6 +638,7 @@ export const RoomPriceCard = ({
         <button
           type="button"
           disabled={!hasPriceData}
+          onClick={handleOpenExtraBedRate}
           className={`w-full font-semibold py-3 px-3 rounded-xl flex justify-center items-center gap-1.5 text-sm transition-colors ${bottomOutlineButtonClass}`}
         >
           <HugeiconsIcon

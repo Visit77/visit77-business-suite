@@ -12,12 +12,14 @@ import {
   createDiscountRate,
   updateDiscountRate,
   endDiscountRate,
+  setExtraBedPrice,
 } from "../service/bookingRoomTypeSlice";
 import { RoomPriceCard } from "../components/card/RoomPriceCard";
 import RoomRangeModal from "../components/modal/RoomRangeModal";
 import SeasonalRoomRangeModal from "../components/modal/SeasonalRoomRangeModal";
 import DeleteConfirmModal from "../components/modal/DeleteConfirmModal";
 import DiscountRoomRateModal from "../components/modal/DiscountRateModal";
+import ExtraBedRateModal from "../components/modal/ExtraBedRateModal";
 
 const RoomPriceList = () => {
   const businessId = useSelector(selectBusinessId);
@@ -38,11 +40,15 @@ const RoomPriceList = () => {
   const [discountInitialData, setDiscountInitialData] = useState(null);
   const [isDiscountSubmitting, setIsDiscountSubmitting] = useState(false);
 
-  // 4. Delete / End Confirm Modal States (Seasonal & Discount)
+  // 4. Extra Bed Rate Modal States
+  const [extraBedModalOpened, setExtraBedModalOpened] = useState(false);
+  const [extraBedInitialData, setExtraBedInitialData] = useState(null);
+  const [isExtraBedSubmitting, setIsExtraBedSubmitting] = useState(false);
+
+  // 5. Delete / End Confirm Modal States (Seasonal & Discount)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  // deleteTarget shape: { type: "seasonal" | "discount", roomItem, rateItem }
 
   useEffect(() => {
     if (businessId) {
@@ -282,6 +288,57 @@ const RoomPriceList = () => {
     }
   };
 
+  // ---------------- Extra Bed Rate Handlers ----------------
+  const handleOpenExtraBed = (roomItem) => {
+    setExtraBedInitialData({
+      id: roomItem?.id ?? null,
+      room_type_id: roomItem?.id ?? null,
+      extra_bed_local_base_price: roomItem?.extra_bed_local_base_price ?? null,
+      extra_bed_local_usd_price: roomItem?.extra_bed_local_usd_price ?? null,
+      extra_bed_foreign_base_price:
+        roomItem?.extra_bed_foreign_base_price ?? null,
+      extra_bed_foreign_usd_price:
+        roomItem?.extra_bed_foreign_usd_price ?? null,
+    });
+    setExtraBedModalOpened(true);
+  };
+
+  const handleCloseExtraBedModal = () => {
+    if (isExtraBedSubmitting) return;
+    setExtraBedModalOpened(false);
+    setExtraBedInitialData(null);
+  };
+
+  const handleExtraBedModalSubmit = async (payload, mode) => {
+    setIsExtraBedSubmitting(true);
+    try {
+      const targetId =
+        extraBedInitialData?.id ?? extraBedInitialData?.room_type_id;
+
+      await dispatch(
+        setExtraBedPrice({
+          data: payload,
+          id: targetId,
+          business_id: businessId,
+        }),
+      ).unwrap();
+
+      message.success(
+        mode === "update"
+          ? "Extra Bed Rate update Successful."
+          : "Extra Bed Rate create Successful.",
+      );
+      setExtraBedModalOpened(false);
+      setExtraBedInitialData(null);
+      await refreshRoomTypes();
+    } catch (error) {
+      console.error("Extra bed submit error:", error);
+      message.error(error?.message || "Something went wrong.");
+    } finally {
+      setIsExtraBedSubmitting(false);
+    }
+  };
+
   // ---------------- End Seasonal / Discount Handlers ----------------
   const handleEndSeasonalRate = (roomItem, seasonalItem) => {
     setDeleteTarget({
@@ -369,6 +426,7 @@ const RoomPriceList = () => {
                 ? deleteTarget?.rateItem?.id
                 : null
             }
+            onOpenExtraBed={handleOpenExtraBed}
           />
         ))}
       </div>
@@ -398,6 +456,15 @@ const RoomPriceList = () => {
         initialData={discountInitialData}
         onSubmit={handleDiscountModalSubmit}
         isLoading={isDiscountSubmitting}
+      />
+
+      {/* Extra Bed Rate Modal */}
+      <ExtraBedRateModal
+        opened={extraBedModalOpened}
+        onClose={handleCloseExtraBedModal}
+        initialData={extraBedInitialData}
+        onSubmit={handleExtraBedModalSubmit}
+        isLoading={isExtraBedSubmitting}
       />
 
       {/* Delete / End Confirm Modal */}
