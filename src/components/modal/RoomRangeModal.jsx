@@ -15,12 +15,11 @@ const RoomRangeModal = ({
   const localUsd = Form.useWatch("local_usd_price", form);
 
   const isLocalFilled =
-    localMmk !== null &&
-    localMmk !== undefined &&
-    localMmk !== "" &&
-    localUsd !== null &&
-    localUsd !== undefined &&
-    localUsd !== "";
+    localMmk !== null && localMmk !== undefined && localMmk !== "";
+
+  // localUsd !== null &&
+  // localUsd !== undefined &&
+  // localUsd !== "";
 
   useEffect(() => {
     if (!opened) return;
@@ -131,7 +130,7 @@ const RoomRangeModal = ({
               <Form.Item
                 name="local_usd_price"
                 className="flex-1 mb-0"
-                rules={[{ required: true, message: "Local USD is required" }]}
+                // rules={[{ required: true, message: "Local USD is required" }]}
               >
                 <InputNumber
                   placeholder="Type ..."

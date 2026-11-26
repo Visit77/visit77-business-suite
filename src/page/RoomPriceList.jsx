@@ -459,13 +459,13 @@ const RoomPriceList = () => {
       />
 
       {/* Extra Bed Rate Modal */}
-      <ExtraBedRateModal
+      {/* <ExtraBedRateModal
         opened={extraBedModalOpened}
         onClose={handleCloseExtraBedModal}
         initialData={extraBedInitialData}
         onSubmit={handleExtraBedModalSubmit}
         isLoading={isExtraBedSubmitting}
-      />
+      /> */}
 
       {/* Delete / End Confirm Modal */}
       <DeleteConfirmModal
