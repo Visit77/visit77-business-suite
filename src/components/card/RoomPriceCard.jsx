@@ -70,7 +70,7 @@ export const RoomPriceCard = ({
   const discounts = Array.isArray(data?.discounts) ? data.discounts : [];
 
   const [isRegularOpen, setIsRegularOpen] = useState(hasPriceData);
-  const [isExtraBedOpen, setIsExtraBedOpen] = useState(hasExtraBedData);
+  const [isExtraBedOpen, setIsExtraBedOpen] = useState(false);
   const [openSeasonalKeys, setOpenSeasonalKeys] = useState([]);
   const [openDiscountKeys, setOpenDiscountKeys] = useState([]);
 
@@ -79,8 +79,10 @@ export const RoomPriceCard = ({
   }, [hasPriceData]);
 
   useEffect(() => {
-    setIsExtraBedOpen(hasExtraBedData);
-  }, [hasExtraBedData]);
+    if (!hasExtraBedData) {
+      setIsExtraBedOpen(false);
+    }
+  }, [data?.id, hasExtraBedData]);
 
   useEffect(() => {
     const validKeys = new Set(
@@ -496,7 +498,7 @@ export const RoomPriceCard = ({
                           <div>{"Discount Rate"}</div>
                           <div>
                             {dateRangeLabel ? (
-                              <div className="rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-700">
+                              <div className="rounded-lg bg-slate-100  text-sm font-medium text-slate-700">
                                 {dateRangeLabel}
                               </div>
                             ) : (
