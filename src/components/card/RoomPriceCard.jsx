@@ -248,7 +248,7 @@ export const RoomPriceCard = ({
                   });
                 }}
                 expandIconPlacement="end"
-                className="rounded-xl font-medium! overflow-hidden border border-indigo-100/80 bg-white [&_.ant-collapse-header]:bg-indigo-50/70! [&_.ant-collapse-header]:px-4! [&_.ant-collapse-header]:py-3! [&_.ant-collapse-content-box]:p-3.5!"
+                className="rounded-xl mb-2! font-medium! overflow-hidden border border-indigo-100/80 bg-white [&_.ant-collapse-header]:bg-indigo-50/70! [&_.ant-collapse-header]:px-4! [&_.ant-collapse-header]:py-3! [&_.ant-collapse-content-box]:p-3.5!"
                 items={[
                   {
                     key: panelKey,

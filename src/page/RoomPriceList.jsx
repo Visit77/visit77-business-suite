@@ -9,11 +9,9 @@ import {
   createSeasonalRate,
   endSeasonalRate,
   updateSeasonalRate,
-  // Discount thunk များကို slice ထဲမှ import လုပ်ရန် (နာမည်တူရင် အောက်ပါအတိုင်း သုံးပါ)
   createDiscountRate,
   updateDiscountRate,
   endDiscountRate,
-  // endDiscountRate,
 } from "../service/bookingRoomTypeSlice";
 import { RoomPriceCard } from "../components/card/RoomPriceCard";
 import RoomRangeModal from "../components/modal/RoomRangeModal";
@@ -40,7 +38,7 @@ const RoomPriceList = () => {
   const [discountInitialData, setDiscountInitialData] = useState(null);
   const [isDiscountSubmitting, setIsDiscountSubmitting] = useState(false);
 
-  // 4. Delete / End Confirm Modal States (Seasonal & Discount နှစ်မျိုးလုံးအတွက်)
+  // 4. Delete / End Confirm Modal States (Seasonal & Discount)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -62,7 +60,10 @@ const RoomPriceList = () => {
 
   // ---------------- Regular Rate Handlers ----------------
   const handleOpenCreate = (roomItem) => {
-    setModalInitialData({ room_type_id: roomItem?.id ?? null });
+    setModalInitialData({
+      name: roomItem?.name,
+      room_type_id: roomItem?.id ?? null,
+    });
     setModalOpened(true);
   };
 
@@ -155,7 +156,6 @@ const RoomPriceList = () => {
     const targetId =
       seasonalInitialData?.id ?? seasonalInitialData?.room_type_id;
 
-    console.log("modalInitialData", modalInitialData);
     try {
       if (mode === "update") {
         await dispatch(
@@ -247,11 +247,9 @@ const RoomPriceList = () => {
 
   const handleDiscountModalSubmit = async (payload, mode) => {
     setIsDiscountSubmitting(true);
-    console.log("discount", discountInitialData);
     try {
       const targetId =
         discountInitialData?.id ?? discountInitialData?.room_type_id;
-      console.log("payload", payload);
       if (mode === "update") {
         await dispatch(
           updateDiscountRate({
@@ -331,11 +329,6 @@ const RoomPriceList = () => {
           }),
         ).unwrap();
 
-        console.log("End discount payload:", {
-          id: deleteTarget?.roomItem?.id,
-          discount_id: deleteTarget?.rateItem?.id,
-          business_id: businessId,
-        });
         message.success("Discount Rate ended successfully.");
       }
 

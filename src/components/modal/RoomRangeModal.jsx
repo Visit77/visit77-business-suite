@@ -66,7 +66,6 @@ const RoomRangeModal = ({
 
     onSubmit?.(payload, isEditMode ? "update" : "create");
   };
-
   return (
     <Modal
       open={opened}
