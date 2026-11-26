@@ -70,24 +70,18 @@ export const RoomPriceCard = ({
   }, [hasPriceData]);
 
   useEffect(() => {
-    if (seasonalRates.length > 0) {
-      setOpenSeasonalKeys(
-        seasonalRates.map((item, idx) => String(item?.id ?? `seasonal-${idx}`)),
-      );
-    } else {
-      setOpenSeasonalKeys([]);
-    }
-  }, [data?.id, data?.seasonal_rates]);
+    const validKeys = new Set(
+      seasonalRates.map((item, idx) => String(item?.id ?? `seasonal-${idx}`)),
+    );
+    setOpenSeasonalKeys((prev) => prev.filter((key) => validKeys.has(key)));
+  }, [data?.id, seasonalRates]);
 
   useEffect(() => {
-    if (discounts.length > 0) {
-      setOpenDiscountKeys(
-        discounts.map((item, idx) => String(item?.id ?? `discount-${idx}`)),
-      );
-    } else {
-      setOpenDiscountKeys([]);
-    }
-  }, [data?.id, data?.discounts]);
+    const validKeys = new Set(
+      discounts.map((item, idx) => String(item?.id ?? `discount-${idx}`)),
+    );
+    setOpenDiscountKeys((prev) => prev.filter((key) => validKeys.has(key)));
+  }, [data?.id, discounts]);
 
   const addSeasonalButtonClass = hasPriceData
     ? "bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer"
@@ -254,9 +248,10 @@ export const RoomPriceCard = ({
                     key: panelKey,
                     label: (
                       <div className="flex items-center justify-between pr-2">
-                        <span className="font-semibold text-slate-800 text-sm">
-                          {seasonalItem?.name || "Seasonal Rate"}
-                        </span>
+                        <div className="font-semibold text-slate-800 text-sm">
+                          <div>{`Seasonal Rate`}</div>
+                          <div>{dateRangeLabel}</div>
+                        </div>
                         <button
                           type="button"
                           onClick={(e) =>
@@ -270,11 +265,11 @@ export const RoomPriceCard = ({
                     ),
                     children: (
                       <div className="space-y-3">
-                        {dateRangeLabel && (
+                        {/* {dateRangeLabel && (
                           <div className="rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-700">
                             {dateRangeLabel}
                           </div>
-                        )}
+                        )} */}
 
                         <div className="divide-y divide-slate-100 text-sm">
                           <div className="flex items-center justify-between py-2.5">
