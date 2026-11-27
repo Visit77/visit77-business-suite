@@ -9,8 +9,11 @@ import { businessSelector } from "../service/businessSlice";
 import LogoutModal from "./modal/LogoutModal";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
+  Baby02Icon,
   BedSingle02Icon,
   Building01Icon,
+  CatIcon,
+  CigaretteIcon,
   CoinsDollarIcon,
   ConciergeBellIcon,
   Coupon01Icon,
@@ -124,6 +127,27 @@ const ROUTE_CONFIG = [
     path: "/ota-room-history/:id/",
     key: "/ota-room-history/:id/",
     breadcrumb: "OTA Room Histroy",
+  },
+  {
+    path: "/pet-policy",
+    key: "/pet-policy",
+    label: "Pet Policy",
+    breadcrumb: "Pet Policy",
+    icon: <HugeiconsIcon icon={CatIcon} />,
+  },
+  {
+    path: "/smoking-policy",
+    key: "/smoking-policy",
+    label: "Smoking Policy",
+    breadcrumb: "Smoking Policy",
+    icon: <HugeiconsIcon icon={CigaretteIcon} />,
+  },
+  {
+    path: "/child-policy",
+    key: "/child-policy",
+    label: "Child Policy",
+    breadcrumb: "Child Policy",
+    icon: <HugeiconsIcon icon={Baby02Icon} />,
   },
 ];
 

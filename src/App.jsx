@@ -30,6 +30,9 @@ import CancellationPolicy from "./page/CancellationPolicy";
 import BookingDetails from "./page/BookingDetails";
 import OTARoomHistory from "./page/OTARoomHistory";
 import RemittanceDetails from "./page/RemittanceDetails";
+import PetPolicy from "./page/PetPolicy";
+import SmokingCondition from "./page/SmokingPolicy";
+import ChildPolicy from "./page/ChildPolicy";
 
 const CreateBuildingAndArea = lazy(
   () => import("./page/CreateBuildingAndArea"),
@@ -191,6 +194,9 @@ function App() {
                 />
 
                 <Route path="/room-price" element={<RoomPriceList />} />
+                <Route path="/pet-policy" element={<PetPolicy />} />
+                <Route path="/smoking-policy" element={<SmokingCondition />} />
+                <Route path="/child-policy" element={<ChildPolicy />} />
               </Route>
             </Route>
           </Route>
