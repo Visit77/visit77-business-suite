@@ -26,6 +26,7 @@ import {
   Door01Icon,
   MeetingRoomIcon,
   Restaurant01Icon,
+  Shield01Icon,
   TaskEdit01Icon,
 } from "@hugeicons/core-free-icons";
 import LanguageSelect from "./LanguageSelect";
@@ -55,18 +56,25 @@ const ROUTE_CONFIG = [
     icon: <HugeiconsIcon icon={DollarSignIcon} />,
   },
   {
-    path: "/ota-revenue",
-    key: "/ota-revenue",
-    label: "OTA Revenue Table",
-    breadcrumb: "OTA Revenue",
+    key: "ota-group",
+    label: "OTA & Revenue",
     icon: <HugeiconsIcon icon={CoinsDollarIcon} />,
-  },
-  {
-    path: "/ota-revenue/management",
-    key: "/ota-revenue/management",
-    label: "OTA Management",
-    breadcrumb: "OTA Management",
-    icon: <HugeiconsIcon icon={Door01Icon} />,
+    children: [
+      {
+        path: "/ota-revenue",
+        key: "/ota-revenue",
+        label: "OTA Revenue Table",
+        breadcrumb: "OTA Revenue",
+        icon: <HugeiconsIcon icon={CoinsDollarIcon} />,
+      },
+      {
+        path: "/ota-revenue/management",
+        key: "/ota-revenue/management",
+        label: "OTA Management",
+        breadcrumb: "OTA Management",
+        icon: <HugeiconsIcon icon={Door01Icon} />,
+      },
+    ],
   },
   {
     path: "/meal-plan/",
@@ -102,13 +110,6 @@ const ROUTE_CONFIG = [
     icon: <HugeiconsIcon icon={Coupon01Icon} />,
   },
   {
-    path: "/cancellation-policy",
-    key: "/cancellation-policy",
-    label: "Booking Cancellation",
-    breadcrumb: "Booking Cancellation",
-    icon: <HugeiconsIcon icon={TaskEdit01Icon} />,
-  },
-  {
     path: "/booking-details/:id/",
     key: "/booking-details/:id/",
     breadcrumb: "Booking Detail",
@@ -119,39 +120,83 @@ const ROUTE_CONFIG = [
     breadcrumb: "OTA Room Histroy",
   },
   {
-    path: "/pet-policy",
-    key: "/pet-policy",
-    label: "Pet Policy",
-    breadcrumb: "Pet Policy",
-    icon: <HugeiconsIcon icon={CatIcon} />,
-  },
-  {
-    path: "/smoking-policy",
-    key: "/smoking-policy",
-    label: "Smoking Policy",
-    breadcrumb: "Smoking Policy",
-    icon: <HugeiconsIcon icon={CigaretteIcon} />,
-  },
-  {
-    path: "/child-policy",
-    key: "/child-policy",
-    label: "Child Policy",
-    breadcrumb: "Child Policy",
-    icon: <HugeiconsIcon icon={Baby02Icon} />,
+    key: "policies-group",
+    label: "Policies",
+    icon: <HugeiconsIcon icon={Shield01Icon} />,
+    children: [
+      {
+        path: "/cancellation-policy",
+        key: "/cancellation-policy",
+        label: "Booking Cancellation",
+        breadcrumb: "Booking Cancellation",
+        icon: <HugeiconsIcon icon={TaskEdit01Icon} />,
+      },
+      {
+        path: "/pet-policy",
+        key: "/pet-policy",
+        label: "Pet Policy",
+        breadcrumb: "Pet Policy",
+        icon: <HugeiconsIcon icon={CatIcon} />,
+      },
+      {
+        path: "/smoking-policy",
+        key: "/smoking-policy",
+        label: "Smoking Policy",
+        breadcrumb: "Smoking Policy",
+        icon: <HugeiconsIcon icon={CigaretteIcon} />,
+      },
+      {
+        path: "/child-policy",
+        key: "/child-policy",
+        label: "Child Policy",
+        breadcrumb: "Child Policy",
+        icon: <HugeiconsIcon icon={Baby02Icon} />,
+      },
+    ],
   },
 ];
 
-const menuItems = ROUTE_CONFIG.flatMap((item) =>
-  item.label
-    ? [
+// Breadcrumb / route matching အတွက် nested children တွေကိုပါ flat ထုတ်ယူခြင်း
+const flattenRoutes = (routes) =>
+  routes.flatMap((route) =>
+    route.children ? flattenRoutes(route.children) : [route],
+  );
+
+const ALL_LEAF_ROUTES = flattenRoutes(ROUTE_CONFIG).filter(
+  (route) => route.path,
+);
+
+// Ant Design Menu items အဖြစ် ပြောင်းလဲခြင်း
+const buildMenuItems = (routes) =>
+  routes.flatMap((item) => {
+    if (item.children) {
+      const childItems = buildMenuItems(item.children);
+      return childItems.length > 0
+        ? [
+            {
+              key: item.key,
+              icon: item.icon,
+              label: item.label,
+              children: childItems,
+            },
+          ]
+        : [];
+    }
+
+    if (item.label && item.path) {
+      return [
         {
           key: item.key,
           icon: item.icon,
           label: <Link to={item.path}>{item.label}</Link>,
         },
-      ]
-    : [],
-);
+      ];
+    }
+
+    return [];
+  });
+
+const menuItems = buildMenuItems(ROUTE_CONFIG);
 
 const SidebarBody = ({
   collapsed = false,
@@ -214,7 +259,7 @@ const AdminLayout = () => {
   const navigate = useNavigate();
   const { details } = useSelector(businessSelector);
 
-  const currentRoute = [...ROUTE_CONFIG]
+  const currentRoute = [...ALL_LEAF_ROUTES]
     .sort((a, b) => b.path.length - a.path.length)
     .find(
       (route) =>
@@ -279,7 +324,7 @@ const AdminLayout = () => {
 
       <Layout
         className={`bg-background min-h-screen transition-all duration-200 ${
-          collapsed ? "lg:pl-20" : "lg:pl-65"
+          collapsed ? "lg:pl-20" : "lg:pl-[260px]"
         }`}
       >
         <Header className="bg-white! border-b! border-slate-100! h-16! px-4! md:px-8! flex! items-center! justify-between! sticky! top-0! z-30!">
