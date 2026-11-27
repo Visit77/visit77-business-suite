@@ -7,7 +7,6 @@ import { getRoomStandard } from "../service/roomStandardSlice";
 import { getRoomBuildTypes } from "../service/roomBuildTypesSlice";
 import RoomStep1Form from "../components/room/RoomStep1Form";
 import RoomStep2Form from "../components/room/RoomStep2Form";
-import RoomStep3Form from "../components/room/RoomStep3Form";
 import { getRoomView } from "../service/roomViewSlice";
 import { getBedTypes } from "../service/bedTypeSlice";
 import { getBathTypes } from "../service/bathTypeSlice";
@@ -121,7 +120,6 @@ const CreateRoomType = () => {
           const { payload } = res;
 
           const submitData = new FormData();
-
           fileList?.forEach((img, index) => {
             if (img) {
               submitData.append(`images`, img?.originFileObj);

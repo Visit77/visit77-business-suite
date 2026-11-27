@@ -329,3 +329,88 @@ export const handleDownload = ({ url }) => {
     message.warning("PDF url not available!");
   }
 };
+
+export const MAX_FILE_SIZE_BYTES = 1.5 * 1024 * 1024; // 1.5 MB
+
+const loadImageElement = (file) =>
+  new Promise((resolve, reject) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(img);
+    };
+    img.onerror = (err) => {
+      URL.revokeObjectURL(objectUrl);
+      reject(err);
+    };
+    img.src = objectUrl;
+  });
+
+const canvasToBlob = (canvas, mimeType, quality) =>
+  new Promise((resolve) => {
+    canvas.toBlob((blob) => resolve(blob), mimeType, quality);
+  });
+
+export const compressImageToMaxSize = async (
+  file,
+  maxBytes = MAX_FILE_SIZE_BYTES,
+) => {
+  if (!file || file.size <= maxBytes) {
+    return file;
+  }
+
+  const img = await loadImageElement(file);
+  let width = img.naturalWidth || img.width;
+  let height = img.naturalHeight || img.height;
+
+  // အလွန်ကြီးမားတဲ့ resolution ဖြစ်နေရင် အစကတည်းက max 1920px ထဲ ချိန်ညှိခြင်း
+  const maxDimension = 1920;
+  if (width > maxDimension || height > maxDimension) {
+    const scale = Math.min(maxDimension / width, maxDimension / height);
+    width = Math.round(width * scale);
+    height = Math.round(height * scale);
+  }
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  const baseName = file.name.replace(/\.[^/.]+$/, "");
+  const outputName = `${baseName}.jpg`;
+
+  let bestBlob = null;
+
+  for (let dimensionAttempt = 0; dimensionAttempt < 4; dimensionAttempt++) {
+    canvas.width = width;
+    canvas.height = height;
+    ctx.clearRect(0, 0, width, height);
+    ctx.drawImage(img, 0, 0, width, height);
+
+    let quality = 0.85;
+    while (quality >= 0.3) {
+      const blob = await canvasToBlob(canvas, "image/jpeg", quality);
+      if (blob) {
+        bestBlob = blob;
+        if (blob.size <= maxBytes) {
+          return new File([blob], outputName, {
+            type: "image/jpeg",
+            lastModified: Date.now(),
+          });
+        }
+      }
+      quality = Number((quality - 0.1).toFixed(2));
+    }
+
+    // Quality 0.3 အထိ ချပြီးသော်လည်း 1.5 MB ထက် ကျော်နေသေးပါက dimension ထပ်လျှော့မည်
+    width = Math.round(width * 0.8);
+    height = Math.round(height * 0.8);
+  }
+
+  if (bestBlob) {
+    return new File([bestBlob], outputName, {
+      type: "image/jpeg",
+      lastModified: Date.now(),
+    });
+  }
+
+  return file;
+};

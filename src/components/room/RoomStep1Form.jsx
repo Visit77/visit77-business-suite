@@ -8,6 +8,7 @@ import { useParams } from "react-router-dom";
 import { bulkDeleteImage } from "../../service/roomTypeSlice";
 import _ from "lodash";
 import heic2any from "heic2any";
+import { compressImageToMaxSize, MAX_FILE_SIZE_BYTES } from "../../utils/utils";
 
 const { TextArea } = Input;
 
@@ -62,44 +63,72 @@ const RoomStep1Form = ({
     try {
       const processedFiles = await Promise.all(
         newFileList.map(async (file) => {
+          let workingFile = file.originFileObj;
+          let fileName = file.name;
+          let fileType = file.type;
+          let previewUrl = file.thumbUrl || file.url;
+
+          if (!workingFile) {
+            return file;
+          }
+
           const isHeic =
-            file.originFileObj &&
-            (file.type === "image/heic" ||
-              file.type === "image/heif" ||
-              file.name.toLowerCase().endsWith(".heic") ||
-              file.name.toLowerCase().endsWith(".heif"));
+            fileType === "image/heic" ||
+            fileType === "image/heif" ||
+            fileName.toLowerCase().endsWith(".heic") ||
+            fileName.toLowerCase().endsWith(".heif");
 
           if (isHeic) {
             try {
-              // heic2any သုံးပြီး jpeg ကိုပြောင်းခြင်း
               const convertedBlob = await heic2any({
-                blob: file.originFileObj,
+                blob: workingFile,
                 toType: "image/jpeg",
                 quality: 0.8,
               });
 
-              // Convert ဖြစ်သွားတဲ့ blob ကို File အသစ်တစ်ခု ပြန်ဆောက်
-              const convertedFile = new File(
-                [convertedBlob],
-                file.name.replace(/\.[^/.]+$/, "") + ".jpg",
-                { type: "image/jpeg" },
-              );
+              const blobToUse = Array.isArray(convertedBlob)
+                ? convertedBlob[0]
+                : convertedBlob;
 
-              return {
-                ...file,
-                originFileObj: convertedFile,
-                thumbUrl: URL.createObjectURL(convertedBlob), // Preview ပေါ်လာအောင် လုပ်ပေးတာပါ
+              fileName = fileName.replace(/\.[^/.]+$/, "") + ".jpg";
+              fileType = "image/jpeg";
+              workingFile = new File([blobToUse], fileName, {
                 type: "image/jpeg",
-                name: file.name.replace(/\.[^/.]+$/, "") + ".jpg", //  .jpg ပြောင်း
-              };
+              });
+              previewUrl = URL.createObjectURL(workingFile);
             } catch (error) {
               console.error("HEIC conversion failed:", error);
-              message.error(`${file.name} ကို convert လုပ်လို့ မရပါ။`);
+              message.error(`${file.name} could not be converted.`);
               return file;
             }
           }
 
-          return file;
+          if (workingFile.size > MAX_FILE_SIZE_BYTES) {
+            try {
+              const compressedFile = await compressImageToMaxSize(
+                workingFile,
+                MAX_FILE_SIZE_BYTES,
+              );
+              workingFile = compressedFile;
+              fileName = compressedFile.name;
+              fileType = compressedFile.type;
+              previewUrl = URL.createObjectURL(compressedFile);
+            } catch (error) {
+              console.error("Image compression failed:", error);
+              message.warning(
+                `There was a problem compressing ${file.name} to less than 1.5 MB.`,
+              );
+            }
+          }
+
+          return {
+            ...file,
+            name: fileName,
+            type: fileType,
+            size: workingFile.size,
+            originFileObj: workingFile,
+            thumbUrl: previewUrl,
+          };
         }),
       );
 
