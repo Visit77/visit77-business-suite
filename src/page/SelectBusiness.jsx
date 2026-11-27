@@ -66,13 +66,19 @@ const SelectBusiness = () => {
         </div>
 
         <div className="grid! grid-cols-1! sm:grid-cols-2! lg:grid-cols-3! gap-5! md:gap-6!">
-          {business.map((biz) => (
-            <BusinessCard
-              key={biz.id}
-              onSelect={() => handleSelectBusiness(biz?.id)}
-              business={biz}
-            />
-          ))}
+          {business.map((biz) => {
+            if (biz?.category?.template == "hotel") {
+              return (
+                <BusinessCard
+                  key={biz.id}
+                  onSelect={() => handleSelectBusiness(biz?.id)}
+                  business={biz}
+                />
+              );
+            } else {
+              return <div key={biz.id} />;
+            }
+          })}
         </div>
 
         <div className="text-center! pt-2!">
