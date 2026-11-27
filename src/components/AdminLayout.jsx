@@ -324,7 +324,7 @@ const AdminLayout = () => {
 
       <Layout
         className={`bg-background min-h-screen transition-all duration-200 ${
-          collapsed ? "lg:pl-20" : "lg:pl-[260px]"
+          collapsed ? "lg:pl-20" : "lg:pl-65"
         }`}
       >
         <Header className="bg-white! border-b! border-slate-100! h-16! px-4! md:px-8! flex! items-center! justify-between! sticky! top-0! z-30!">
