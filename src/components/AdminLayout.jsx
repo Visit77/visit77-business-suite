@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { Layout, Menu, Avatar, Drawer, Button } from "antd";
-import { UserOutlined, MenuOutlined } from "@ant-design/icons";
+import {
+  UserOutlined,
+  MenuOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+} from "@ant-design/icons";
 import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { API_URL, BUSINESS_LABEL, TOKEN_LABEL } from "../variables/constants";
@@ -28,14 +33,6 @@ import LanguageSelect from "./LanguageSelect";
 const { Sider, Content, Header } = Layout;
 
 const ROUTE_CONFIG = [
-  // {
-  //   path: "/dashboard",
-  //   key: "/dashboard",
-  //   label: "Dashboard",
-  //   breadcrumb: "Dashboard",
-  //   icon: <HugeiconsIcon icon={DashboardSquare01Icon} />,
-  // },
-
   {
     path: "/rooms-board",
     key: "/rooms-board",
@@ -71,13 +68,6 @@ const ROUTE_CONFIG = [
     breadcrumb: "OTA Management",
     icon: <HugeiconsIcon icon={Door01Icon} />,
   },
-  // {
-  //   path: "/meal-plan",
-  //   key: "/meal-plan",
-  //   label: "Meal Plan",
-  //   breadcrumb: "Meal Plan",
-  //   icon: <HugeiconsIcon icon={Restaurant01Icon} />,
-  // },
   {
     path: "/meal-plan/",
     key: "/meal-plan/",
@@ -151,7 +141,73 @@ const ROUTE_CONFIG = [
   },
 ];
 
+const menuItems = ROUTE_CONFIG.flatMap((item) =>
+  item.label
+    ? [
+        {
+          key: item.key,
+          icon: item.icon,
+          label: <Link to={item.path}>{item.label}</Link>,
+        },
+      ]
+    : [],
+);
+
+const SidebarBody = ({
+  collapsed = false,
+  activeKey,
+  onMenuClick,
+  onOpenLogout,
+}) => (
+  <div className="flex flex-col h-full bg-white overflow-hidden">
+    {/* Brand Logo */}
+    <div
+      className={`h-16 px-4 border-b border-slate-50 flex items-center shrink-0 font-medium ${
+        collapsed ? "justify-center" : "space-x-3 px-6"
+      }`}
+    >
+      <img
+        className="w-9 h-9 rounded-xl object-contain shrink-0"
+        src={logo}
+        alt="Logo"
+      />
+      {!collapsed && (
+        <h2 className="font-title text-base font-bold text-on-surface leading-tight truncate">
+          Visit 77
+        </h2>
+      )}
+    </div>
+
+    {/* Scrollable Menu Area */}
+    <div className="flex-1 min-h-0 overflow-y-auto">
+      <Menu
+        mode="inline"
+        inlineCollapsed={collapsed}
+        selectedKeys={[activeKey]}
+        items={menuItems}
+        className="border-none py-3 px-2 space-y-1 text-on-surface-variant font-medium!"
+        style={{ backgroundColor: "transparent" }}
+        onClick={onMenuClick}
+      />
+    </div>
+
+    {/* Footer Action - Hidden when sidebar is collapsed */}
+    {!collapsed && (
+      <div className="p-3 border-t border-slate-50 bg-white shrink-0">
+        <button
+          onClick={onOpenLogout}
+          className="w-full bg-primary hover:bg-primary-container text-white py-2.5 px-3 rounded-xl text-sm font-semibold shadow-sm flex items-center justify-center transition-all active:scale-95 truncate"
+          title="Log out"
+        >
+          <span>Log out</span>
+        </button>
+      </div>
+    )}
+  </div>
+);
+
 const AdminLayout = () => {
+  const [collapsed, setCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const location = useLocation();
@@ -169,18 +225,6 @@ const AdminLayout = () => {
   const activeKey = currentRoute?.key || "/dashboard";
   const currentBreadcrumb = currentRoute?.breadcrumb || "Dashboard";
 
-  const menuItems = ROUTE_CONFIG.flatMap((item) =>
-    item.label
-      ? [
-          {
-            key: item.key,
-            icon: item.icon,
-            label: <Link to={item.path}>{item.label}</Link>,
-          },
-        ]
-      : [],
-  );
-
   const handleLogout = () => {
     localStorage.removeItem(TOKEN_LABEL);
     localStorage.removeItem(BUSINESS_LABEL);
@@ -191,83 +235,78 @@ const AdminLayout = () => {
     navigate("/select-business");
   };
 
-  const SidebarContent = () => (
-    <div className="flex flex-col h-full justify-between bg-white">
-      <div>
-        {/* Brand Logo */}
-        <div className="p-6 border-b border-slate-50 flex items-center space-x-3 font-medium">
-          <img
-            className="w-9 h-9 rounded-xl flex items-center justify-center"
-            src={logo}
-            alt="Logo"
-          />
-          <div>
-            <h2 className="font-title text-base font-bold text-on-surface leading-tight">
-              Visit 77
-            </h2>
-          </div>
-        </div>
-
-        <Menu
-          mode="inline"
-          selectedKeys={[activeKey]}
-          items={menuItems}
-          className="border-none pt-4 px-3 space-y-1 text-on-surface-variant font-medium!"
-          style={{ backgroundColor: "transparent" }}
-          onClick={() => setMobileMenuOpen(false)}
-        />
-      </div>
-
-      <div className="p-4 border-t border-slate-50 bg-white space-y-4">
-        <button
-          onClick={() => setIsLogoutModalOpen(true)}
-          className="w-full bg-primary hover:bg-primary-container text-white py-3 px-4 rounded-xl text-sm font-semibold shadow-sm flex items-center justify-center space-x-2 transition-all active:scale-95"
-        >
-          <span>Log out</span>
-        </button>
-      </div>
-      <LogoutModal
-        open={isLogoutModalOpen}
-        onClose={() => setIsLogoutModalOpen(false)}
-        onLogout={handleLogout}
-        onSwitchBusiness={handleSwitchBusiness}
-      />
-    </div>
-  );
-
   return (
     <Layout className="min-h-screen bg-background font-sans">
+      {/* Desktop Fixed Sider */}
       <div className="hidden lg:block">
         <Sider
+          trigger={null}
+          collapsible
+          collapsed={collapsed}
           width={260}
+          collapsedWidth={80}
           theme="light"
-          className="border-r border-slate-100 fixed h-screen left-0 top-0 bottom-0"
-          style={{ position: "fixed", left: 0, top: 0, bottom: 0 }}
+          className="border-r border-slate-100 h-screen transition-all duration-200"
+          style={{ position: "fixed", left: 0, top: 0, bottom: 0, zIndex: 40 }}
         >
-          <SidebarContent />
+          <SidebarBody
+            collapsed={collapsed}
+            activeKey={activeKey}
+            onOpenLogout={() => setIsLogoutModalOpen(true)}
+          />
         </Sider>
       </div>
 
+      {/* Mobile Drawer */}
       <Drawer
         placement="left"
         closable={false}
         onClose={() => setMobileMenuOpen(false)}
         open={mobileMenuOpen}
         width={260}
-        bodyStyle={{ padding: 0 }}
+        styles={{ body: { padding: 0, height: "100%" } }}
       >
-        <SidebarContent />
+        <SidebarBody
+          collapsed={false}
+          activeKey={activeKey}
+          onMenuClick={() => setMobileMenuOpen(false)}
+          onOpenLogout={() => {
+            setMobileMenuOpen(false);
+            setIsLogoutModalOpen(true);
+          }}
+        />
       </Drawer>
 
-      <Layout className="lg:pl-65 bg-background min-h-screen">
-        <Header className="bg-white! border-b! border-slate-100! h-16! px-4! md:px-8! flex! items-center! justify-between! sticky! top-0! z-50!">
+      <Layout
+        className={`bg-background min-h-screen transition-all duration-200 ${
+          collapsed ? "lg:pl-20" : "lg:pl-65"
+        }`}
+      >
+        <Header className="bg-white! border-b! border-slate-100! h-16! px-4! md:px-8! flex! items-center! justify-between! sticky! top-0! z-30!">
           <div className="flex items-center space-x-3">
+            {/* Mobile Drawer Trigger */}
             <Button
               type="text"
               icon={<MenuOutlined className="text-lg" />}
               onClick={() => setMobileMenuOpen(true)}
               className="lg:hidden! flex items-center justify-center"
             />
+
+            {/* Desktop Sidebar Collapse Trigger */}
+            <Button
+              type="text"
+              icon={
+                collapsed ? (
+                  <MenuUnfoldOutlined className="text-lg" />
+                ) : (
+                  <MenuFoldOutlined className="text-lg" />
+                )
+              }
+              onClick={() => setCollapsed((prev) => !prev)}
+              className="hidden! lg:flex! items-center justify-center"
+              aria-label="Toggle sidebar"
+            />
+
             {/* Dynamic Breadcrumb / Title */}
             <h3 className="font-title text-base md:text-lg font-bold text-on-surface">
               {currentBreadcrumb}
@@ -298,6 +337,13 @@ const AdminLayout = () => {
           <Outlet />
         </Content>
       </Layout>
+
+      <LogoutModal
+        open={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onLogout={handleLogout}
+        onSwitchBusiness={handleSwitchBusiness}
+      />
     </Layout>
   );
 };
